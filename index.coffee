@@ -2,9 +2,8 @@ class TryingCoffee2
   constructor: (funcOpts) ->
     {@name} = funcOpts
 
-  [computed]: ->
-    "hello #{@name}"
+  #@[computed]: -> "hello #{@name}"
 
 
 tr = new TryingCoffee2({name: 'excel'})
-console.log tr.computed
+#console.log tr.computed
