@@ -14,13 +14,6 @@ class IndicatorValue
 
 
 
-class indicatorInfo
-  @fromMannualFile: (funcOpts) ->
-    {path} = funcOpts
-    # read from mannual file and turn it into a dictionary
-
-  constructor: (funcOpts) ->
-    {@name, @source, @guidance} = funcOpts
 
 module.exports = {
   Indicator,

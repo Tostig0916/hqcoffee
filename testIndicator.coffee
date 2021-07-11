@@ -1,4 +1,8 @@
 {Indicator, IndicatorValue} = require './indicator'
+IndicatorInfo = require './indicatorInfo'
+
+json = IndicatorInfo.fromMannualFile({path:'./'})
+console.log json
 
 value = new IndicatorValue({
   date: 2020

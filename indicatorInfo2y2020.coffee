@@ -12,15 +12,20 @@ pptname = './indicators.pptx'
 
 readToJson = (funcOpts) ->
   # console.log e2j 
-  result = e2j funcOpts
-  
+  source = e2j funcOpts
+  result = {}
+  for key, arr of source 
+    result[key] = {}
+    for obj in arr
+      result[key][obj.指标名称] = obj
+
   jsonContent = JSON.stringify(result)
 
   fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
     if err? 
       console.log(err)
     else
-      console.log "json saved at #{Date()}"
+      console.log "json saved at #{Date()}", jsonContent
 
 readOpts = {
   sourceFile:sourceFile
@@ -80,9 +85,9 @@ createPPT = (arr) ->
       )
 
 
-if fs.existsSync jsonfilename
+if not fs.existsSync jsonfilename
   content = require jsonfilename
-  console.log jsonfilename, content 
+  #console.log jsonfilename, content 
   
   for key, value of content
     console.log jsonfilename, key, value
