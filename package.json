@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "hospital quanti-analyzing",
   "main": "index.js",
-  "dependencies": {
-    "exceljs": "^4.2.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "coffeescript": "^2.5.1"
   },
