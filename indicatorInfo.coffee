@@ -7,7 +7,7 @@ xlsx = require 'json-as-xlsx'
 
 class IndicatorVersion
   constructor: (funcOpts) ->
-    {@versionName, @indicatorIndex} = funcOpts
+    {@versionName, @序号, @测} = funcOpts
 
 
 class IndicatorInfo
@@ -15,9 +15,14 @@ class IndicatorInfo
     json = IndicatorInfo.jsonizedMannual(funcOpts)
     indicators = {}
     for version, mannual of json
-      for key, obj of mannual 
+      for k, obj of mannual
+        key = k.replace('▲','') 
         indicators[key] ?= new IndicatorInfo(obj)
-        indicators[key].versions.push(new IndicatorVersion({versionName: version, indicatorIndex: obj.序号}))
+        indicators[key].versions.push(new IndicatorVersion({
+          versionName: version 
+          序号: obj.序号
+          测: /▲$/.test(obj.指标名称)
+        }))
         # console.log key, obj
     return indicators
   
@@ -43,7 +48,7 @@ class IndicatorInfo
     excelfileName = path.join p, "#{baseName}.xlsx"
     jsonfilename = path.join p, "#{baseName}.json"
 
-    needToRewrite = false    
+    needToRewrite = true  #false    
     if needToRewrite or not fs.existsSync jsonfilename
       readOpts =
         sourceFile: excelfileName
@@ -90,8 +95,9 @@ class IndicatorInfo
 
 
   constructor: (funcOpts) ->
-    {@指标名称, @指标来源, @指标导向} = funcOpts
+    {@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
     #[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
+    @指标名称 = @指标名称.replace('▲','')
     @versions = []
 
 
