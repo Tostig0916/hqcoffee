@@ -38,7 +38,8 @@ class IndicatorInfo
     # type could be zh 综合, zy 中医,etc
     {p=__dirname, type='zh', grade=2, version=2020} = funcOpts
     # read from mannual file and turn it into a dictionary
-    baseName = "indinfo#{grade}#{type}#{version}"
+    # baseName = "indinfo#{grade}#{type}#{version}"
+    baseName = "indinfo#{version}"
     excelfileName = path.join p, "#{baseName}.xlsx"
     jsonfilename = path.join p, "#{baseName}.json"
 
