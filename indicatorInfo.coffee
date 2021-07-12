@@ -42,8 +42,8 @@ class IndicatorInfo
     excelfileName = path.join p, "#{baseName}.xlsx"
     jsonfilename = path.join p, "#{baseName}.json"
 
-    needToRewrite = true #false    
-    unless needToRewrite or fs.existsSync jsonfilename
+    needToRewrite = false    
+    if needToRewrite or not fs.existsSync jsonfilename
       readOpts =
         sourceFile: excelfileName
         header: {rows: 1}
