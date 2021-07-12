@@ -1,8 +1,9 @@
 {Indicator, IndicatorValue} = require './indicator'
 IndicatorInfo = require './indicatorInfo'
 
-json = IndicatorInfo.fromMannualFile({path:'./'})
-console.log json
+dictionary = IndicatorInfo.fromMannualFile({p:__dirname})
+console.log ([k, v.versions[0].versionName, v.versions[0].indicatorIndex, isValuable: v.isValuable()] for k, v of dictionary)
+
 ###
 value = new IndicatorValue({
   date: 2020

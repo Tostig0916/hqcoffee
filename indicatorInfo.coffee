@@ -1,27 +1,62 @@
 e2j = require 'convert-excel-to-json'
 fs = require 'fs'
-path = require 'path'
+# use __dirname and __filename to create correct full path filename
+path = require 'path'  
 pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
+
+class IndicatorVersion
+  constructor: (funcOpts) ->
+    {@versionName, @indicatorIndex} = funcOpts
 
 
 class IndicatorInfo
   @fromMannualFile: (funcOpts) ->
+    json = IndicatorInfo.jsonizedMannual(funcOpts)
+    indicators = {}
+    for version, mannual of json
+      for key, obj of mannual 
+        indicators[key] ?= new IndicatorInfo(obj)
+        indicators[key].versions.push(new IndicatorVersion({versionName: version, indicatorIndex: obj.序号}))
+        # console.log key, obj
+    return indicators
+  
+  
+  
+  @seperatedFromMannualFile: (funcOpts) ->
+    json = IndicatorInfo.jsonizedMannual(funcOpts)
+    indicators = {}
+    for version, mannual of json
+      indicators[version] = {}
+      for key, obj of mannual 
+        instance = new IndicatorInfo(obj)
+        indicators[version][key] = instance
+        # console.log key, obj
+    return indicators
+
+  @jsonizedMannual: (funcOpts) ->
     # type could be zh 综合, zy 中医,etc
-    {p='./', type='zh', grade=2, version=2020} = funcOpts
+    {p=__dirname, type='zh', grade=2, version=2020} = funcOpts
     # read from mannual file and turn it into a dictionary
     baseName = "indinfo#{grade}#{type}#{version}"
     excelfileName = path.join p, "#{baseName}.xlsx"
     jsonfilename = path.join p, "#{baseName}.json"
-    readOpts =
-      sourceFile: excelfileName
-      header: {rows: 1}
-      #sheets: ['Sheet 1']
-      columnToKey: {
-        '*':'{{columnHeader}}'
-      }
-    json = IndicatorInfo.readFromExcel(readOpts)
-    IndicatorInfo.write2JSON({jsonfilename,result:json})
+
+    needToRewrite = true #false    
+    unless needToRewrite or fs.existsSync jsonfilename
+      readOpts =
+        sourceFile: excelfileName
+        header: {rows: 1}
+        #sheets: ['Sheet 1']
+        columnToKey: {
+          '*':'{{columnHeader}}'
+        }
+      json = IndicatorInfo.readFromExcel(readOpts)
+      IndicatorInfo.write2JSON({jsonfilename,result:json})
+    else
+      console.log "read from", jsonfilename #, __filename, __dirname
+      json = require jsonfilename
+
     return json
 
 
@@ -54,10 +89,14 @@ class IndicatorInfo
 
 
   constructor: (funcOpts) ->
-    {@name, @source, @guidance} = funcOpts
+    {@指标名称, @指标来源, @指标导向} = funcOpts
+    #[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
+    @versions = []
 
 
-
+  
+  isValuable: ->
+    /逐步/.test(@指标导向) 
 
 
 module.exports = IndicatorInfo
