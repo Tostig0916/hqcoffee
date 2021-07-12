@@ -102,8 +102,8 @@ createPPT = (arr) ->
   chartDataArray = [
     {
       name: "手术占比雷达图",
-      labels: any.label for any in lvs[0],
-      values: any.value for any in lvs[0]
+      labels: any.label for any in lvs[0] when (not isNaN(parseFloat(any.value)) && isFinite(any.value)),
+      values: any.value for any in lvs[0] when (not isNaN(parseFloat(any.value)) && isFinite(any.value))
     }
   ] 
       
@@ -111,6 +111,7 @@ createPPT = (arr) ->
   slide.addChart(pres.ChartType.radar, chartDataArray, { 
     x: 0, y: "50%", w: '45%', h: "50%" 
     showLegend: true, legendPos: "b"
+    showTitle: true, title: "手术占比雷达图"
   })
   slide.addChart(pres.ChartType.bar, chartDataArray, { 
     x: 5, y: "50%", w: '45%', h: "50%" 
@@ -129,14 +130,14 @@ createPPT = (arr) ->
       )
 
 
-if not fs.existsSync jsonfilename
+if fs.existsSync jsonfilename
   content = require jsonfilename
   #console.log content 
   
   arr = content['二级专科']
   #console.log arr
   
-  unless fs.existsSync pptname
+  unless not fs.existsSync pptname
     createPPT(arr)
   
 else
