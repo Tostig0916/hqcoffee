@@ -8,7 +8,7 @@ class Indicator
     console.log json
     for k, o of table for unitName, table of json 
       key = k.replace('▲','') 
-      console.log key, o
+      #console.log key, o
       indicators[key] ?= new Indicator({指标名称:key,json:o})
 
 		
