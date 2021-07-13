@@ -7,7 +7,7 @@ xlsx = require 'json-as-xlsx'
 
 class IndicatorVersion
   constructor: (funcOpts) ->
-    {@versionName, @序号, @测} = funcOpts
+    {@versionName, @序号, @测, @评} = funcOpts
 
 
 class IndicatorInfo
@@ -22,6 +22,7 @@ class IndicatorInfo
           versionName: version 
           序号: obj.序号
           测: /▲$/.test(obj.指标名称)
+          # 评: /(降低|提高)/.test(obj.指标导向)
         }))
         # console.log key, obj
     return indicators
@@ -95,6 +96,7 @@ class IndicatorInfo
 
 
   constructor: (funcOpts) ->
+    # 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorVersion
     {@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
     #[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
     @指标名称 = @指标名称.replace('▲','')
@@ -103,7 +105,13 @@ class IndicatorInfo
 
   
   isValuable: ->
-    /逐步/.test(@指标导向) 
+    /(降低|提高)/.test(@指标导向) 
+
+  description: ->
+    arr = ("指标:#{each.versionName}, 序号:#{each.序号}, 监测:#{each.测}" for each in @versions)
+    return "可评价 #{@isValuable()}, #{arr}"
+
+
 
 
 module.exports = IndicatorInfo

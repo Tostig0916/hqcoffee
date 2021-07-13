@@ -2,7 +2,8 @@
 IndicatorInfo = require './indicatorInfo'
 
 dictionary = IndicatorInfo.fromMannualFile({p:__dirname})
-console.log ([k, ("指标:#{each.versionName}, 序号:#{each.序号}, 监测:#{each.测}" for each in v.versions) ] for k, v of dictionary)
+arr = (v.description() for k, v of dictionary)
+console.log arr, arr.length
 
 ###
 value = new IndicatorValue({
