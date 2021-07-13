@@ -9,12 +9,12 @@ xlsx = require 'json-as-xlsx'
 class JSONUtils
   ###
   @fromMannualFile: (funcOpts) ->
-		json = IndicatorDef.jsonizedMannual(funcOpts)
+		json = JSONUtils.jsonizedData(funcOpts)
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
 				key = k.replace('▲','') 
-				indicators[key] ?= new IndicatorDef(obj)
+				indicators[key] ?= new JSONUtils(obj)
 				indicators[key].versions.push(new IndicatorDefVersion({
 					versionName: versionName 
 					序号: obj.序号
@@ -26,26 +26,25 @@ class JSONUtils
   ###
 
 
-
 	# 各版本独立陈列，备考  
 	@seperatedFromMannualFile: (funcOpts) ->
-		json = IndicatorDef.jsonizedMannual(funcOpts)
+		json = JSONUtils.jsonizedData(funcOpts)
 		indicators = {}
 		for version, mannual of json
 			indicators[version] = {}
 			for key, obj of mannual 
-				instance = new IndicatorDef(obj)
+				instance = new JSONUtils(obj)
 				indicators[version][key] = instance
 				# console.log key, obj
 		return indicators
 
 
 	# 将Excel文件转化为JSON文件
-	@jsonizedMannual: (funcOpts) ->
+	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, year=2020} = funcOpts
+		{p=__dirname, baseName} = funcOpts
 		# read from mannual file and turn it into a dictionary
-		baseName = "indef#{year}"
+		
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
@@ -58,8 +57,8 @@ class JSONUtils
 				columnToKey: {
 					'*':'{{columnHeader}}'
 				}
-			json = IndicatorDef.readFromExcel(readOpts)
-			IndicatorDef.write2JSON({jsonfilename,json})
+			json = JSONUtils.readFromExcel(readOpts)
+			JSONUtils.write2JSON({jsonfilename,json})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
 			json = require jsonfilename
@@ -78,7 +77,7 @@ class JSONUtils
 				# (typeof myVar === 'string' || myVar instanceof String)
 				for innerkey, innervalue of obj when (typeof innervalue is 'string') or (innervalue instanceof String)
 					obj[innerkey] = innervalue.replace(/\s+/g,'')
-				objk = obj.指标名称 #.replace(/\s+/g,'')
+				objk = obj.指标名称
 				result[k][objk] = obj
 		return result 
 

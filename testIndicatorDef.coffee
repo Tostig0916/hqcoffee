@@ -1,6 +1,7 @@
 {IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
-
-dictionary = IndicatorDef.fromMannualFile({p: __dirname, year: 2020})
+year=2020
+baseName = "indef#{year}"
+dictionary = IndicatorDef.fromMannualFile({p: __dirname, baseName})
 arr = (v.description() for k, v of dictionary)
 
 kpj = 0

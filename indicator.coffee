@@ -1,4 +1,12 @@
+ju = require './jsonUtils'
+
+
 class Indicator
+  @fromDataTable: (funcOpts) ->
+    json = ju.jsonizedData(funcOpts)
+
+    
+
   constructor: (funcOpts) ->
     {@name, @indicatorValue} = funcOpts
     if indicatorDef?

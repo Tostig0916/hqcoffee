@@ -30,7 +30,9 @@ class IndicatorDefVersion
 
 class IndicatorDef
 	@fromMannualFile: (funcOpts) ->
-		json = IndicatorDef.jsonizedMannual(funcOpts)
+		#json = IndicatorDef.jsonizedData(funcOpts)
+		json = ju.jsonizedData(funcOpts)
+
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
@@ -48,25 +50,13 @@ class IndicatorDef
 
 
 
-	# 各版本独立陈列，备考  
-	@seperatedFromMannualFile: (funcOpts) ->
-		json = IndicatorDef.jsonizedMannual(funcOpts)
-		indicators = {}
-		for version, mannual of json
-			indicators[version] = {}
-			for key, obj of mannual 
-				instance = new IndicatorDef(obj)
-				indicators[version][key] = instance
-				# console.log key, obj
-		return indicators
-
 
 	# 将Excel文件转化为JSON文件
-	@jsonizedMannual: (funcOpts) ->
+	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, year=2020} = funcOpts
+		{p=__dirname, baseName} = funcOpts
 		# read from mannual file and turn it into a dictionary
-		baseName = "indef#{year}"
+		#baseName = "indef#{year}"
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
@@ -104,6 +94,18 @@ class IndicatorDef
 		return result 
 
 
+
+	# 各版本独立陈列，备考  
+	@seperatedFromMannualFile: (funcOpts) ->
+		json = IndicatorDef.jsonizedData(funcOpts)
+		indicators = {}
+		for version, mannual of json
+			indicators[version] = {}
+			for key, obj of mannual 
+				instance = new IndicatorDef(obj)
+				indicators[version][key] = instance
+				# console.log key, obj
+		return indicators
 
 
 
