@@ -5,7 +5,7 @@ class Indicator
   @fromDataTable: (funcOpts) ->
     json = ju.jsonizedData(funcOpts)
     indicators = {}
-    console.log json
+    #console.log json
     for k, o of table for unitName, table of json 
       key = k.replace('▲','') 
       #console.log key, o
