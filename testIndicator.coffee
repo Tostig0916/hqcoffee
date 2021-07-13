@@ -1,6 +1,13 @@
 {Indicator, IndicatorValue} = require './indicator'
 {IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
 
+baseName = "建水国考填报表"
+#baseName = "建水基本信息表"
+dictionary = Indicator.fromDataTable({p: __dirname, baseName})
+console.log dictionary
+
+
+###
 value = new IndicatorValue({
   date: 2020
   number: 32.47
@@ -15,3 +22,4 @@ value = new IndicatorValue({
 
 
 console.log 出院患者手术占比
+###

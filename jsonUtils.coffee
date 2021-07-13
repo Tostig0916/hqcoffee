@@ -48,7 +48,7 @@ class JSONUtils
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
-		needToRewrite = false 
+		needToRewrite = yes #false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
