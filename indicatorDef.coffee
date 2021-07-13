@@ -18,7 +18,8 @@ class IndicatorDefVersion
     (v for k,v of IndicatorDefVersion.versions).length
 
   constructor: (funcOpts) ->
-		# 此处为可因版本而异的属性, 其中 评是指定量指标中，要求逐步提高或降低的指标
+		# 此处为可因版本而异的属性, 
+		# 其中 评是指定量指标中，要求逐步提高或降低的指标，理论上说，这项属性应该是各版本一致的，如此设计是为防止万一
     {@versionName, @序号, @测, @评} = funcOpts
     IndicatorDefVersion.addVersion(this)
 
@@ -30,15 +31,15 @@ class IndicatorDef
 	@fromMannualFile: (funcOpts) ->
 		json = IndicatorDef.jsonizedMannual(funcOpts)
 		indicators = {}
-		for version, mannual of json
+		for versionName, mannual of json
 			for k, obj of mannual
 				key = k.replace('▲','') 
 				indicators[key] ?= new IndicatorDef(obj)
 				indicators[key].versions.push(new IndicatorDefVersion({
-					versionName: version 
+					versionName: versionName 
 					序号: obj.序号
 					测: /▲$/.test(obj.指标名称)
-					# 评: /(降低|提高)/.test(obj.指标导向)
+					评: /(降低|提高)/.test(obj.指标导向)
 				}))
 				# console.log key, obj
 		return indicators
@@ -125,6 +126,8 @@ class IndicatorDef
 
 	isValuable: ->
 		/(降低|提高)/.test(@指标导向) 
+
+
 
 	description: ->
 		arr = ("版本:#{each.versionName}, 序号:#{each.序号}, 监测:#{each.测}" for each in @versions)
