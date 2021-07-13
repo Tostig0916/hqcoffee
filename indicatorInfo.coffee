@@ -9,10 +9,18 @@ xlsx = require 'json-as-xlsx'
 
 
 class IndicatorVersion
+  # 无法直接加class properties，只能这样曲折设置
+  @addVersion: (version) ->
+    IndicatorVersion.versions ?= {}
+    IndicatorVersion.versions[version.versionName] ?= version
+  
+  @versionCount: ->
+    (v for k,v of IndicatorVersion.versions).length
+
   constructor: (funcOpts) ->
 		# 此处为可因版本而异的属性, 其中 评是指定量指标中，要求逐步提高或降低的指标
     {@versionName, @序号, @测, @评} = funcOpts
-    #IndicatorVersion.versions[@versionName] ?= this
+    IndicatorVersion.addVersion(this)
 
 
 
