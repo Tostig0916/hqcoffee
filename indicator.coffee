@@ -1,8 +1,8 @@
 class Indicator
   constructor: (funcOpts) ->
     {@name, @indicatorValue} = funcOpts
-    if indicatorInfo?
-      {@indicatorUnit, @guidance, @source, @definition} = indicatorInfo
+    if indicatorDef?
+      {@indicatorUnit, @guidance, @source, @definition} = indicatorDef
 
 
 

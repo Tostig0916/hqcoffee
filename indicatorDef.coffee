@@ -8,33 +8,33 @@ xlsx = require 'json-as-xlsx'
 
 
 
-class IndicatorInfoVersion
+class IndicatorDefVersion
   # 无法直接加class properties，只能这样曲折设置
   @addVersion: (version) ->
-    IndicatorInfoVersion.versions ?= {}
-    IndicatorInfoVersion.versions[version.versionName] ?= version
+    IndicatorDefVersion.versions ?= {}
+    IndicatorDefVersion.versions[version.versionName] ?= version
   
   @versionCount: ->
-    (v for k,v of IndicatorInfoVersion.versions).length
+    (v for k,v of IndicatorDefVersion.versions).length
 
   constructor: (funcOpts) ->
 		# 此处为可因版本而异的属性, 其中 评是指定量指标中，要求逐步提高或降低的指标
     {@versionName, @序号, @测, @评} = funcOpts
-    IndicatorInfoVersion.addVersion(this)
+    IndicatorDefVersion.addVersion(this)
 
 
 
 
 
-class IndicatorInfo
+class IndicatorDef
 	@fromMannualFile: (funcOpts) ->
-		json = IndicatorInfo.jsonizedMannual(funcOpts)
+		json = IndicatorDef.jsonizedMannual(funcOpts)
 		indicators = {}
 		for version, mannual of json
 			for k, obj of mannual
 				key = k.replace('▲','') 
-				indicators[key] ?= new IndicatorInfo(obj)
-				indicators[key].versions.push(new IndicatorInfoVersion({
+				indicators[key] ?= new IndicatorDef(obj)
+				indicators[key].versions.push(new IndicatorDefVersion({
 					versionName: version 
 					序号: obj.序号
 					测: /▲$/.test(obj.指标名称)
@@ -48,12 +48,12 @@ class IndicatorInfo
 
 	# 各版本独立陈列，备考  
 	@seperatedFromMannualFile: (funcOpts) ->
-		json = IndicatorInfo.jsonizedMannual(funcOpts)
+		json = IndicatorDef.jsonizedMannual(funcOpts)
 		indicators = {}
 		for version, mannual of json
 			indicators[version] = {}
 			for key, obj of mannual 
-				instance = new IndicatorInfo(obj)
+				instance = new IndicatorDef(obj)
 				indicators[version][key] = instance
 				# console.log key, obj
 		return indicators
@@ -64,7 +64,7 @@ class IndicatorInfo
 		# type could be zh 综合, zy 中医,etc
 		{p=__dirname, year=2020} = funcOpts
 		# read from mannual file and turn it into a dictionary
-		baseName = "indinfo#{year}"
+		baseName = "indef#{year}"
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
@@ -77,8 +77,8 @@ class IndicatorInfo
 				columnToKey: {
 					'*':'{{columnHeader}}'
 				}
-			json = IndicatorInfo.readFromExcel(readOpts)
-			IndicatorInfo.write2JSON({jsonfilename,result:json})
+			json = IndicatorDef.readFromExcel(readOpts)
+			IndicatorDef.write2JSON({jsonfilename,result:json})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
 			json = require jsonfilename
@@ -115,7 +115,7 @@ class IndicatorInfo
 
 
 	constructor: (funcOpts) ->
-		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorInfoVersion
+		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefVersion
 		{@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
 		#[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
 		@指标名称 = @指标名称.replace('▲','')
@@ -134,6 +134,6 @@ class IndicatorInfo
 
 
 module.exports = {
-  IndicatorInfo
-  IndicatorInfoVersion
+  IndicatorDef
+  IndicatorDefVersion
 }

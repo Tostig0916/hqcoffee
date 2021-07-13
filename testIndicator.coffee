@@ -1,5 +1,5 @@
 {Indicator, IndicatorValue} = require './indicator'
-{IndicatorInfo, IndicatorInfoVersion} = require './indicatorInfo'
+{IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
 
 value = new IndicatorValue({
   date: 2020
