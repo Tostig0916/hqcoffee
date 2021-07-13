@@ -3,7 +3,7 @@ fs = require 'fs'
 pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
 
-sourceFile = '/Users/jk/Downloads/建水2018-2020科室收入报表/2018-2020科室收入报表/2018年科室收入.xlsx'
+sourceFile = '/Users/jk/Downloads/2018-2020科室收入报表/2018-2020科室收入报表/2018年科室收入.xlsx'
 jsonfilename = './departFin.json'
 outfilename = 'departFin'
 pptname = 'departFin.pptx' 

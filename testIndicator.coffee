@@ -1,8 +1,8 @@
 {Indicator, IndicatorValue} = require './indicator'
 {IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
 
-baseName = "建水国考填报表"
-#baseName = "建水基本信息表"
+baseName = "国考填报表"
+#baseName = "基本信息表"
 dictionary = Indicator.fromDataTable({p: __dirname, baseName})
 console.log dictionary
 
