@@ -8,19 +8,19 @@ xlsx = require 'json-as-xlsx'
 
 
 
-class IndicatorVersion
+class IndicatorInfoVersion
   # 无法直接加class properties，只能这样曲折设置
   @addVersion: (version) ->
-    IndicatorVersion.versions ?= {}
-    IndicatorVersion.versions[version.versionName] ?= version
+    IndicatorInfoVersion.versions ?= {}
+    IndicatorInfoVersion.versions[version.versionName] ?= version
   
   @versionCount: ->
-    (v for k,v of IndicatorVersion.versions).length
+    (v for k,v of IndicatorInfoVersion.versions).length
 
   constructor: (funcOpts) ->
 		# 此处为可因版本而异的属性, 其中 评是指定量指标中，要求逐步提高或降低的指标
     {@versionName, @序号, @测, @评} = funcOpts
-    IndicatorVersion.addVersion(this)
+    IndicatorInfoVersion.addVersion(this)
 
 
 
@@ -34,7 +34,7 @@ class IndicatorInfo
 			for k, obj of mannual
 				key = k.replace('▲','') 
 				indicators[key] ?= new IndicatorInfo(obj)
-				indicators[key].versions.push(new IndicatorVersion({
+				indicators[key].versions.push(new IndicatorInfoVersion({
 					versionName: version 
 					序号: obj.序号
 					测: /▲$/.test(obj.指标名称)
@@ -115,7 +115,7 @@ class IndicatorInfo
 
 
 	constructor: (funcOpts) ->
-		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorVersion
+		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorInfoVersion
 		{@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
 		#[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
 		@指标名称 = @指标名称.replace('▲','')
@@ -135,5 +135,5 @@ class IndicatorInfo
 
 module.exports = {
   IndicatorInfo
-  IndicatorVersion
+  IndicatorInfoVersion
 }
