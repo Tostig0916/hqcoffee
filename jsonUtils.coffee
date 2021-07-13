@@ -5,7 +5,9 @@ path = require 'path'
 pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
 
-class JSONUtils 
+
+class JSONUtils
+  ###
   @fromMannualFile: (funcOpts) ->
 		json = IndicatorDef.jsonizedMannual(funcOpts)
 		indicators = {}
@@ -21,7 +23,7 @@ class JSONUtils
 				}))
 				# console.log key, obj
 		return indicators
-
+  ###
 
 
 

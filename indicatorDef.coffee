@@ -1,5 +1,6 @@
 e2j = require 'convert-excel-to-json'
 fs = require 'fs'
+ju = require './jsonUtils'
 # use __dirname and __filename to create correct full path filename
 path = require 'path' 
 pptxgen = require 'pptxgenjs'
@@ -69,7 +70,7 @@ class IndicatorDef
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
-		needToRewrite = false 
+		needToRewrite = yes #false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
@@ -79,7 +80,7 @@ class IndicatorDef
 					'*':'{{columnHeader}}'
 				}
 			json = IndicatorDef.readFromExcel(readOpts)
-			IndicatorDef.write2JSON({jsonfilename,json})
+			ju.write2JSON({jsonfilename,json})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
 			json = require jsonfilename
@@ -103,15 +104,6 @@ class IndicatorDef
 		return result 
 
 
-	@write2JSON: (funcOpts) ->
-		{jsonfilename, json} = funcOpts
-		jsonContent = JSON.stringify(json)
-
-		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
-			if err? 
-				console.log(err)
-			else
-				console.log "JSON file saved at #{Date()}"
 
 
 
