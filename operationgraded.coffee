@@ -22,6 +22,8 @@ readToJson = (readOpts) ->
     else
       console.log "json saved at #{Date()}"
 
+
+
 readOpts = {
   sourceFile:sourceFile
   header: {rows: 2}
@@ -32,54 +34,9 @@ readOpts = {
     #A:"{{A2}}", B:"{{B2}}", C:"{{C2}}"
   }
 }
-###
-readOpts = {
-  sourceFile:sourceFile
-  header: {rows: 2}
-  sheets: ['二级专科']   #['三级专科','二级专科']
-  #range: 'A6:Z14'
-  columnToKey: {
-    A:'心血管内科'	 
-    B:'呼吸内科'	
-    C:'消化内科'	
-    D:'神经内科'	
-    E:'肾内科'	
-    F:'内分泌科'	
-    G:'血液科'	
-    H:'感染科'	
-    I:'普通外科'	
-    J:'胃肠外科'	
-    k:'肝胆外科'	
-    L:'乳腺外科'	
-    M:'骨科'	
-    N:'泌尿外科'	
-    O:'神经外科'	
-    P:'妇科'	
-    Q:'产科'	
-    R:'儿科'	
-    S:'儿外科'	
-    T:'新生儿科'	
-    U:'眼科'	
-    V:'口腔科'	
-    W:'急诊科'	
-    X:'重症医学科'	
-    Y:'肿瘤内科'	
-    Z:'老年内科'	
-    AA:'康复科'	
-    AB:'心脏外科'	
-    AC:'胸外科'	
-    AD:'烧伤整形外科'	
-    AE:'疼痛科'	
-    AF:'耳鼻喉科'	
-    AG:'皮肤科'	
-    AH:'风湿免疫科'	
-    AI:'血管外科'	
-    AJ:'整形外科'	
-    AK:'介入科'
-  }
-}
 
-###
+
+
 createPPT = (arr) ->
   labels = []
   values = []
