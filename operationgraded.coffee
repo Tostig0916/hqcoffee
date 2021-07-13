@@ -3,7 +3,7 @@ fs = require 'fs'
 pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
 
-sourceFile = './0702报艾力彼三四级手术占比2019-2020.xlsx'
+sourceFile = './三四级手术占比2019-2020.xlsx'
 jsonfilename = './手术占比.json'
 pptname = './手术占比雷达图.pptx' 
 
