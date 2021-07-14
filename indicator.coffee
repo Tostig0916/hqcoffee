@@ -42,7 +42,7 @@ class Indicator
           key = k.replace('▲','') 
           #console.log key, json
           {指标名称, 单位} = json
-          数值 = value
+          数值 = if /^比值/.test(单位) then eval(value) else value
           indicator = new Indicator({指标名称,单位,数值})
           histdata.updateRecord({year:itemName,key,indicator}) 
     return histdata
