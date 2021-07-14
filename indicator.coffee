@@ -50,7 +50,7 @@ class Indicator
 
 
 
-  # 复杂,不是好设计.几年的数值混在一起记录
+  ### 复杂,不是好设计.几年的数值混在一起记录
   @fromDataTableMixed: (funcOpts) ->
     json = ju.jsonizedData(funcOpts)
     indicators = {}
@@ -62,10 +62,9 @@ class Indicator
         indicators[key] ?= new Indicator({json})
 
     return indicators
-    
+  ###  
 
   constructor: (funcOpts) ->
-    #@values = IndicatorValue.fromJSONMixed(funcOpts) # 错误设计
     {@指标名称, @单位, @数值} = funcOpts
     if indicatorDef?
       {@计量单位, @指标导向, @指标来源, @指标属性,@二级指标,@一级指标} = indicatorDef

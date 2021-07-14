@@ -7,38 +7,7 @@ xlsx = require 'json-as-xlsx'
 
 
 class JSONUtils
-  ###
-  @fromMannualFile: (funcOpts) ->
-		json = JSONUtils.jsonizedData(funcOpts)
-		indicators = {}
-		for versionName, mannual of json
-			for k, obj of mannual
-				key = k.replace('▲','') 
-				indicators[key] ?= new JSONUtils(obj)
-				indicators[key].versions.push(new IndicatorDefVersion({
-					versionName: versionName 
-					序号: obj.序号
-					测: /▲$/.test(obj.指标名称)
-					评: /(降低|提高)/.test(obj.指标导向)
-				}))
-				# console.log key, obj
-		return indicators
-  ###
-
-
-	# 各版本独立陈列，备考  
-	@seperatedFromMannualFile: (funcOpts) ->
-		json = JSONUtils.jsonizedData(funcOpts)
-		indicators = {}
-		for version, mannual of json
-			indicators[version] = {}
-			for key, obj of mannual 
-				instance = new JSONUtils(obj)
-				indicators[version][key] = instance
-				# console.log key, obj
-		return indicators
-
-
+  
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
