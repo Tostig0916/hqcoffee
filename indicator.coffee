@@ -27,6 +27,12 @@ class HistoricData
   description: ->
     @records
 
+  
+  yearsSorted:(funcOpts=(a,b)-> a - b) ->
+    years = (key for key, value of @records).sort(funcOpts)
+
+
+
 
 
 class Indicator
