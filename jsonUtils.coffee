@@ -17,10 +17,11 @@ class JSONUtils
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
-		needToRewrite = false 
+		needToRewrite = true #false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
+				sheetStubs: true
 				header: {rows: 1}
 				#sheets: ['Sheet 1']
 				columnToKey: {
@@ -59,7 +60,7 @@ class JSONUtils
 			if err? 
 				console.log(err)
 			else
-				console.log "JSON file saved at #{Date()}"
+				console.log "#{path.basename(jsonfilename)} saved at #{Date()}"
 
 
 

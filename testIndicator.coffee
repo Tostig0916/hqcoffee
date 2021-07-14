@@ -1,8 +1,8 @@
 {Indicator, IndicatorValue} = require './indicator'
 {IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
 
-#baseName = "国考填报表"
-baseName = "基本信息表"
+baseName = "国考填报表"
+#baseName = "基本信息表"
 histdata = Indicator.fromDataTable({p: __dirname, baseName})
 console.log histdata.description(), histdata.yearsSorted((a,b) -> a - b)
 
