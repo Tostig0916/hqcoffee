@@ -3,8 +3,8 @@
 
 baseName = "国考填报表"
 #baseName = "基本信息表"
-dictionary = Indicator.fromDataTable({p: __dirname, baseName})
-console.log dictionary
+histdata = Indicator.fromDataTable({p: __dirname, baseName})
+console.log histdata.description()
 
 
 ###

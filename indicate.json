@@ -1,8 +1,0 @@
-{
-  "name": "the name of this indicator",
-  "indicatorValue": {
-    "date": "日期",
-    "number": "the number"
-  },
-  "indicatorUnit": "the unit of value"
-}
