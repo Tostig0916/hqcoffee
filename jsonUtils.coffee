@@ -11,7 +11,7 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, baseName, headerRows=1,sheetStubs=false} = funcOpts
+		{p=__dirname, baseName, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
 		excelfileName = path.join p, "#{baseName}.xlsx"
