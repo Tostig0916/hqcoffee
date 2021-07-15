@@ -15,14 +15,15 @@ funcOpts = switch file
       headerRows: 3
       sheetStubs: false
     }
-  when 1 
+  when 2
     {
       baseName: "基本信息表"
       headerRows: 1
       sheetStubs: true
     }
+
 histdata = Indicator.fromDataTable(funcOpts)
-console.log histdata.description(), histdata.yearsSorted((a,b) -> a - b)
+#console.log histdata.description(), histdata.yearsSorted((a,b) -> a - b)
 
 
 ###

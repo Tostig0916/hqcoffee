@@ -17,7 +17,7 @@ class JSONUtils
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
-		needToRewrite = true #false 
+		needToRewrite = false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
@@ -41,10 +41,12 @@ class JSONUtils
 		unless "指标名称" in headers or "项目" in headers 
 			throw new Error("缺少指标名称项") 
 
+
 	# 去掉名实两边空格
 	@deleteSpacesOnBothSide: (funcOpts) ->
-		for key, value of funcOpts when (typeof value is 'string') or (value instanceof String)
-			funcOpts[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
+		{rowObj} = funcOpts
+		for key, value of rowObj when (typeof value is 'string') or (value instanceof String)
+			rowObj[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
 	
 
 
@@ -62,20 +64,18 @@ class JSONUtils
 		objOfSheets = {}
 		for shnm, rows of source
 			JSONUtils.checkForHeaders({rows})
-			
 			# 去掉空格
 			sheetName = shnm.replace(/\s+/g,'')
-			# console.log(sheetName) if sheetName is "统计指标"
-			
 			objOfSheets[sheetName] = {}
 			for rowObj in rows
-				# 去掉空格
-				JSONUtils.deleteSpacesOnBothSide(rowObj)
-				
+				JSONUtils.deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 				JSONUtils.correctKeyName({rowObj})
-				objk = rowObj.指标名称
-				objOfSheets[sheetName][objk] = rowObj
+				{指标名称} = rowObj
+				if 指标名称? and 指标名称 isnt "undefined"
+					objOfSheets[sheetName][指标名称] = rowObj
+				else
+					console.log("清除废数据行", rowObj)
 		return objOfSheets 
 
 
