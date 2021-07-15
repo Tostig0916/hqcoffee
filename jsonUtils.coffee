@@ -35,21 +35,45 @@ class JSONUtils
 
 		return json
 
+	@checkForHeaders: (funcOpts) ->
+		{rows} = funcOpts
+		headers = (key for key, value of rows[0])
+		unless "指标名称" in headers or "项目" in headers 
+			throw new Error("缺少指标名称项") 
+
+	@deleteSpacesOnBothSide: (funcOpts) ->
+		for key, value of funcOpts when (typeof value is 'string') or (value instanceof String)
+			funcOpts[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
+				
+
+
 
 	@readFromExcel: (funcOpts) ->
 		# console.log e2j 
 		source = e2j funcOpts
-		result = {}
-		for key, arr of source
-			k = key.replace(/\s+/g,'')
-			result[k] = {}
-			for obj in arr
-				# (typeof myVar === 'string' || myVar instanceof String)
-				for innerkey, innervalue of obj when (typeof innervalue is 'string') or (innervalue instanceof String)
-					obj[innerkey] = innervalue.replace(/\s+/g,'')
-				objk = obj.指标名称
-				result[k][objk] = obj
-		return result 
+		objOfSheets = {}
+		for shnm, rows of source
+			JSONUtils.checkForHeaders({rows})
+			
+			# 去掉空格
+			sheetName = shnm.replace(/\s+/g,'')
+			# console.log(sheetName) if sheetName is "统计指标"
+			
+			objOfSheets[sheetName] = {}
+			for rowObj in rows
+				# 去掉空格
+				JSONUtils.deleteSpacesOnBothSide({rowObj})
+				
+				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
+				if rowObj.项目? and not rowObj.指标名称?
+					rowObj.指标名称 = rowObj.项目
+					delete rowObj.项目
+				
+				objk = rowObj.指标名称
+				objOfSheets[sheetName][objk] = rowObj
+		return objOfSheets 
+
+
 
 
 	@write2JSON: (funcOpts) ->
