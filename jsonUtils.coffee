@@ -17,7 +17,7 @@ class JSONUtils
 		excelfileName = path.join p, "#{baseName}.xlsx"
 		jsonfilename = path.join p, "#{baseName}.json"
 
-		needToRewrite = false 
+		needToRewrite = true #false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
@@ -46,7 +46,13 @@ class JSONUtils
 	@deleteSpacesOnBothSide: (funcOpts) ->
 		{rowObj} = funcOpts
 		for key, value of rowObj when (typeof value is 'string') or (value instanceof String)
-			rowObj[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
+			if /^[\+\-]?\d*\.?\d+(?:[Ee][\+\-]?\d+)?$/.test(value) 
+				rowObj[key.replace(/\s+/g,'')] = Number(value)
+			else if /\/\d+/.test(value)
+				rowObj[key.replace(/\s+/g,'')] = eval(value)
+				console.log("计算比值: ",value)
+			else
+				rowObj[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
 	
 
 

@@ -95,6 +95,6 @@ class IndicatorValue
 
 
 module.exports = {
-  Indicator,
+  Indicator
   IndicatorValue
 }
