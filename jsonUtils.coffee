@@ -41,12 +41,20 @@ class JSONUtils
 		unless "指标名称" in headers or "项目" in headers 
 			throw new Error("缺少指标名称项") 
 
+	# 去掉名实两边空格
 	@deleteSpacesOnBothSide: (funcOpts) ->
 		for key, value of funcOpts when (typeof value is 'string') or (value instanceof String)
 			funcOpts[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
-				
+	
 
 
+	# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
+	@correctKeyName: (funcOpts) -> 
+		{rowObj} = funcOpts
+		if rowObj.项目? and not rowObj.指标名称?
+			rowObj.指标名称 = rowObj.项目
+			# delete rowObj.项目
+		
 
 	@readFromExcel: (funcOpts) ->
 		# console.log e2j 
@@ -62,13 +70,10 @@ class JSONUtils
 			objOfSheets[sheetName] = {}
 			for rowObj in rows
 				# 去掉空格
-				JSONUtils.deleteSpacesOnBothSide({rowObj})
+				JSONUtils.deleteSpacesOnBothSide(rowObj)
 				
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
-				if rowObj.项目? and not rowObj.指标名称?
-					rowObj.指标名称 = rowObj.项目
-					delete rowObj.项目
-				
+				JSONUtils.correctKeyName({rowObj})
 				objk = rowObj.指标名称
 				objOfSheets[sheetName][objk] = rowObj
 		return objOfSheets 
