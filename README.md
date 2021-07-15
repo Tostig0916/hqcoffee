@@ -14,3 +14,14 @@
 4. 制作文档
    1. 图表嵌入PPT
    2. 根据数据分析结果自动制作Word文档
+
+
+### 行业标准
+
+#### 国内 
+   国家标准查询 http://hbba.sacinfo.org.cn/
+   
+   卫健委 http://www.nhc.gov.cn/
+
+#### 国际
+   世卫 IDC-11 http://www.nhc.gov.cn/ewebeditor/uploadfile/2018/12/20181221160228191.xlsx
