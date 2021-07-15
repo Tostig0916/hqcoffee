@@ -1,9 +1,24 @@
 {Indicator, IndicatorValue} = require './indicator'
 {IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
 
-baseName = "国考填报表"
-#baseName = "基本信息表"
-histdata = Indicator.fromDataTable({p: __dirname, baseName})
+file = 1
+funcOpts = switch file
+  when 0
+    {
+      baseName: "国考填报表"
+      headerRows: 1
+    }
+  when 1 
+    {
+      baseName: "二级国考指标填报表"
+      headerRows: 3
+    }
+  when 1 
+    {
+      baseName: "基本信息表"
+      headerRows: 1
+    }
+histdata = Indicator.fromDataTable(funcOpts)
 console.log histdata.description(), histdata.yearsSorted((a,b) -> a - b)
 
 

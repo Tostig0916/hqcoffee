@@ -11,7 +11,7 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, baseName} = funcOpts
+		{p=__dirname, baseName, headerRows=1,sheetStubs=false} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
 		excelfileName = path.join p, "#{baseName}.xlsx"
@@ -21,8 +21,8 @@ class JSONUtils
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
-				sheetStubs: true
-				header: {rows: 1}
+				sheetStubs: sheetStubs
+				header: {rows: headerRows}
 				#sheets: ['Sheet 1']
 				columnToKey: {
 					'*':'{{columnHeader}}'
