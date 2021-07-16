@@ -22,7 +22,8 @@ funcOpts = switch file
       sheetStubs: true
     }
 histdata = Indicator.fromDataTable(funcOpts)
-console.log histdata.description(), histdata.yearsSorted((a,b) -> a - b)
+# console.log histdata.description(), 
+console.log histdata.yearsSorted((a,b) -> a - b)
 
 
 ###
