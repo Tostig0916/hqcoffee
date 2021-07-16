@@ -1,5 +1,7 @@
 {Indicator, IndicatorValue} = require './indicator'
-{IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
+#{IndicatorDef, IndicatorDefVersion} = require './indicatorDef'
+ju = require './jsonUtils'
+
 
 file = 1
 funcOpts = switch file
@@ -22,6 +24,8 @@ funcOpts = switch file
       sheetStubs: true
     }
 histdata = Indicator.fromDataTable(funcOpts)
+{basename} = funcOpts
+ju.write2JSON({p:__dirname, basename:"#{basename}Hist", obj:histdata.records})
 # console.log histdata.description(), 
 console.log histdata.yearsSorted((a,b) -> a - b)
 
