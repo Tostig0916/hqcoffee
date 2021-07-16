@@ -13,5 +13,5 @@ for each in arr
   jc++ if /监测:true/.test each
 
 basename = "#{basename}Dict"
-ju.write2JSON({p:__dirname, basename, obj: dictionary})
+#IndicatorDef.saveToJSONFile({p:__dirname, basename, obj: dictionary})
 console.log "共#{IndicatorDefVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
