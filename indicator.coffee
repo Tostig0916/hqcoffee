@@ -10,7 +10,7 @@ class Indicator
     # unitName 是单位名,例如医院,或科室名称
     # k是指标名称,json是指标内容
     for unitName, table of json 
-      for k, json of table when json.指标名称?
+      for k, json of table #when json.指标名称?
         for itemName, value of json when /(?:(?:20|21)\d{2})年/g.test(itemName)
           histdata[itemName] ?= {} 
           key = k.replace('▲','') 
@@ -18,7 +18,7 @@ class Indicator
           #console.log key, json
           数值 = if /^比值/.test(单位) then eval(value) else value
           indicator = new Indicator({指标名称,单位,数值})
-          histdata.updateRecord({year:itemName,key,indicator}) 
+          histdata.updateRecord({year:itemName,unitName,key,indicator}) 
     
     {p,basename} = funcOpts
     Indicator.saveToJSONFile({p, basename:"#{basename}Hist", obj: histdata.records})
@@ -47,21 +47,35 @@ class Indicator
 class HistoricData
   constructor: (funcOpts) ->
     @records = {}
+    @years = []
+    @units = []
+
+  # year: e.g. '2020年'
+  # unitName e.g. '医院','心内科'
+  newRecord: (funcOpts) ->
+    {year, unitName, key, indicator,update=false} = funcOpts
+    @years.push(year) unless year in @years
+    @units.push(unitName) unless unitName in @units
+    @records[year] ?= {}
+    @records[year][unitName] ?= {}
+
+    if update
+      @records[year][unitName][key] = indicator
+    else
+      @records[year][unitName][key] ?= indicator
+
   
-
-  # year: e.g. '2020年'
+  
   addRecord: (funcOpts) ->
-    {year, key, indicator} = funcOpts
-    @records[year] ?= {}
-    @records[year][key] ?= indicator
+    funcOpts.update = false
+    @newRecord(funcOpts)
 
 
-  # year: e.g. '2020年'
   updateRecord: (funcOpts) ->
-    {year, key, indicator} = funcOpts
-    @records[year] ?= {}
-    @records[year][key] = indicator
+    funcOpts.update = true
+    @newRecord(funcOpts)
 
+    
 
   # year: e.g. '2020年'
   addTable: (funcOpts) ->
@@ -73,12 +87,12 @@ class HistoricData
     @records
 
   
-  yearsSorted:(funcOpts=(a,b)-> a - b) ->
-    years = (key for key, value of @records).sort(funcOpts)
+  yearsSorted: (funcOpts=(a,b)-> a - b) ->
+    @years.sort(funcOpts)  # (key for key, value of @records).sort(funcOpts)
 
 
-
-
+  unitsSorted: (funcOpts=(a,b)-> a - b) ->
+    @units.sort(funcOpts)
 
 
 module.exports = {

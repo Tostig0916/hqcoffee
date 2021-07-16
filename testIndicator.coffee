@@ -26,6 +26,6 @@ histdata = Indicator.fromDataTable(funcOpts)
 {basename} = funcOpts
 Indicator.saveToJSONFile({p:__dirname, basename:"#{basename}Hist", obj:histdata.records})
 # console.log histdata.description(), 
-console.log histdata.yearsSorted((a,b) -> a - b)
+console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
 

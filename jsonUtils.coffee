@@ -38,7 +38,8 @@ class JSONUtils
 	@checkForHeaders: (funcOpts) ->
 		{rows} = funcOpts
 		headers = (key for key, value of rows[0])
-		unless "指标名称" in headers or "项目" in headers 
+		console.log headers 
+		unless (headers.length is 0) or ("指标名称" in headers) or ("项目" in headers) 
 			throw new Error("缺少指标名称项") 
 
 	@deleteSpacesOnBothSide: (funcOpts) ->
