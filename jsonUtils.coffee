@@ -11,11 +11,11 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, baseName, headerRows=1,sheetStubs=true} = funcOpts
+		{p='data', basename, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
-		excelfileName = path.join p, "#{baseName}.xlsx"
-		jsonfilename = path.join p, "#{baseName}.json"
+		excelfileName = path.join(__dirname, p, "#{basename}.xlsx")
+		jsonfilename = path.join(__dirname, p, "#{basename}.json")
 
 		needToRewrite = true #false 
 		if needToRewrite or not fs.existsSync jsonfilename
@@ -27,18 +27,21 @@ class JSONUtils
 				columnToKey: {
 					'*':'{{columnHeader}}'
 				}
-			json = JSONUtils.readFromExcel(readOpts)
-			JSONUtils.write2JSON({jsonfilename,json})
+			obj = JSONUtils.readFromExcel(readOpts)
+			JSONUtils.write2JSON({p,basename,obj})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
-			json = require jsonfilename
+			obj = require jsonfilename
 
-		return json
+		return obj
+
+
 
 	@checkForHeaders: (funcOpts) ->
 		{rows} = funcOpts
 		headers = (key for key, value of rows[0])
-		unless "指标名称" in headers or "项目" in headers 
+		console.log headers 
+		unless (headers.length is 0) or ("指标名称" in headers) or ("项目" in headers) 
 			throw new Error("缺少指标名称项") 
 
 
@@ -87,10 +90,11 @@ class JSONUtils
 
 
 
-	@write2JSON: (funcOpts) ->
-		{jsonfilename, json} = funcOpts
-		jsonContent = JSON.stringify(json)
 
+	@write2JSON: (funcOpts) ->
+		{p='data', basename, obj} = funcOpts
+		jsonContent = JSON.stringify(obj)
+		jsonfilename = path.join(__dirname, p, "#{basename}.json")
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)

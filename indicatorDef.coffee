@@ -43,10 +43,14 @@ class IndicatorDef
 					评: /(降低|提高)/.test(obj.指标导向)
 				}))
 				# console.log key, obj
+		{p,basename} = funcOpts
+		basename = "#{basename}Dict"
+		IndicatorDef.saveToJSONFile({p, basename, obj: indicators})
 		return indicators
 
 
-
+	@saveToJSONFile: (funcOpts) ->
+		ju.write2JSON(funcOpts)
 
 	###
 	# 各版本独立陈列，备考  
