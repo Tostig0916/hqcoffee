@@ -17,7 +17,7 @@ funcOpts = switch file
       headerRows: 3
       sheetStubs: false
     }
-  when 1 
+  when 2 
     {
       basename: "基本信息表"
       headerRows: 1
