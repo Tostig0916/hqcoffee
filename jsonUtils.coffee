@@ -42,8 +42,9 @@ class JSONUtils
 			throw new Error("缺少指标名称项") 
 
 	@deleteSpacesOnBothSide: (funcOpts) ->
-		for key, value of funcOpts when (typeof value is 'string') or (value instanceof String)
-			funcOpts[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
+		{rowObj} = funcOpts
+		for key, value of rowObj when (typeof value is 'string') or (value instanceof String)
+			rowObj[key.replace(/\s+/g,'')] = value.replace(/\s+/g,'')
 				
 
 
