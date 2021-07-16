@@ -46,7 +46,8 @@ class IndicatorDef
 		return indicators
 
 
-
+	@saveToJSONFile: (funcOpts) ->
+		ju.write2JSON(funcOpts)
 
 	###
 	# 各版本独立陈列，备考  

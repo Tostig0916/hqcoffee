@@ -11,11 +11,11 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p=__dirname, baseName, headerRows=1,sheetStubs=true} = funcOpts
+		{p=__dirname, basename, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
-		excelfileName = path.join p, "#{baseName}.xlsx"
-		jsonfilename = path.join p, "#{baseName}.json"
+		excelfileName = path.join(p, "#{basename}.xlsx")
+		jsonfilename = path.join(p, "#{basename}.json")
 
 		needToRewrite = true #false 
 		if needToRewrite or not fs.existsSync jsonfilename
@@ -27,13 +27,13 @@ class JSONUtils
 				columnToKey: {
 					'*':'{{columnHeader}}'
 				}
-			json = JSONUtils.readFromExcel(readOpts)
-			JSONUtils.write2JSON({jsonfilename,json})
+			obj = JSONUtils.readFromExcel(readOpts)
+			JSONUtils.write2JSON({p,basename,obj})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
-			json = require jsonfilename
+			obj = require jsonfilename
 
-		return json
+		return obj
 
 	@checkForHeaders: (funcOpts) ->
 		{rows} = funcOpts
@@ -76,10 +76,11 @@ class JSONUtils
 
 
 
-	@write2JSON: (funcOpts) ->
-		{jsonfilename, json} = funcOpts
-		jsonContent = JSON.stringify(json)
 
+	@write2JSON: (funcOpts) ->
+		{p=__dirname, basename, obj} = funcOpts
+		jsonContent = JSON.stringify(obj)
+		jsonfilename = path.join(p, "#{basename}.json")
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
