@@ -45,6 +45,8 @@ class JSONUtils
 			throw new Error("缺少指标名称项") 
 
 
+
+
 	# 去掉名实两边空格
 	@deleteSpacesOnBothSide: (funcOpts) ->
 		{rowObj} = funcOpts
@@ -59,6 +61,8 @@ class JSONUtils
 	
 
 
+
+
 	# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 	@correctKeyName: (funcOpts) -> 
 		{rowObj} = funcOpts
@@ -66,6 +70,8 @@ class JSONUtils
 			rowObj.指标名称 = rowObj.项目
 			# delete rowObj.项目
 		
+
+
 
 	@readFromExcel: (funcOpts) ->
 		# console.log e2j 
