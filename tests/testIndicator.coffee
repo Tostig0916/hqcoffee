@@ -1,5 +1,6 @@
-{Indicator} = require './indicator'
-ju = require './jsonUtils'
+path = require 'path'
+{Indicator} = require path.join __dirname, '../indicator'
+ju = require path.join __dirname, '../jsonUtils'
 
 
 file = 1
@@ -24,7 +25,7 @@ funcOpts = switch file
     }
 histdata = Indicator.fromDataTable(funcOpts)
 {basename} = funcOpts
-Indicator.saveToJSONFile({p:__dirname, basename:"#{basename}Hist", obj:histdata.records})
+Indicator.saveToJSONFile({p:'data', basename:"#{basename}Hist", obj:histdata.records})
 # console.log histdata.description(), 
 console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
