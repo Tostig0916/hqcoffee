@@ -20,8 +20,8 @@ class Indicator
           indicator = new Indicator({指标名称,单位,数值})
           histdata.updateRecord({year:itemName,key,indicator}) 
     
-
-		Indicator.saveToJSONFile({p:__dirname, basename:"#{basename}Hist", obj: histdata.records})
+    {p,basename} = funcOpts
+    Indicator.saveToJSONFile({p, basename:"#{basename}Hist", obj: histdata.records})
     
     return histdata
 		
