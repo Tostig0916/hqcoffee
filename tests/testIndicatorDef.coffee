@@ -4,7 +4,7 @@ ju = require path.join __dirname, '../jsonUtils'
 
 year=2020
 basename = "indef#{year}"
-dictionary = IndicatorDef.fromMannualFile({p:'data', basename})
+dictionary = IndicatorDef.fromMannualFile({folder:'data', basename})
 arr = (v.description() for k, v of dictionary)
 
 kpj = 0

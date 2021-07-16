@@ -11,11 +11,11 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{p='data', basename, headerRows=1,sheetStubs=true} = funcOpts
+		{folder='data', basename, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
-		excelfileName = path.join(__dirname, p, "#{basename}.xlsx")
-		jsonfilename = path.join(__dirname, p, "#{basename}.json")
+		excelfileName = path.join(__dirname, folder, "#{basename}.xlsx")
+		jsonfilename = path.join(__dirname, folder, "#{basename}.json")
 
 		needToRewrite = true #false 
 		if needToRewrite or not fs.existsSync jsonfilename
@@ -27,8 +27,12 @@ class JSONUtils
 				columnToKey: {
 					'*':'{{columnHeader}}'
 				}
+			
+			# 这一属性是我加的
+			readOpts.mainKeyName = "指标名称"
+			
 			obj = JSONUtils.readFromExcel(readOpts)
-			JSONUtils.write2JSON({p,basename,obj})
+			JSONUtils.write2JSON({folder,basename,obj})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
 			obj = require jsonfilename
@@ -77,6 +81,10 @@ class JSONUtils
 		# console.log e2j 
 		source = e2j funcOpts
 		objOfSheets = {}
+		
+		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
+		{mainKeyName="指标名称"} = funcOpts
+
 		for shnm, rows of source
 			JSONUtils.checkForHeaders({rows})
 			# 去掉空格
@@ -86,9 +94,9 @@ class JSONUtils
 				JSONUtils.deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 				JSONUtils.correctKeyName({rowObj})
-				{指标名称} = rowObj
-				if 指标名称? and 指标名称 isnt "undefined"
-					objOfSheets[sheetName][指标名称] = rowObj
+				mainKey = rowObj[mainKeyName]
+				if mainKey? and mainKey isnt "undefined"
+					objOfSheets[sheetName][mainKey] = rowObj
 				else
 					console.log("清除废数据行", rowObj)
 		return objOfSheets 
@@ -98,9 +106,9 @@ class JSONUtils
 
 
 	@write2JSON: (funcOpts) ->
-		{p='data', basename, obj} = funcOpts
+		{folder='data', basename, obj} = funcOpts
 		jsonContent = JSON.stringify(obj)
-		jsonfilename = path.join(__dirname, p, "#{basename}.json")
+		jsonfilename = path.join(__dirname, folder, "#{basename}.json")
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
