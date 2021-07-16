@@ -25,7 +25,7 @@ funcOpts = switch file
     }
 histdata = Indicator.fromDataTable(funcOpts)
 {basename} = funcOpts
-ju.write2JSON({p:__dirname, basename:"#{basename}Hist", obj:histdata.records})
+Indicator.saveToJSONFile({p:__dirname, basename:"#{basename}Hist", obj:histdata.records})
 # console.log histdata.description(), 
 console.log histdata.yearsSorted((a,b) -> a - b)
 

@@ -58,14 +58,14 @@ class Indicator
           histdata.updateRecord({year:itemName,key,indicator}) 
     
 
-		#Indicator.saveToJSONFile({p, basename:"#{basename}Hist", obj: histdata})
+		#Indicator.saveToJSONFile({p:__dirname, basename:"#{basename}Hist", obj: histdata.records})
     
     return histdata
 		
 
 
   
-  @saveToJSONFile: (funcOpts) -> 
+  @saveToJSONFile: (funcOpts) ->
     ju.write2JSON(funcOpts)
 
 
