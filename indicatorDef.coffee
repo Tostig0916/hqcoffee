@@ -21,7 +21,7 @@ class IndicatorDefVersion
   constructor: (funcOpts) ->
 		# 此处为可因版本而异的属性, 
 		# 其中 评是指定量指标中，要求逐步提高或降低的指标，理论上说，这项属性应该是各版本一致的，如此设计是为防止万一
-    {@versionName, @序号, @测, @评} = funcOpts
+    {@versionName, @序号, @计量单位, @二级指标, @一级指标, @测, @评} = funcOpts
     IndicatorDefVersion.addVersion(this)
 
 
@@ -39,6 +39,9 @@ class IndicatorDef
 				indicators[key].versions.push(new IndicatorDefVersion({
 					versionName: versionName 
 					序号: obj.序号
+					二级指标: obj.二级指标
+					一级指标: obj.一级指标
+					计量单位: obj.计量单位
 					测: /▲$/.test(obj.指标名称)
 					评: /(降低|提高)/.test(obj.指标导向)
 				}))
