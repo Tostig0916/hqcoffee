@@ -30,9 +30,12 @@ class JSONUtils
 			
 			# 这一属性是我加的
 			readOpts.mainKeyName = "指标名称"
+			try
+				obj = JSONUtils.readFromExcel(readOpts)
+				JSONUtils.write2JSON({folder,basename,obj})
+			catch error
+				console.log error
 			
-			obj = JSONUtils.readFromExcel(readOpts)
-			JSONUtils.write2JSON({folder,basename,obj})
 		else
 			console.log "read from", jsonfilename #, __filename, __dirname
 			obj = require jsonfilename
@@ -42,10 +45,10 @@ class JSONUtils
 
 
 	@checkForHeaders: (funcOpts) ->
-		{rows} = funcOpts
+		{mainKeyName,rows} = funcOpts
 		headers = (key for key, value of rows[0])
 		console.log headers 
-		unless (headers.length is 0) or ("指标名称" in headers) or ("项目" in headers) 
+		unless (headers.length is 0) or (mainKeyName in headers) or ("项目" in headers) 
 			throw new Error("缺少指标名称项") 
 
 
@@ -86,7 +89,7 @@ class JSONUtils
 		{mainKeyName="指标名称"} = funcOpts
 
 		for shnm, rows of source
-			JSONUtils.checkForHeaders({rows})
+			JSONUtils.checkForHeaders({mainKeyName,rows})
 			# 去掉空格
 			sheetName = shnm.replace(/\s+/g,'')
 			objOfSheets[sheetName] = {}
