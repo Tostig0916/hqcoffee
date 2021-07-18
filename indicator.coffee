@@ -4,7 +4,7 @@ ju = require './jsonUtils'
 class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromDataTable: (funcOpts) ->
-    json = ju.jsonizedData(funcOpts)
+    json = ju.jsonizedExcelData(funcOpts)
     histdata = new HistoricData()    
     
     # unitName 是单位名,例如医院,或科室名称

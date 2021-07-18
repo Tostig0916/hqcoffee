@@ -9,27 +9,25 @@ xlsx = require 'json-as-xlsx'
 class JSONUtils
   
 	# 将Excel文件转化为JSON文件
-	@jsonizedData: (funcOpts) ->
+	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
 		{folder='data', basename, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
 		excelfileName = path.join(__dirname, folder, "#{basename}.xlsx")
 		jsonfilename = path.join(__dirname, folder, "#{basename}.json")
-
-		needToRewrite = true #false 
+		console.log({jsonfilename})
+		needToRewrite = false 
 		if needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
 				sheetStubs: sheetStubs
 				header: {rows: headerRows}
 				#sheets: ['Sheet 1']
-				columnToKey: {
-					'*':'{{columnHeader}}'
-				}
-			
-			# 这一属性是我加的
-			readOpts.mainKeyName = "指标名称"
+				columnToKey: {'*':'{{columnHeader}}'}
+				# 这一属性是我加的
+				mainKeyName: "指标名称"
+				
 			try
 				obj = JSONUtils.readFromExcel(readOpts)
 				JSONUtils.write2JSON({folder,basename,obj})
@@ -37,8 +35,7 @@ class JSONUtils
 				console.log error
 			
 		else
-			console.log "read from", jsonfilename #, __filename, __dirname
-			obj = require jsonfilename
+			obj = JSONUtils.readFromJSON({folder,basename})
 
 		return obj
 
@@ -109,9 +106,9 @@ class JSONUtils
 
 
 	@write2JSON: (funcOpts) ->
-		{folder='data', basename, obj} = funcOpts
+		{p=__dirname,folder='data', basename, obj} = funcOpts
 		jsonContent = JSON.stringify(obj)
-		jsonfilename = path.join(__dirname, folder, "#{basename}.json")
+		jsonfilename = path.join(p, folder, "#{basename}.json")
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
@@ -122,8 +119,16 @@ class JSONUtils
 
 	
 
-
+	@readFromJSON: (funcOpts) ->
+		{p=__dirname,folder,basename} = funcOpts
+		jsonfilename = path.join(p, folder, "#{basename}.json")
+		console.log "read from", jsonfilename
+		obj = require jsonfilename
+		return obj
 	
+
+
+
 
 
 module.exports = JSONUtils

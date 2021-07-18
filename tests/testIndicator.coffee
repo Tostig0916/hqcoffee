@@ -24,9 +24,6 @@ funcOpts = switch file
       sheetStubs: true
     }
 histdata = Indicator.fromDataTable(funcOpts)
-{basename} = funcOpts
-Indicator.saveToJSONFile({folder:'data', basename:"#{basename}Hist", obj:histdata.records})
-# console.log histdata.description(), 
 console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
 
