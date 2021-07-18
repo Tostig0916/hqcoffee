@@ -73,8 +73,7 @@ class IndicatorDef
 	constructor: (funcOpts) ->
 		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefVersion
 		{@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
-		#[@name, @source, @guidance] = [@指标名称, @指标来源, @指标导向]
-		@指标名称 = @指标名称.replace('▲','')
+		#@指标名称 = @指标名称.replace('▲','')
 		@versions = []
 
 
