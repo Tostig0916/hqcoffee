@@ -8,6 +8,10 @@ xlsx = require 'json-as-xlsx'
 
 class JSONUtils
   
+	@needToRewrite: (funcOpts) ->
+		@_needToRewrite = funcOpts
+
+
 	# 将Excel文件转化为JSON文件
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
@@ -17,8 +21,7 @@ class JSONUtils
 		excelfileName = path.join(__dirname, folder,	'Excel', "#{basename}.xlsx")
 		jsonfilename = path.join(__dirname, folder, 'JSON' ,"#{basename}.json")
 		console.log({jsonfilename})
-		needToRewrite = false 
-		if needToRewrite or not fs.existsSync jsonfilename
+		if @_needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
 				sheetStubs: sheetStubs
@@ -107,10 +110,15 @@ class JSONUtils
 
 	@write2JSON: (funcOpts) ->
 		{p=__dirname,folder='data', basename, obj} = funcOpts
-		jsonContent = JSON.stringify(obj)
-		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
 		ff = path.join(p, folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
+		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
+		
+		if fs.existsSync(jsonfilename) and not @_needToRewrite
+			console.log "已有文件: #{jsonfilename}"
+			return this
+
+		jsonContent = JSON.stringify(obj)
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
@@ -124,7 +132,7 @@ class JSONUtils
 	@readFromJSON: (funcOpts) ->
 		{p=__dirname,folder,basename} = funcOpts
 		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
-		console.log "read from", jsonfilename
+		console.log "读取: ", jsonfilename
 		obj = require jsonfilename
 		return obj
 	
