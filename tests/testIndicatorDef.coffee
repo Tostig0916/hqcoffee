@@ -3,8 +3,12 @@ path = require 'path'
 ju = require path.join __dirname, '../jsonUtils'
 
 year=2020
-basename = "indef#{year}"
-dictionary = IndicatorDef.fromMannualFile({folder:'data', basename})
+funcOpts = {
+  basename: "indef#{year}"
+  folder: 'data'
+  needToRewrite: true
+}
+dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
 
 kpj = 0

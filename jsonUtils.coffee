@@ -15,12 +15,15 @@ class JSONUtils
 	# 将Excel文件转化为JSON文件
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{folder='data', basename, headerRows=1,sheetStubs=true} = funcOpts
-		# read from mannual file and turn it into a dictionary
+		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
 		
+		# read from mannual file and turn it into a dictionary
+		@needToRewrite(funcOpts.needToRewrite ? false)
+
 		excelfileName = path.join(__dirname, folder,	'Excel', "#{basename}.xlsx")
 		jsonfilename = path.join(__dirname, folder, 'JSON' ,"#{basename}.json")
-		console.log({jsonfilename})
+		#console.log({jsonfilename})
+
 		if @_needToRewrite or not fs.existsSync jsonfilename
 			readOpts =
 				sourceFile: excelfileName
