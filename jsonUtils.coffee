@@ -14,8 +14,8 @@ class JSONUtils
 		{folder='data', basename, headerRows=1,sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		
-		excelfileName = path.join(__dirname, folder, "#{basename}.xlsx")
-		jsonfilename = path.join(__dirname, folder, "#{basename}.json")
+		excelfileName = path.join(__dirname, folder,	'Excel', "#{basename}.xlsx")
+		jsonfilename = path.join(__dirname, folder, 'JSON' ,"#{basename}.json")
 		console.log({jsonfilename})
 		needToRewrite = false 
 		if needToRewrite or not fs.existsSync jsonfilename
@@ -29,13 +29,13 @@ class JSONUtils
 				mainKeyName: "指标名称"
 				
 			try
-				obj = JSONUtils.readFromExcel(readOpts)
-				JSONUtils.write2JSON({folder,basename,obj})
+				obj = @readFromExcel(readOpts)
+				@write2JSON({folder,basename,obj})
 			catch error
 				console.log error
 			
 		else
-			obj = JSONUtils.readFromJSON({folder,basename})
+			obj = @readFromJSON({folder,basename})
 
 		return obj
 
@@ -86,14 +86,14 @@ class JSONUtils
 		{mainKeyName="指标名称"} = funcOpts
 
 		for shnm, rows of source
-			JSONUtils.checkForHeaders({mainKeyName,rows})
+			@checkForHeaders({mainKeyName,rows})
 			# 去掉空格
 			sheetName = shnm.replace(/\s+/g,'')
 			objOfSheets[sheetName] = {}
 			for rowObj in rows
-				JSONUtils.deleteSpacesOnBothSide({rowObj})
+				@deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
-				JSONUtils.correctKeyName({rowObj})
+				@correctKeyName({rowObj})
 				mainKey = rowObj[mainKeyName]
 				if mainKey? and mainKey isnt "undefined"
 					objOfSheets[sheetName][mainKey] = rowObj

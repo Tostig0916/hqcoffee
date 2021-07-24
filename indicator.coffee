@@ -1,10 +1,10 @@
-ju = require './jsonUtils'
+JU = require './jsonUtils'
 
 
 class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromDataTable: (funcOpts) ->
-    json = ju.jsonizedExcelData(funcOpts)
+    json = JU.jsonizedExcelData(funcOpts)
     histdata = new HistoricData()    
     
     # unitName 是单位名,例如医院,或科室名称
@@ -17,11 +17,11 @@ class Indicator
           {指标名称, 单位} = json
           #console.log key, json
           数值 = if /^比值/.test(单位) then eval(value) else value
-          indicator = new Indicator({指标名称,单位,数值})
+          indicator = new this({指标名称,单位,数值})
           histdata.updateRecord({year:itemName,unitName,key,indicator}) 
     
     {folder,basename} = funcOpts
-    Indicator.saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata.records})
+    @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata.records})
     
     return histdata
 		
@@ -29,7 +29,7 @@ class Indicator
 
   
   @saveToJSONFile: (funcOpts) ->
-    ju.write2JSON(funcOpts)
+    JU.write2JSON(funcOpts)
 
 
 
