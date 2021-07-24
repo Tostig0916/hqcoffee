@@ -108,7 +108,9 @@ class JSONUtils
 	@write2JSON: (funcOpts) ->
 		{p=__dirname,folder='data', basename, obj} = funcOpts
 		jsonContent = JSON.stringify(obj)
-		jsonfilename = path.join(p, folder, "#{basename}.json")
+		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
+		ff = path.join(p, folder, "JSON") 
+		fs.mkdirSync ff unless fs.existsSync ff 
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
@@ -121,7 +123,7 @@ class JSONUtils
 
 	@readFromJSON: (funcOpts) ->
 		{p=__dirname,folder,basename} = funcOpts
-		jsonfilename = path.join(p, folder, "#{basename}.json")
+		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
 		console.log "read from", jsonfilename
 		obj = require jsonfilename
 		return obj
