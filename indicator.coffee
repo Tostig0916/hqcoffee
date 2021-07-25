@@ -11,14 +11,14 @@ class Indicator
     # rowName 是指标名称,json是指标内容
     for sheetName, table of json 
       for rowName, rowObject of table #when not /栏次/.test(rowName)
-        for itemName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(itemName)
-          histdata[itemName] ?= {} 
+        for fieldName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(fieldName)
+          #histdata[fieldName] ?= {} #错了,多余
           key = rowName.replace('▲','') 
           {指标名称, 单位} = rowObject
           #console.log key, rowObject
           数值 = if /^比值/.test(单位) then eval(value) else value
           indicator = new this({指标名称,单位,数值})
-          histdata.updateRecord({year:itemName,sheetName,key,indicator}) 
+          histdata.updateRecord({year:fieldName,sheetName,key,indicator}) 
     
     {folder,basename} = funcOpts
     @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata.records})
