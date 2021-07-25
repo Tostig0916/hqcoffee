@@ -18,7 +18,7 @@ testit = (file) ->
         basename: "二级国考指标填报表"
         headerRows: 3
         sheetStubs: false
-        needToRewrite: true
+        needToRewrite: false #true
       }
     when 2 
       {
@@ -27,8 +27,10 @@ testit = (file) ->
         sheetStubs: true
         needToRewrite: false #true
       }
+  
   histdata = Indicator.fromDataTable(funcOpts)
-  console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
+  console.log funcOpts.basename, histdata.years, histdata.units
+  #console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
 
 
