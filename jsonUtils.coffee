@@ -16,15 +16,11 @@ class JSONUtils
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
 		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
-		
 		# read from mannual file and turn it into a dictionary
-		@needToRewrite(funcOpts.needToRewrite ? false)
-
 		excelfileName = path.join(__dirname, folder,	'Excel', "#{basename}.xlsx")
-		jsonfilename = path.join(__dirname, folder, 'JSON' ,"#{basename}.json")
-		#console.log({jsonfilename})
-
-		if @_needToRewrite or not fs.existsSync jsonfilename
+		
+		{jsonfilename, isReady} = @targetJSONFileIsReady(funcOpts)
+		unless isReady
 			readOpts =
 				sourceFile: excelfileName
 				sheetStubs: sheetStubs
@@ -37,11 +33,12 @@ class JSONUtils
 			try
 				obj = @readFromExcel(readOpts)
 				@write2JSON({folder,basename,obj})
+
 			catch error
 				console.log error
 			
 		else
-			obj = @readFromJSON({folder,basename})
+			obj = @readFromJSON({jsonfilename})
 
 		return obj
 
@@ -111,13 +108,26 @@ class JSONUtils
 
 
 
-	@write2JSON: (funcOpts) ->
-		{p=__dirname,folder='data', basename, obj} = funcOpts
+	@targetJSONFileIsReady: (funcOpts) ->
+		{p=__dirname,folder='data', basename, obj, needToRewrite} = funcOpts
+
 		ff = path.join(p, folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
 		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
+
+		@needToRewrite(needToRewrite ? false)
+		isReady = fs.existsSync(jsonfilename) and not @_needToRewrite
+		{jsonfilename, isReady, obj}
+
+
+
+
+
+	@write2JSON: (funcOpts) ->
 		
-		if fs.existsSync(jsonfilename) and not @_needToRewrite
+		{jsonfilename, isReady, obj} = @targetJSONFileIsReady(funcOpts)
+
+		if isReady #fs.existsSync(jsonfilename) and not @_needToRewrite
 			console.log "已有文件: #{jsonfilename}"
 			return this
 
@@ -133,10 +143,11 @@ class JSONUtils
 	
 
 	@readFromJSON: (funcOpts) ->
-		{p=__dirname,folder,basename} = funcOpts
-		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
-		console.log "读取: ", jsonfilename
-		obj = require jsonfilename
+		{p=__dirname, folder, basename, jsonfilename} = funcOpts
+		
+		filename = jsonfilename ? path.join(p, folder, "JSON", "#{basename}.json")
+		console.log "读取: ", filename
+		obj = require filename
 		return obj
 	
 
