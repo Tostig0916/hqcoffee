@@ -54,15 +54,12 @@ class IndicatorDef
 				}))
 				# console.log key, obj
 		
+		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
 		{folder,basename,needToRewrite} = funcOpts
-		@saveToJSONFile({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
+		JU.write2JSON({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
 		return indicators
 
 
-
-	# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
-	@saveToJSONFile: (funcOpts) ->
-		JU.write2JSON(funcOpts)
 
 
 

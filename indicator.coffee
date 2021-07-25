@@ -21,16 +21,13 @@ class Indicator
           indicator = new this({指标名称,单位,数值})
           histdata.updateRecord({year:fieldName,sheetName,key,indicator}) 
     
+		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
     {folder, basename, needToRewrite} = funcOpts
-    @saveToJSONFile({folder, basename:"#{basename}Hist", needToRewrite, obj: histdata})
+    JU.write2JSON({folder, basename:"#{basename}Hist", needToRewrite, obj: histdata})
       
     return histdata
 		
 
-
-  
-  @saveToJSONFile: (funcOpts) ->
-    JU.write2JSON(funcOpts)
 
 
 
