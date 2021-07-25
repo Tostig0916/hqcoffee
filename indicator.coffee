@@ -21,7 +21,7 @@ class Indicator
           histdata.updateRecord({year:fieldName,sheetName,key,indicator}) 
     
     {folder,basename} = funcOpts
-    @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata.records})
+    @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata})
     
     return histdata
 		
