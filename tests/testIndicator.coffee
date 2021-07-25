@@ -28,7 +28,7 @@ testit = (file) ->
         needToRewrite: false #true
       }
   
-  histdata = Indicator.fromDataTable(funcOpts)
+  histdata = Indicator.fromJSONData(funcOpts)
   console.log funcOpts.basename, histdata.years, histdata.units
   #console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 

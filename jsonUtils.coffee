@@ -7,11 +7,6 @@ xlsx = require 'json-as-xlsx'
 
 
 class JSONUtils
-  
-	# wrong design?
-	@needToRewrite: (funcOpts) ->
-		@_needToRewrite = funcOpts
-
 
 	# 将Excel文件转化为JSON文件
 	@jsonizedExcelData: (funcOpts) ->
@@ -20,6 +15,8 @@ class JSONUtils
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
 		
+		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
+		# 但是为防止后续设计改变,亦可每次皆重读
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			readOpts =
@@ -32,13 +29,16 @@ class JSONUtils
 				mainKeyName: "指标名称"
 				
 			try
+				# 是简单的JSON object
 				obj = @readFromExcel(readOpts)
-				@write2JSON({folder,basename,obj})
+				funcOpts.obj = obj
+				@write2JSON(funcOpts)
 
 			catch error
 				console.log error
 			
 		else
+			# 原本就是JSON object 所以直接读取即可
 			obj = @readFromJSON({jsonfilename})
 
 		return obj
@@ -135,16 +135,18 @@ class JSONUtils
 
 
 
-
+	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
 	@write2JSON: (funcOpts) ->
-		jsonfilename = @getJSONFilename(funcOpts)
-		{obj} = funcOpts		
-		jsonContent = JSON.stringify(obj)
-		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
-			if err? 
-				console.log(err)
-			else
-				console.log "#{path.basename(jsonfilename)} saved at #{Date()}"
+		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
+		unless isReady
+			#jsonfilename = @getJSONFilename(funcOpts)
+			{obj} = funcOpts		
+			jsonContent = JSON.stringify(obj)
+			fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
+				if err? 
+					console.log(err)
+				else
+					console.log "#{path.basename(jsonfilename)} saved at #{Date()}"
 
 
 

@@ -42,7 +42,7 @@ class IndicatorDef
 		for versionName, mannual of json
 			for k, obj of mannual
 				key = k.replace('▲','') 
-				indicators[key] ?= new this(obj) #IndicatorDef(obj)
+				indicators[key] ?= new this(obj)
 				indicators[key].versions.push(new IndicatorDefVersion({
 					versionName: versionName 
 					序号: obj.序号
@@ -53,14 +53,19 @@ class IndicatorDef
 					评: /(降低|提高)/.test(obj.指标导向)
 				}))
 				# console.log key, obj
-		{folder,basename} = funcOpts
-		basename = "#{basename}Dict"
-		@saveToJSONFile({folder, basename, obj: indicators})
+		
+		{folder,basename,needToRewrite} = funcOpts
+		@saveToJSONFile({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
 		return indicators
 
 
+
+	# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
 	@saveToJSONFile: (funcOpts) ->
 		JU.write2JSON(funcOpts)
+
+
+
 
 	###
 	# 各版本独立陈列，备考  
