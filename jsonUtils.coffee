@@ -8,7 +8,7 @@ xlsx = require 'json-as-xlsx'
 
 class JSONUtils
 
-	# 将Excel文件转化为JSON文件
+	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
 		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
