@@ -7,18 +7,18 @@ class Indicator
     json = JU.jsonizedExcelData(funcOpts)
     histdata = new HistoricData()    
     
-    # unitName 是单位名,例如医院,或科室名称
-    # k是指标名称,json是指标内容
-    for unitName, table of json 
-      for k, json of table #when json.指标名称?
-        for itemName, value of json when /(?:(?:20|21)\d{2})年/g.test(itemName)
+    # sheetName 是单位名,例如"医院",或"普外科"
+    # rowName 是指标名称,json是指标内容
+    for sheetName, table of json 
+      for rowName, rowObject of table when not /栏次/.test(rowName)
+        for itemName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(itemName)
           histdata[itemName] ?= {} 
-          key = k.replace('▲','') 
-          {指标名称, 单位} = json
-          #console.log key, json
+          key = rowName.replace('▲','') 
+          {指标名称, 单位} = rowObject
+          #console.log key, rowObject
           数值 = if /^比值/.test(单位) then eval(value) else value
           indicator = new this({指标名称,单位,数值})
-          histdata.updateRecord({year:itemName,unitName,key,indicator}) 
+          histdata.updateRecord({year:itemName,sheetName,key,indicator}) 
     
     {folder,basename} = funcOpts
     @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata.records})
@@ -37,7 +37,7 @@ class Indicator
   constructor: (funcOpts) ->
     {@指标名称, @单位, @数值} = funcOpts
     if indicatorDef?
-      {@计量单位, @指标导向, @指标来源, @指标属性,@二级指标,@一级指标} = indicatorDef
+      {@计量单位, @指标导向, @指标来源, @指标属性, @二级指标, @一级指标} = indicatorDef
 
 
 
@@ -51,18 +51,18 @@ class HistoricData
     @units = []
 
   # year: e.g. '2020年'
-  # unitName e.g. '医院','心内科'
+  # sheetName e.g. '医院','心内科'
   newRecord: (funcOpts) ->
-    {year, unitName, key, indicator,update=false} = funcOpts
+    {year, sheetName, key, indicator,update=false} = funcOpts
     @years.push(year) unless year in @years
-    @units.push(unitName) unless unitName in @units
+    @units.push(sheetName) unless sheetName in @units
     @records[year] ?= {}
-    @records[year][unitName] ?= {}
+    @records[year][sheetName] ?= {}
 
     if update
-      @records[year][unitName][key] = indicator
+      @records[year][sheetName][key] = indicator
     else
-      @records[year][unitName][key] ?= indicator
+      @records[year][sheetName][key] ?= indicator
 
   
   
@@ -77,10 +77,11 @@ class HistoricData
 
     
 
-  # year: e.g. '2020年'
+  ### year: e.g. '2020年'
   addTable: (funcOpts) ->
     {year, table} = funcOpts
     @records[year] ?= table
+  ###
 
 
   description: ->
