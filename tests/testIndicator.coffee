@@ -18,7 +18,7 @@ testit = (file) ->
         basename: "二级国考指标填报表"
         headerRows: 3
         sheetStubs: false
-        needToRewrite: false #true
+        needToRewrite: true
       }
     when 2 
       {

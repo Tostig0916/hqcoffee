@@ -4,25 +4,31 @@ JU = require './jsonUtils'
 class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromDataTable: (funcOpts) ->
-    json = JU.jsonizedExcelData(funcOpts)
-    histdata = new HistoricData()    
-    
-    # sheetName 是单位名,例如"医院",或"普外科"
-    # rowName 是指标名称,json是指标内容
-    for sheetName, table of json 
-      for rowName, rowObject of table #when not /栏次/.test(rowName)
-        for fieldName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(fieldName)
-          #histdata[fieldName] ?= {} #错了,多余
-          key = rowName.replace('▲','') 
-          {指标名称, 单位} = rowObject
-          #console.log key, rowObject
-          数值 = if /^比值/.test(单位) then eval(value) else value
-          indicator = new this({指标名称,单位,数值})
-          histdata.updateRecord({year:fieldName,sheetName,key,indicator}) 
-    
-    {folder,basename} = funcOpts
-    @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata})
-    
+    {folder, basename, needToRewrite} = funcOpts
+
+    {jsonfilename, isReady} = JU.jsonfileNeedsNoFix({folder, basename:"#{basename}Hist",needToRewrite})
+    if isReady
+      histdata = JU.readFromJSON({jsonfilename})
+    else
+      json = JU.jsonizedExcelData(funcOpts)
+      histdata = new HistoricData()    
+      
+      # sheetName 是单位名,例如"医院",或"普外科"
+      # rowName 是指标名称,json是指标内容
+      for sheetName, table of json 
+        for rowName, rowObject of table #when not /栏次/.test(rowName)
+          for fieldName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(fieldName)
+            #histdata[fieldName] ?= {} #错了,多余
+            key = rowName.replace('▲','') 
+            {指标名称, 单位} = rowObject
+            #console.log key, rowObject
+            数值 = if /^比值/.test(单位) then eval(value) else value
+            indicator = new this({指标名称,单位,数值})
+            histdata.updateRecord({year:fieldName,sheetName,key,indicator}) 
+      
+      {folder,basename} = funcOpts
+      @saveToJSONFile({folder, basename:"#{basename}Hist", obj: histdata})
+      
     return histdata
 		
 

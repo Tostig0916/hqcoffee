@@ -8,6 +8,7 @@ xlsx = require 'json-as-xlsx'
 
 class JSONUtils
   
+	# wrong design?
 	@needToRewrite: (funcOpts) ->
 		@_needToRewrite = funcOpts
 
@@ -17,9 +18,9 @@ class JSONUtils
 		# type could be zh 综合, zy 中医,etc
 		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
-		excelfileName = path.join(__dirname, folder,	'Excel', "#{basename}.xlsx")
+		excelfileName = @getExcelFilename(funcOpts)
 		
-		{jsonfilename, isReady} = @targetJSONFileIsReady(funcOpts)
+		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			readOpts =
 				sourceFile: excelfileName
@@ -106,37 +107,45 @@ class JSONUtils
 
 
 
+	@getJSONFilename: (funcOpts) ->
+		{p=__dirname,folder='data', basename, obj, needToRewrite} = funcOpts		
+		path.join(p, folder, "JSON", "#{basename}.json")
 
 
-	@targetJSONFileIsReady: (funcOpts) ->
-		{p=__dirname,folder='data', basename, obj, needToRewrite} = funcOpts
+
+	@getExcelFilename: (funcOpts) ->
+		{p=__dirname,folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
+		path.join(p,folder,'Excel', "#{basename}.xlsx")
+
+
+
+
+	@jsonfileNeedsNoFix: (funcOpts) ->
+		{p=__dirname,folder='data', basename, needToRewrite} = funcOpts
 
 		ff = path.join(p, folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
-		jsonfilename = path.join(p, folder, "JSON", "#{basename}.json")
-
-		@needToRewrite(needToRewrite ? false)
-		isReady = fs.existsSync(jsonfilename) and not @_needToRewrite
-		{jsonfilename, isReady, obj}
+		jsonfilename = @getJSONFilename(funcOpts)
+		
+		if isReady = fs.existsSync(jsonfilename) and not needToRewrite
+			console.log "已有文件: #{jsonfilename}"
+			
+		{jsonfilename, isReady}
 
 
 
 
 
 	@write2JSON: (funcOpts) ->
-		
-		{jsonfilename, isReady, obj} = @targetJSONFileIsReady(funcOpts)
-
-		if isReady #fs.existsSync(jsonfilename) and not @_needToRewrite
-			console.log "已有文件: #{jsonfilename}"
-			return this
-
+		jsonfilename = @getJSONFilename(funcOpts)
+		{obj} = funcOpts		
 		jsonContent = JSON.stringify(obj)
 		fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 			if err? 
 				console.log(err)
 			else
 				console.log "#{path.basename(jsonfilename)} saved at #{Date()}"
+
 
 
 

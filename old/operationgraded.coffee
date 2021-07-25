@@ -87,7 +87,7 @@ createPPT = (arr) ->
       )
 
 
-if fs.existsSync jsonfilename
+if not fs.existsSync jsonfilename
   content = require jsonfilename
   #console.log content 
   
