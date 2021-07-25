@@ -6,7 +6,7 @@ year=2020
 funcOpts = {
   basename: "indef#{year}"
   folder: 'data'
-  needToRewrite: true
+  needToRewrite: false #true
 }
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
