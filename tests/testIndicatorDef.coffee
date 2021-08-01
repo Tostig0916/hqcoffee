@@ -1,9 +1,11 @@
 fs = require 'fs'
+
 path = require 'path'
 pptxgen = require 'pptxgenjs'
 
-{IndicatorDef, IndicatorDefVersion} = require path.join __dirname, '../indicatorDef'
-ju = require path.join __dirname, '../jsonUtils'
+# use __dirname and __filename to create correct full path filename
+{IndicatorDef, IndicatorDefVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
+JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 year=2020
 funcOpts = {
@@ -15,7 +17,7 @@ dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
 
 funcOpts.gen = "pptxgen"
-pptname = ju.getPPTFilename(funcOpts)
+pptname = JU.getPPTFilename(funcOpts)
 unless fs.existsSync pptname
   presentation = new pptxgen()
 

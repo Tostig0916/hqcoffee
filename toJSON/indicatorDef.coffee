@@ -1,10 +1,10 @@
 e2j = require 'convert-excel-to-json'
-fs = require 'fs'
 JU = require './jsonUtils'
-# use __dirname and __filename to create correct full path filename
-path = require 'path' 
-pptxgen = require 'pptxgenjs'
-xlsx = require 'json-as-xlsx'
+
+#fs = require 'fs'
+#path = require 'path' 
+#pptxgen = require 'pptxgenjs'
+#xlsx = require 'json-as-xlsx'
 
 
 
