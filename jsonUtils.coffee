@@ -108,7 +108,7 @@ class JSONUtils
 
 
 	@getJSONFilename: (funcOpts) ->
-		{p=__dirname,folder='data', basename, obj, needToRewrite} = funcOpts		
+		{p=__dirname,folder='data', basename} = funcOpts		
 		path.join(p, folder, "JSON", "#{basename}.json")
 
 
@@ -117,6 +117,15 @@ class JSONUtils
 		{p=__dirname,folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
 		path.join(p,folder,'Excel', "#{basename}.xlsx")
 
+
+
+	@getPPTFilename: (funcOpts) ->
+		{p=__dirname,folder='ppt', basename} = funcOpts
+		# 顺便检查有无目录,没有在新建		
+		ff = path.join(p, folder) 
+		fs.mkdirSync ff unless fs.existsSync ff
+		# 生成文件路径名		
+		path.join(p, folder, "#{basename}.pptx")
 
 
 
