@@ -14,7 +14,7 @@ funcOpts = {
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
 
-
+funcOpts.gen = "pptxgen"
 pptname = ju.getPPTFilename(funcOpts)
 unless fs.existsSync pptname
   presentation = new pptxgen()
@@ -28,7 +28,7 @@ for each in arr
     slide = presentation.addSlide()
 
     # ---- to be modified -----
-    
+
     #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
     #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
     #slide.background = { path: "https://some.url/image.jpg" }  # image: url
