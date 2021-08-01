@@ -3,6 +3,7 @@ fs = require 'fs'
 path = require 'path' 
 officegen = require 'officegen'
 
+# https://github.com/Ziv-Barber/officegen/blob/master/manual/pptx/README.md
 
 class OfficeGenUtils
 
