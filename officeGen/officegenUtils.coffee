@@ -1,13 +1,13 @@
-e2j = require 'convert-excel-to-json'
 fs = require 'fs'
 # use __dirname and __filename to create correct full path filename
 path = require 'path' 
-pptxgen = require 'pptxgenjs'
-xlsx = require 'json-as-xlsx'
+officegen = require 'officegen'
 
 
-class JSONUtils
+class OfficeGenUtils
 
+
+###
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
@@ -170,9 +170,9 @@ class JSONUtils
 		obj = require filename
 		return obj
 	
+###
 
 
 
 
-
-module.exports = JSONUtils
+module.exports = OfficeGenUtils
