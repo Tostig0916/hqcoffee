@@ -6,6 +6,21 @@ officegen = require 'officegen'
 # https://github.com/Ziv-Barber/officegen/blob/master/manual/pptx/README.md
 
 class OfficeGenUtils
+  constructor: ->
+    @pptx = officegen {
+      type:'pptx'
+      #themXml: ''
+    }
+
+
+
+
+  test: ->
+    slide = @pptx.makeNewSlide {
+      userLayout: 'title'
+    }
+
+
 
 
 ###
