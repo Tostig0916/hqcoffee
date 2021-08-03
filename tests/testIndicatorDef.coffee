@@ -17,7 +17,7 @@ funcOpts = {
 }
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
-console.log arr 
+#console.log IndicatorDef 
 
 funcOpts.arr = arr
 
@@ -110,5 +110,5 @@ for each in arr
   createPPT({presentation:null})
 
 
-
-console.log "共#{IndicatorDefVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
+console.log IndicatorDefVersion.versions
+#console.log "共#{IndicatorDefVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
