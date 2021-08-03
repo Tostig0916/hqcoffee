@@ -6,27 +6,54 @@ JU = require './jsonUtils'
 #pptxgen = require 'pptxgenjs'
 #xlsx = require 'json-as-xlsx'
 
+class IndicatorDefCategory
+	constructor: (funcOpts) ->
+		{@name} = funcOpts
+		@indicatorInfos = []  # [String] 
+	
+	addInfo: (funcOpts) ->
+		{subName} = funcOpts
+		@indicatorInfos.push subName
+
+
+class IndicatorDefVersion	
+	
+	constructor: (funcOpts)->
+		{@versionName} = funcOpts
+		@categoryOne = {} #{name, category}
+		@categoryTwo = {}
+
+	addInfo: (funcOpts) ->
+		{indicatorKey,一级指标,二级指标} = funcOpts
+		@categoryOne[一级指标] ?= new IndicatorDefCategory({name: 一级指标})
+		@categoryTwo[二级指标] ?= new IndicatorDefCategory({name: 二级指标})
+
+		@categoryOne[一级指标].addInfo({subName:二级指标})
+		@categoryTwo[二级指标].addInfo({subName:indicatorKey})
 
 
 
-class IndicatorDefVersion
+
+class IndicatorDefInfoByVersion
 	# 无法直接加class properties，只能这样曲折设置
-	@addVersion: (version) ->
+	@addVersion: (funcOpts) ->
 		@versions ?= {}
-		@versions[version.versionName] ?= version
+		{versionName} = funcOpts
+		@versions[versionName] ?= new IndicatorDefVersion(funcOpts)
+		@versions[versionName].addInfo(funcOpts)
+
 
 	@versionCount: ->
 		(v for k,v of @versions).length
 
 	
-	
+
 	constructor: (funcOpts) ->
 		# 此处为可因版本而异的属性, 
 		# 其中 评是指定量指标中，要求逐步提高或降低的指标，理论上说，这项属性应该是各版本一致的，如此设计是为防止万一
 		
-		{@versionName, @序号, @计量单位, @二级指标, @一级指标, @测, @评} = funcOpts
+		{@versionName,@indicatorKey,@序号, @计量单位, @二级指标, @一级指标, @测, @评} = funcOpts
 		
-		#IndicatorDefVersion.addVersion(this)
 		@constructor.addVersion(this)
 
 
@@ -43,8 +70,9 @@ class IndicatorDef
 			for k, obj of mannual
 				key = k.replace('▲','') 
 				indicators[key] ?= new this(obj)
-				indicators[key].versions.push(new IndicatorDefVersion({
-					versionName: versionName 
+				indicators[key].versions.push(new IndicatorDefInfoByVersion({
+					versionName
+					indicatorKey: key 
 					序号: obj.序号
 					二级指标: obj.二级指标
 					一级指标: obj.一级指标
@@ -80,7 +108,7 @@ class IndicatorDef
 
 
 	constructor: (funcOpts) ->
-		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefVersion
+		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefInfoByVersion
 		{@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
 		@versions = []
 
@@ -100,5 +128,5 @@ class IndicatorDef
 
 module.exports = {
   IndicatorDef
-  IndicatorDefVersion
+  IndicatorDefInfoByVersion
 }

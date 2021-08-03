@@ -6,14 +6,14 @@ xlsx = require 'json-as-xlsx'
 
 
 # use __dirname and __filename to create correct full path filename
-{IndicatorDef, IndicatorDefVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
+{IndicatorDef, IndicatorDefInfoByVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 year=2020
 funcOpts = {
   basename: "indef#{year}"
   folder: 'data'
-  needToRewrite: false #true
+  needToRewrite: true
 }
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
@@ -110,5 +110,5 @@ for each in arr
   createPPT({presentation:null})
 
 
-console.log IndicatorDefVersion.versions
-#console.log "共#{IndicatorDefVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
+console.log JSON.stringify(IndicatorDefInfoByVersion.versions)
+#console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
