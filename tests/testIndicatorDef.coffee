@@ -2,6 +2,8 @@ fs = require 'fs'
 
 path = require 'path'
 pptxgen = require 'pptxgenjs'
+xlsx = require 'json-as-xlsx'
+
 
 # use __dirname and __filename to create correct full path filename
 {IndicatorDef, IndicatorDefVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
@@ -15,17 +17,34 @@ funcOpts = {
 }
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
 arr = (v.description() for k, v of dictionary)
+console.log arr 
 
-funcOpts.gen = "pptxgen"
-pptname = JU.getPPTFilename(funcOpts)
-unless fs.existsSync pptname
-  presentation = new pptxgen()
+funcOpts.arr = arr
 
-kpj = 0
-jc = 0
-for each in arr
-  kpj++ if /可评价:true/.test each
-  jc++ if /监测:true/.test each
+
+createExcel = (funcOpts) ->
+  return "not done yet"
+
+  excelfileName = JU.getExcelFilename(funcOpts)
+  {arr,needToRewrite} = funcOpts
+  unless fs.existsSync(excelfileName) or needToRewrite
+    data = [
+      {
+        sheet: "国考指标体系"
+        columns: [
+          {label: "指标名称", value:"指标名称"}
+
+        ]
+        content: arr
+      }
+    ]
+
+
+
+
+createPPT = (funcOpts) ->
+  {presentation} = funcOpts
+
   if presentation?
     slide = presentation.addSlide()
 
@@ -71,6 +90,24 @@ for each in arr
         .then((fileName) -> 
             console.log("created file:#{fileName} at #{Date()}")
         )
+
+
+
+createExcel(funcOpts)
+
+funcOpts.gen = "pptxgen"
+pptname = JU.getPPTFilename(funcOpts)
+unless fs.existsSync pptname
+  presentation = new pptxgen()
+
+kpj = 0
+jc = 0
+
+
+for each in arr
+  kpj++ if /可评价:true/.test each
+  jc++ if /监测:true/.test each
+  createPPT({presentation:null})
 
 
 

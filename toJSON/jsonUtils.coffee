@@ -109,30 +109,30 @@ class JSONUtils
 
 	@getJSONFilename: (funcOpts) ->
 		{p=__dirname,folder='data', basename} = funcOpts		
-		path.join(p, folder, "JSON", "#{basename}.json")
+		path.join(p, '..', folder, "JSON", "#{basename}.json")
 
 
 
 	@getExcelFilename: (funcOpts) ->
 		{p=__dirname,folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
-		path.join(p,folder,'Excel', "#{basename}.xlsx")
+		path.join(p, '..', folder,'Excel', "#{basename}.xlsx")
 
 
 
 	@getPPTFilename: (funcOpts) ->
 		{p=__dirname,folder='ppt', basename, gen=""} = funcOpts
 		# 顺便检查有无目录,没有在新建		
-		ff = path.join(p, folder) 
+		ff = path.join(p, '..', folder) 
 		fs.mkdirSync ff unless fs.existsSync ff
 		# 生成文件路径名		
-		path.join(p, folder, "#{basename}#{gen}.pptx")
+		path.join(p, '..', folder, "#{basename}#{gen}.pptx")
 
 
 
 	@jsonfileNeedsNoFix: (funcOpts) ->
 		{p=__dirname,folder='data', basename, needToRewrite} = funcOpts
 
-		ff = path.join(p, folder, "JSON") 
+		ff = path.join(p, '..', folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
 		jsonfilename = @getJSONFilename(funcOpts)
 		
@@ -165,7 +165,7 @@ class JSONUtils
 	@readFromJSON: (funcOpts) ->
 		{p=__dirname, folder, basename, jsonfilename} = funcOpts
 		
-		filename = jsonfilename ? path.join(p, folder, "JSON", "#{basename}.json")
+		filename = jsonfilename ? path.join(p, '..', folder, "JSON", "#{basename}.json")
 		console.log "读取: ", filename
 		obj = require filename
 		return obj
