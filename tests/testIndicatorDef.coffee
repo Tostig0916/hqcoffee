@@ -16,12 +16,22 @@ funcOpts = {
   needToRewrite: true
 }
 dictionary = IndicatorDef.fromMannualFile(funcOpts)
-arr = (v for k, v of dictionary)
-#arr = (v.description() for k, v of dictionary)
+#arr = (v for k, v of dictionary)
+arr = (v.description() for k, v of dictionary)
 
-console.log arr
+#console.log arr
+
+kpj = 0
+jc = 0
+
+
+for each in arr
+  kpj++ if /可评价:true/.test each
+  jc++ if /监测:true/.test each
+  #createPPT({presentation:null})
+
 #console.log IndicatorDefInfoByVersion.versionArray() #JSON.stringify(IndicatorDefInfoByVersion.versions)
-#console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
+console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"
 
 
 funcOpts.arr = arr
@@ -104,14 +114,4 @@ funcOpts.gen = "pptxgen"
 pptname = JU.getPPTFilename(funcOpts)
 unless fs.existsSync pptname
   presentation = new pptxgen()
-
-kpj = 0
-jc = 0
-
-
-for each in arr
-  kpj++ if /可评价:true/.test each
-  jc++ if /监测:true/.test each
-  createPPT({presentation:null})
-
 

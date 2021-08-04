@@ -114,8 +114,8 @@ class JSONUtils
 
 
 	@getExcelFilename: (funcOpts) ->
-		{p=__dirname,folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
-		path.join(p, '..', folder,'Excel', "#{basename}.xlsx")
+		{p=__dirname,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
+		path.join(p, '..', folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
 
 
 
@@ -150,7 +150,10 @@ class JSONUtils
 		{isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			{data,settings} = funcOpts
+			funcOpts.basenameOnly = true
+
 			settings.fileName = @getExcelFilename(funcOpts)
+			#console.log settings
 
 			xlsx(data, settings)
 
