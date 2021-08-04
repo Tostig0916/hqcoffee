@@ -110,5 +110,5 @@ for each in arr
   createPPT({presentation:null})
 
 
-console.log JSON.stringify(IndicatorDefInfoByVersion.versions)
+console.log IndicatorDefInfoByVersion.versionArray() #JSON.stringify(IndicatorDefInfoByVersion.versions)
 #console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{kpj}个可评价指标, #{jc}个国家监测指标"

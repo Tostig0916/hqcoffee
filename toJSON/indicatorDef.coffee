@@ -9,11 +9,16 @@ JU = require './jsonUtils'
 class IndicatorDefCategory
 	constructor: (funcOpts) ->
 		{@name} = funcOpts
-		@indicatorInfos = []  # [String] 
+		@subs = []   
 	
 	addInfo: (funcOpts) ->
 		{subName} = funcOpts
-		@indicatorInfos.push subName
+		@subs.push(subName) unless subName in @subs
+
+	description: ->
+		"#{@name},#{@subs.join(",")}" 
+
+
 
 
 class IndicatorDefVersion	
@@ -41,6 +46,10 @@ class IndicatorDefInfoByVersion
 		{versionName} = funcOpts
 		@versions[versionName] ?= new IndicatorDefVersion(funcOpts)
 		@versions[versionName].addInfo(funcOpts)
+
+
+	@versionArray: ->
+		(each.description() for key, each of @versions)
 
 
 	@versionCount: ->
