@@ -49,7 +49,7 @@ class IndicatorDefInfoByVersion
 
 
 	@versionArray: ->
-		(each.description() for key, each of @versions)
+		(each for key, each of @versions)
 
 
 	@versionCount: ->
@@ -94,6 +94,7 @@ class IndicatorDef
 		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
 		{folder,basename,needToRewrite} = funcOpts
 		JU.write2JSON({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
+		JU.write2JSON({folder,basename:"#{basename}Versions", needToRewrite, obj: IndicatorDefInfoByVersion.versions})
 		return indicators
 
 
