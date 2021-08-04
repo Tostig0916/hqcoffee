@@ -86,7 +86,7 @@ class IndicatorDef
 					indicators[key].二级指标 ?= obj.二级指标
 				
 				indicators[key]["#{versionName}监测"] = /▲$/.test(obj.指标名称)
-				
+
 				indicators[key].versions.push(new IndicatorDefInfoByVersion({
 					versionName
 					indicatorKey: key 
@@ -101,10 +101,45 @@ class IndicatorDef
 		
 		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
 		{folder,basename,needToRewrite} = funcOpts
+		{data, settings} = @dataSettings4Excel {arr:(v for k, v of indicators)}
+		JU.write2Excel({folder,basename:"#{basename}Analyze", needToRewrite, obj:arr})
 		JU.write2JSON({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
 		JU.write2JSON({folder,basename:"#{basename}Versions", needToRewrite, obj: IndicatorDefInfoByVersion.versions})
 		return indicators
 
+
+
+
+	@dataSettings4Excel: (funcOpts) ->
+		{arr} = funcOpts
+		data = [
+			{
+				sheet: '国考指标体系'
+				columns: [
+					{label:'指标名称', value:'指标名称'}
+					{label:'指标来源', value: '指标来源'}
+					{label:'指标属性', value: '指标属性'}
+					{label:'计量单位', value: '计量单位'}
+					{label:'指标导向', value: '指标导向'}
+					{label:'可评价', value:'可评价'}
+					{label:'一级指标', value: '一级指标'}
+					{label:'二级指标', value: '二级指标'}
+					{label:'三级综合监测', value: '三级综合监测'}
+					{label:'二级综合监测', value: '二级综合监测'}
+					{label:'三级中医监测', value:'三级中医监测'}
+					{label:'三级综合', value: '三级综合'}
+					{label:'二级综合', value: '二级综合'}
+					{label:'三级中医', value: '三级中医'}
+				]
+				content: arr 
+			}
+		]
+		settings = {
+			extraLength: 3
+			writeOptions: {}
+		}
+		
+		{data, settings}
 
 
 
