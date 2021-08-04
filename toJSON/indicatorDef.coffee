@@ -77,8 +77,16 @@ class IndicatorDef
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
-				key = k.replace('▲','') 
+				key = k.replace('▲','')
 				indicators[key] ?= new this(obj)
+				indicators[key][versionName] = true
+				if obj.一级指标?  
+					indicators[key].一级指标 ?= obj.一级指标
+				if obj.二级指标?  
+					indicators[key].二级指标 ?= obj.二级指标
+				
+				indicators[key]["#{versionName}监测"] = /▲$/.test(obj.指标名称)
+				
 				indicators[key].versions.push(new IndicatorDefInfoByVersion({
 					versionName
 					indicatorKey: key 
@@ -119,7 +127,10 @@ class IndicatorDef
 
 	constructor: (funcOpts) ->
 		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefInfoByVersion
-		{@指标名称, @指标来源='', @指标属性='', @指标导向} = funcOpts
+		{@指标名称, @指标来源='', @指标属性='', @计量单位, @指标导向} = funcOpts
+		@可评价 = /(降低|提高)/.test(@指标导向)
+		@一级指标 = @二级指标 = null
+		@三级综合 = @二级综合 = @三级中医 = @三级综合监测 = @二级综合监测 = @三级中医监测 = false
 		@versions = []
 
 

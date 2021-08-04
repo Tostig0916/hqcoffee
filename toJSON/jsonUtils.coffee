@@ -143,11 +143,21 @@ class JSONUtils
 
 
 
+	# 指标定义详情比较表
+	@write2Excel: (funcOpts) ->
+		{p=__dirname,folder='data', basename, needToRewrite} = funcOpts
+		excelfileName = @getExcelFilename(funcOpts)
+
+
+
+
+
 
 	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
 	@write2JSON: (funcOpts) ->
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
+			write2Excel(funcOpts)
 			#jsonfilename = @getJSONFilename(funcOpts)
 			{obj} = funcOpts		
 			jsonContent = JSON.stringify(obj)
