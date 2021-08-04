@@ -77,7 +77,8 @@ class IndicatorDef
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
-				key = k.replace('▲','')
+				key = @fixedKey k.replace('▲','')
+				obj.key = key
 				indicators[key] ?= new this(obj)
 				indicators[key][versionName] = true
 				if obj.一级指标?  
@@ -109,6 +110,20 @@ class IndicatorDef
 
 
 
+	@fixedKey: (k)->
+		switch 
+			when k in ["人员经费占比","人员支出占业务支出比重"] 
+				"人员经费占比(人员支出占业务支出比重)"
+			when k in ["万元收入能耗占比","万元收入能耗支出"]
+				"万元收入能耗占比(~能耗支出)"
+			when k in ["国家组织药品集中采购中标药品金额占比","国家组织药品集中采购中标药品使用比例"]
+				"国家组织药品集中采购中标药品金额占比(~药品使用比例)"
+			when k in ["医疗盈余率","收支结余"]
+				"医疗盈余率(收支结余)"
+			else k
+
+
+
 
 	@dataSettings4Excel: (funcOpts) ->
 		{arr} = funcOpts
@@ -116,20 +131,21 @@ class IndicatorDef
 			{
 				sheet: '国考指标体系'
 				columns: [
-					{label:'指标名称', value:'指标名称'}
+					{label:'准确名称', value:'key'}
+					#{label:'指标名称', value:'指标名称'}
+					{label:'矢量', value:'可评价'}
+					{label:'二级指标', value: '二级指标'}
+					{label:'一级指标', value: '一级指标'}
 					{label:'指标来源', value: '指标来源'}
 					{label:'指标属性', value: '指标属性'}
 					{label:'计量单位', value: '计量单位'}
 					{label:'指标导向', value: '指标导向'}
-					{label:'可评价', value:'可评价'}
-					{label:'一级指标', value: '一级指标'}
-					{label:'二级指标', value: '二级指标'}
 					{label:'三综监', value: '三级综合监测'}
-					{label:'二综监', value: '二级综合监测'}
 					{label:'三中监', value:'三级中医监测'}
+					{label:'二综监', value: '二级综合监测'}
 					{label:'三综', value: '三级综合'}
-					{label:'二综', value: '二级综合'}
 					{label:'三中', value: '三级中医'}
+					{label:'二综', value: '二级综合'}
 				]
 				content: arr 
 			}
@@ -162,7 +178,7 @@ class IndicatorDef
 
 	constructor: (funcOpts) ->
 		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefInfoByVersion
-		{@指标名称, @指标来源='', @指标属性='', @计量单位, @指标导向} = funcOpts
+		{@key, @指标名称, @指标来源='', @指标属性='', @计量单位, @指标导向} = funcOpts
 		@可评价 = /(降低|提高)/.test(@指标导向)
 		@一级指标 = @二级指标 = null
 		@三级综合 = @二级综合 = @三级中医 = @三级综合监测 = @二级综合监测 = @三级中医监测 = false

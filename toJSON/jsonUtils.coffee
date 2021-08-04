@@ -151,11 +151,9 @@ class JSONUtils
 		unless isReady
 			{data,settings} = funcOpts
 			funcOpts.basenameOnly = true
-
 			settings.fileName = @getExcelFilename(funcOpts)
-			#console.log settings
-
 			xlsx(data, settings)
+			console.log path.basename(settings.fileName), "saved at #{new Date()}"
 
 
 
