@@ -131,21 +131,25 @@ class IndicatorDef
 			{
 				sheet: '国考指标体系'
 				columns: [
-					{label:'准确名称', value:'key'}
-					#{label:'指标名称', value:'指标名称'}
-					{label:'矢量', value:'可评价'}
+					{
+						label:'指标名称', value: ({指标名称,key,可评价,指标导向}) ->
+							key1 = if 可评价 then "#{指标导向[4]}#{key}" else key 
+							if /▲$/.test(指标名称) then key1 + '▲' else key1
+					}
 					{label:'二级指标', value: '二级指标'}
 					{label:'一级指标', value: '一级指标'}
 					{label:'指标来源', value: '指标来源'}
-					{label:'指标属性', value: '指标属性'}
+					{label:'三综', value: ({三级综合监测,三级综合}) -> if 三级综合监测 then '✓' else if 三级综合 then '✓✕' else '✕'}
+					{label:'三中', value: ({三级中医监测,三级中医}) -> if 三级中医监测 then '✓' else if 三级中医 then '✓✕' else '✕'}
+					{label:'二综', value: ({二级综合监测,二级综合}) -> if 二级综合监测 then '✓' else if 二级综合 then '✓✕' else '✕'}
 					{label:'计量单位', value: '计量单位'}
-					{label:'指标导向', value: '指标导向'}
-					{label:'三综监', value: '三级综合监测'}
-					{label:'三中监', value:'三级中医监测'}
-					{label:'二综监', value: '二级综合监测'}
-					{label:'三综', value: '三级综合'}
-					{label:'三中', value: '三级中医'}
-					{label:'二综', value: '二级综合'}
+					#{label:'指标名称', value:'指标名称'}
+					#{label:'指标属性', value: '指标属性'}
+					#{label:'指标导向', value: '指标导向'}
+					#{label:'矢量', value: ({可评价}) -> if 可评价 then '✓' else '✕'}
+					#{label:'三综', value: ({三级综合}) -> if 三级综合 then '✓' else '✕'}
+					#{label:'三中', value: ({三级中医}) -> if 三级中医 then '✓' else '✕'}
+					#{label:'二综', value: ({二级综合}) -> if 二级综合 then '✓' else '✕'}
 				]
 				content: arr 
 			}
