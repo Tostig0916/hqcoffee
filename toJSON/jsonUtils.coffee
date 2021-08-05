@@ -11,7 +11,7 @@ class JSONUtils
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
+		{folder='data', basename, headerRows=1, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
 		
@@ -26,7 +26,7 @@ class JSONUtils
 				#sheets: ['Sheet 1']
 				columnToKey: {'*':'{{columnHeader}}'}
 				# 这一属性是我加的
-				mainKeyName: "指标名称"
+				mainKeyName: mainKeyName
 				
 			try
 				# 是简单的JSON object
