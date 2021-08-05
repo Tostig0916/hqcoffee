@@ -13,8 +13,12 @@ funcOpts = {
   sheetStubs: true
   needToRewrite: false #true
   mainKeyName: "科室名"
+  gen: "pptxgen"
 }
     
 json = JU.jsonizedExcelData(funcOpts)
 
 console.log json
+
+pptname = JU.getPPTFilename(funcOpts)
+console.log pptname
