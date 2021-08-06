@@ -33,7 +33,7 @@ createPPT = (funcOpts) ->
     for key, obj of json.雷达图
       slide = pres.addSlide()
 
-      slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+      #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
 
