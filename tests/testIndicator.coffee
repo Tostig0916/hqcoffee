@@ -1,5 +1,5 @@
 path = require 'path'
-{Indicator} = require path.join __dirname, '../indicator'
+{Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
 #ju = require path.join __dirname, '../jsonUtils'
 
 
@@ -34,4 +34,4 @@ testit = (file) ->
 
 
 
-testit(file) for file in [0..2]
+testit(file) for file in [1..2]

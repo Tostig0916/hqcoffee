@@ -11,9 +11,8 @@ class Indicator
     # sheetName 是单位名,例如"医院",或"普外科"
     # rowName 是指标名称,json是指标内容
     for sheetName, table of jsonizedData 
-      for rowName, rowObject of table #when not /栏次/.test(rowName)
+      for rowName, rowObject of table
         for fieldName, value of rowObject when /(?:(?:20|21)\d{2})年/g.test(fieldName)
-          #histdata[fieldName] ?= {} #错了,多余
           key = rowName.replace('▲','') 
           {指标名称, 单位} = rowObject
           #console.log key, rowObject
