@@ -37,6 +37,10 @@ arrayOfDefs = (funcOpts) ->
   return arr
 
 
+module.exports = arrayOfDefs
+
+
+
 funcOpts = {year:2020}
 arr = arrayOfDefs(funcOpts)  
 funcOpts.arr = arr
