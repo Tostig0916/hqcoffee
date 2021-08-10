@@ -34,7 +34,7 @@ arrayOfDefs = (funcOpts) ->
 
   #console.log IndicatorDefInfoByVersion.versionArray() #JSON.stringify(IndicatorDefInfoByVersion.versions)
   console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{vector}个可评价指标, #{jc}个国家监测指标"
-  return arr
+  return {arr, dictionary}
 
 
 module.exports = arrayOfDefs
@@ -42,7 +42,7 @@ module.exports = arrayOfDefs
 
 
 funcOpts = {year:2020}
-arr = arrayOfDefs(funcOpts)  
+{arr} = arrayOfDefs(funcOpts)  
 funcOpts.arr = arr
 
 

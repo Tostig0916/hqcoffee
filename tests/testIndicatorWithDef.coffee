@@ -6,6 +6,6 @@ arrayOfDefs = require './testIndicatorDef'
 #ju = require path.join __dirname, '../jsonUtils'
 
 
-getHistdata(1)
-arr = arrayOfDefs({year:2020})
-console.log arr
+{histdata} = getHistdata(1)
+{arr, dictionary} = arrayOfDefs({year:2020})
+console.log dictionary, histdata.records
