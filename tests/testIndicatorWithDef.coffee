@@ -1,9 +1,10 @@
 path = require 'path'
 {Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
+testit = require './testIndicator'
 #ju = require path.join __dirname, '../jsonUtils'
 
 
-
+###
 testit = (file) ->
   funcOpts = switch file
     when 0
@@ -32,6 +33,6 @@ testit = (file) ->
   console.log funcOpts.basename, histdata.years, histdata.units
   #console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
-module.exports = testit
+###
 
-testit(file) for file in [1..2]
+testit(1)
