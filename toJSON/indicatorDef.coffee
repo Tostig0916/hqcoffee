@@ -132,8 +132,8 @@ class IndicatorDef
 				sheet: '国考指标体系'
 				columns: [
 					{
-						label:'指标名称', value: ({指标名称,key,可评价,指标导向}) ->
-							key1 = if 可评价 then "#{指标导向[4]}#{key}" else key 
+						label:'指标名称', value: ({指标名称,key,矢量,指标导向}) ->
+							key1 = if 矢量 then "#{指标导向[4]}#{key}" else key 
 							if /▲$/.test(指标名称) then key1 + '▲' else key1
 					}
 					{label:'二级指标', value: '二级指标'}
@@ -146,7 +146,7 @@ class IndicatorDef
 					#{label:'指标名称', value:'指标名称'}
 					#{label:'指标属性', value: '指标属性'}
 					#{label:'指标导向', value: '指标导向'}
-					#{label:'矢量', value: ({可评价}) -> if 可评价 then '✓' else '✕'}
+					#{label:'矢量', value: ({矢量}) -> if 矢量 then '✓' else '✕'}
 					#{label:'三综', value: ({三级综合}) -> if 三级综合 then '✓' else '✕'}
 					#{label:'三中', value: ({三级中医}) -> if 三级中医 then '✓' else '✕'}
 					#{label:'二综', value: ({二级综合}) -> if 二级综合 then '✓' else '✕'}
@@ -183,7 +183,7 @@ class IndicatorDef
 	constructor: (funcOpts) ->
 		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefInfoByVersion
 		{@key, @指标名称, @指标来源='', @指标属性='', @计量单位, @指标导向} = funcOpts
-		@可评价 = /(降低|提高)/.test(@指标导向)
+		@矢量 = /(降低|提高)/.test(@指标导向)
 		@一级指标 = @二级指标 = null
 		@三级综合 = @二级综合 = @三级中医 = @三级综合监测 = @二级综合监测 = @三级中医监测 = false
 		@versions = []
@@ -197,7 +197,7 @@ class IndicatorDef
 
 	description: ->
 		arr = ("版本:#{each.versionName}, 序号:#{each.序号}, 监测:#{each.测}" for each in @versions)
-		return "指标:#{@指标名称}, 可评价:#{@isValuable()}, #{arr}"
+		return "指标:#{@指标名称}, 矢量:#{@isValuable()}, #{arr}"
 
 
 
