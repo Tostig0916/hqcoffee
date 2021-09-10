@@ -1,10 +1,22 @@
 fs = require 'fs'
 # use __dirname and __filename to create correct full path filename
 path = require 'path' 
+
 pptxgen = require 'pptxgenjs'
+JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
-class PPTGenUtils
+
+class PPTXGenUtils
+
+
+	@getPPTFilename: (funcOpts) ->
+		funcOpts.gen = "pptxgen"
+		JU.getPPTFilename(funcOpts)
+
+
+
+
 	###
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
@@ -173,4 +185,4 @@ class PPTGenUtils
 
 
 
-module.exports = PPTGenUtils
+module.exports = PPTXGenUtils

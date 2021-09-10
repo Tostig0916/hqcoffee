@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+PPTXGenUtils = require path.join __dirname, '..', 'gen', 'pptxgenUtils'
 pptxgen = require 'pptxgenjs'
 #xlsx = require 'json-as-xlsx'
 # use __dirname and __filename to create correct full path filename
@@ -13,16 +14,15 @@ funcOpts = {
   sheetStubs: true
   needToRewrite: false #true
   mainKeyName: "科室名"
-  gen: "pptxgen"
+  #gen: "pptxgen"
 }
     
 json = JU.jsonizedExcelData(funcOpts)
 
 #console.log (each for key, each of json)[0..4]
 
-pptname = JU.getPPTFilename(funcOpts)
+pptname = PPTXGenUtils.getPPTFilename(funcOpts)
 console.log {pptname}
-
 
 createPPT = (funcOpts) ->
   {json} = funcOpts
@@ -69,4 +69,6 @@ createPPT = (funcOpts) ->
         )
 
 
-createPPT({json})
+# createPPT({json})
+
+PPTXGenUtils.createPPT({json})

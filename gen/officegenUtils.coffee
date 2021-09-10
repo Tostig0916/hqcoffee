@@ -1,17 +1,68 @@
-e2j = require 'convert-excel-to-json'
 fs = require 'fs'
 # use __dirname and __filename to create correct full path filename
 path = require 'path' 
-pptxgen = require 'pptxgenjs'
-xlsx = require 'json-as-xlsx'
+officegen = require 'officegen'
+JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+
+# https://github.com/Ziv-Barber/officegen/blob/master/manual/pptx/README.md
+
+class OfficeGenUtils
 
 
-class JSONUtils
+	@getPPTFilename: (funcOpts) ->
+		funcOpts.gen = "officegen"
+		JU.getPPTFilename(funcOpts)
+		
+  
+	constructor: ->
+		
+		@pptx = officegen {
+			type:'pptx'
+			#themXml: ''
+		}
 
+
+
+
+	test: ->
+		
+		slide = @pptx.makeNewSlide {
+      userLayout: 'title'
+    }
+
+		#// Change the background color:
+		slide.back = '000000'
+
+		#// Declare the default color to use on this slide (default is black):
+		slide.color = 'ffffff'
+
+		#// Basic way to add text string:
+		slide.addText('This is a test')
+		slide.addText('Fast position', 0, 20)
+		slide.addText('Full line', 0, 40, '100%', 20)
+
+		#// Add text box with multi colors and fonts:
+		slide.addText([
+			{text: 'Hello ', options: {font_size: 56}},
+			{text: 'World!', options: {font_size: 56, font_face: 'Arial', color: 'ffff00'}}
+			], {cx: '75%', cy: 66, y: 150})
+		#// Please note that you can pass object as the text parameter to addText.
+
+		slide.addText('Office generator', {
+			y: 66, x: 'c', cx: '50%', cy: 60, font_size: 48,
+			color: '0000ff' } )
+
+		slide.addText('Big Red', {
+			y: 250, x: 10, cx: '70%',
+			font_face: 'Wide Latin', font_size: 54,
+			color: 'cc0000', bold: true, underline: true } )
+
+
+###
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{folder='data', basename, headerRows=1, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
+		{folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
 		
@@ -26,7 +77,7 @@ class JSONUtils
 				#sheets: ['Sheet 1']
 				columnToKey: {'*':'{{columnHeader}}'}
 				# 这一属性是我加的
-				mainKeyName: mainKeyName
+				mainKeyName: "指标名称"
 				
 			try
 				# 是简单的JSON object
@@ -109,33 +160,23 @@ class JSONUtils
 
 	@getJSONFilename: (funcOpts) ->
 		{p=__dirname,folder='data', basename} = funcOpts		
-		path.join(p, '..', folder, "JSON", "#{basename}.json")
+		path.join(p, folder, "JSON", "#{basename}.json")
 
 
 
 	@getExcelFilename: (funcOpts) ->
-		{p=__dirname,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
-		path.join(p, '..', folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
+		{p=__dirname,folder='data', basename, headerRows=1, sheetStubs=true} = funcOpts
+		path.join(p,folder,'Excel', "#{basename}.xlsx")
 
 
 
-	@getPPTFilename: (funcOpts) ->
-		{p=__dirname,folder='reports', basename, gen=""} = funcOpts
-		# 顺便检查有无目录,没有在新建		
-		ff = path.join(p, '..', folder) 
-		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(p, '..', folder, 'ppt') 
-		fs.mkdirSync ff unless fs.existsSync ff
-
-		# 生成文件路径名		
-		path.join(p, '..', folder,'ppt', "#{basename}.#{gen}.pptx")
 
 
 
 	@jsonfileNeedsNoFix: (funcOpts) ->
 		{p=__dirname,folder='data', basename, needToRewrite} = funcOpts
 
-		ff = path.join(p, '..', folder, "JSON") 
+		ff = path.join(p, folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
 		jsonfilename = @getJSONFilename(funcOpts)
 		
@@ -147,25 +188,11 @@ class JSONUtils
 
 
 
-
-	# 指标定义详情比较表
-	@write2Excel: (funcOpts) ->
-		{isReady} = @jsonfileNeedsNoFix(funcOpts)
-		unless isReady
-			{data,settings} = funcOpts
-			funcOpts.basenameOnly = true
-			settings.fileName = @getExcelFilename(funcOpts)
-			xlsx(data, settings)
-			console.log path.basename(settings.fileName), "saved at #{new Date()}"
-
-
-
-
-
 	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
 	@write2JSON: (funcOpts) ->
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
+			#jsonfilename = @getJSONFilename(funcOpts)
 			{obj} = funcOpts		
 			jsonContent = JSON.stringify(obj)
 			fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
@@ -182,14 +209,14 @@ class JSONUtils
 	@readFromJSON: (funcOpts) ->
 		{p=__dirname, folder, basename, jsonfilename} = funcOpts
 		
-		filename = jsonfilename ? path.join(p, '..', folder, "JSON", "#{basename}.json")
+		filename = jsonfilename ? path.join(p, folder, "JSON", "#{basename}.json")
 		console.log "读取: ", filename
 		obj = require filename
 		return obj
 	
+###
 
 
 
 
-
-module.exports = JSONUtils
+module.exports = OfficeGenUtils
