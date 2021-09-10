@@ -13,22 +13,50 @@ class OfficeGenUtils
 		funcOpts.gen = "officegen"
 		JU.getPPTFilename(funcOpts)
 		
-  
-	constructor: ->
-		
+
+
+	
+	@createPPT: (funcOpts) ->
+		pptname = @getPPTFilename(funcOpts)
+
 		@pptx = officegen {
 			type:'pptx'
 			#themXml: ''
 		}
 
+		@test()
+
+		#// Let's generate the PowerPoint document into a file:
+
+		new Promise (resolve, reject) => 
+
+			out = fs.createWriteStream(pptname)
+
+			#// This one catch only the officegen errors:
+			@pptx.on('error', reject)
+
+			#// Catch fs errors:
+			out.on('error', reject)
+
+			#// End event after creating the PowerPoint file:
+			out.on('close', resolve)
+
+			#// This async method is working like a pipe - it'll generate the pptx data and put it into the output stream:
+			console.log "generating #{pptname}"
+			@pptx.generate(out)
+		
 
 
 
-	test: ->
+
+
+
+
+	@test: ->
 		
 		slide = @pptx.makeNewSlide {
-      userLayout: 'title'
-    }
+			userLayout: 'title'
+		}
 
 		#// Change the background color:
 		slide.back = '000000'
@@ -56,6 +84,25 @@ class OfficeGenUtils
 			y: 250, x: 10, cx: '70%',
 			font_face: 'Wide Latin', font_size: 54,
 			color: 'cc0000', bold: true, underline: true } )
+
+
+	constructor: ->
+		###
+		@pptx = officegen {
+			type:'pptx'
+			#themXml: ''
+		}
+		###
+
+
+
+
+
+
+
+module.exports = OfficeGenUtils
+
+
 
 
 ###
@@ -219,4 +266,3 @@ class OfficeGenUtils
 
 
 
-module.exports = OfficeGenUtils
