@@ -71,4 +71,5 @@ createPPT = (funcOpts) ->
 
 # createPPT({json})
 
-PPTXGenUtils.createPPT({json})
+funcOpts.json = json
+PPTXGenUtils.createPPT(funcOpts)

@@ -19,7 +19,7 @@ class PPTXGenUtils
 	@createPPT = (funcOpts) ->
 		{json} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
-		if fs.existsSync pptname
+		unless fs.existsSync pptname
 			pres = new pptxgen()
 			slide = pres.addSlide("TITLE_SLIDE")
 
