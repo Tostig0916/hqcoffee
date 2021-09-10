@@ -114,8 +114,13 @@ class JSONUtils
 
 
 	@getExcelFilename: (funcOpts) ->
-		{p=__dirname,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
-		path.join(p, '..', folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
+		{p=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
+		fd = outfolder ? folder
+		ff = path.join(p, '..', fd) 
+		fs.mkdirSync ff unless fs.existsSync ff
+		ff = path.join(p, '..', fd, 'Excel') 
+		fs.mkdirSync ff unless fs.existsSync ff
+		path.join(p, '..', outfolder ? folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
 
 
 
@@ -154,7 +159,9 @@ class JSONUtils
 		unless isReady
 			{data,settings} = funcOpts
 			funcOpts.basenameOnly = true
-			settings.fileName = @getExcelFilename(funcOpts)
+			funcOpts.outfolder = "outputs"
+			ff = @getExcelFilename(funcOpts)
+			settings.fileName = ff
 			xlsx(data, settings)
 			console.log path.basename(settings.fileName), "saved at #{new Date()}"
 
