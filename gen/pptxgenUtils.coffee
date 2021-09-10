@@ -16,14 +16,14 @@ class PPTXGenUtils
 
 
 
-	@createPPT = (funcOpts) ->
-		{json} = funcOpts
+	@createPPT: (funcOpts) ->
+		{json,sheetName} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
-		unless fs.existsSync pptname
+		if fs.existsSync pptname
 			pres = new pptxgen()
 			slide = pres.addSlide("TITLE_SLIDE")
 
-			for key, obj of json.雷达图
+			for key, obj of json[sheetName]
 				slide = pres.addSlide()
 
 				#slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%

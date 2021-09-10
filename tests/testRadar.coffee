@@ -6,13 +6,14 @@ JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 funcOpts = {
   basename: "jsszyy"
+  sheetName: "雷达图"
   headerRows: 1
   sheetStubs: true
   needToRewrite: false #true
   mainKeyName: "科室名"
-  json: JU.jsonizedExcelData(funcOpts)
 }
-    
+
+funcOpts.json = JU.jsonizedExcelData(funcOpts)    
 PPTXGenUtils.createPPT(funcOpts)
 
 
