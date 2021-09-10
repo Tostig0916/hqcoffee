@@ -1,9 +1,5 @@
-fs = require 'fs'
 path = require 'path'
 PPTXGenUtils = require path.join __dirname, '..', 'gen', 'pptxgenUtils'
-pptxgen = require 'pptxgenjs'
-#xlsx = require 'json-as-xlsx'
-# use __dirname and __filename to create correct full path filename
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
@@ -14,15 +10,18 @@ funcOpts = {
   sheetStubs: true
   needToRewrite: false #true
   mainKeyName: "科室名"
-  #gen: "pptxgen"
+  json: JU.jsonizedExcelData(funcOpts)
 }
     
-json = JU.jsonizedExcelData(funcOpts)
+PPTXGenUtils.createPPT(funcOpts)
 
-#console.log (each for key, each of json)[0..4]
 
+
+###
 pptname = PPTXGenUtils.getPPTFilename(funcOpts)
 console.log {pptname}
+#console.log (each for key, each of json)[0..4]
+
 
 createPPT = (funcOpts) ->
   {json} = funcOpts
@@ -58,10 +57,9 @@ createPPT = (funcOpts) ->
       })
       
     
-    ###
+    
     #// For simple cases, you can omit `then`
-    pres.writeFile({ fileName: pptname})
-    ###
+    #pres.writeFile({ fileName: pptname})
     #// Using Promise to determine when the file has actually completed generating
     pres.writeFile({ fileName: pptname })
         .then((fileName) -> 
@@ -70,6 +68,4 @@ createPPT = (funcOpts) ->
 
 
 # createPPT({json})
-
-funcOpts.json = json
-PPTXGenUtils.createPPT(funcOpts)
+###
