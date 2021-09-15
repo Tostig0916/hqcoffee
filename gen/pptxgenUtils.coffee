@@ -19,7 +19,7 @@ class PPTXGenUtils
 	@createPPT: (funcOpts) ->
 		{json,sheetName} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
-		if fs.existsSync pptname
+		unless not fs.existsSync pptname
 			pres = new pptxgen()
 			slide = pres.addSlide("TITLE_SLIDE")
 
@@ -47,7 +47,7 @@ class PPTXGenUtils
 					x: 0.1, y: 0.1, 
 					w: "95%", h: "90%"
 					showLegend: true, legendPos: 'b'
-					#showTitle: true, title: obj.科室名 
+					showTitle: true, title: obj.科室名 
 				})
 				
 			

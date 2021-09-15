@@ -1,6 +1,6 @@
 path = require 'path'
 PPTXGenUtils = require path.join __dirname, '..', 'gen', 'pptxgenUtils'
-OfficeGenUtils = require path.join __dirname, '..', 'gen', 'officegenUtils'
+#OfficeGenUtils = require path.join __dirname, '..', 'gen', 'officegenUtils'
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
@@ -15,9 +15,10 @@ funcOpts = {
 }
 
 funcOpts.json = JU.jsonizedExcelData(funcOpts)    
-#PPTXGenUtils.createPPT(funcOpts)
+PPTXGenUtils.createPPT(funcOpts)
 
-OfficeGenUtils.createPPT(funcOpts)
+# this package has many issues
+#OfficeGenUtils.createPPT(funcOpts)
 
 ###
 pptname = PPTXGenUtils.getPPTFilename(funcOpts)
