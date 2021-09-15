@@ -125,15 +125,15 @@ class JSONUtils
 
 
 	@getPPTFilename: (funcOpts) ->
-		{p=__dirname,folder='reports', basename, gen=""} = funcOpts
+		{p=__dirname,folder='outputs', basename, gen=""} = funcOpts
 		# 顺便检查有无目录,没有在新建		
 		ff = path.join(p, '..', folder) 
 		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(p, '..', folder, 'ppt') 
+		ff = path.join(p, '..', folder, 'PPT') 
 		fs.mkdirSync ff unless fs.existsSync ff
 
 		# 生成文件路径名		
-		path.join(p, '..', folder,'ppt', "#{basename}.#{gen}.pptx")
+		path.join(p, '..', folder,'PPT', "#{basename}.#{gen}.pptx")
 
 
 
