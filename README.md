@@ -15,6 +15,19 @@
    1. 图表嵌入PPT
    2. 根据数据分析结果自动制作Word文档
 
+
+### 经过试用，较好的库
+
+1. Excel-JSON 互相转化，读入输出Excel文件： 
+   1. convert-excel-to-json 
+   2. json-as-xlsx
+2. PPT程序化制作
+   1. pptxgenjs 排版需要探索功能究竟有多强，图形较全
+   2. officegen 存在bug故暂时不好用
+3. Word、PDF、md等文件格式生成和转换 
+   1. pandoc
+
+
 ### 注意事项
 
 1. 指标数据填报表,需要使用指标名称作为表头,而不用其他的如项目之类表头
