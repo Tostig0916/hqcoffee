@@ -17,11 +17,14 @@ class PPTXGenUtils
 
 
 
-	@createPPT: (funcOpts) ->
+	@createPPT: (funcOpts, generating) ->
 		{json} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
 		unless not fs.existsSync pptname
 			pres = new pptxgen()
+			generating?(pres)
+
+			###
 			slide = pres.addSlide("TITLE_SLIDE")
 
 			for key, obj of json
@@ -50,12 +53,12 @@ class PPTXGenUtils
 					showLegend: true, legendPos: 'b'
 					showTitle: true, title: obj.科室名 
 				})
-				
+			###	
 			
-			###
+			
 			#// For simple cases, you can omit `then`
-			pres.writeFile({ fileName: pptname})
-			###
+			# pres.writeFile({ fileName: pptname})
+			
 			#// Using Promise to determine when the file has actually completed generating
 			pres.writeFile({ fileName: pptname })
 					.then((fileName) -> 
