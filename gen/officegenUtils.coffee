@@ -4,6 +4,8 @@ path = require 'path'
 officegen = require 'officegen'
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
+
+# there's some bug in this package, give up
 # https://github.com/Ziv-Barber/officegen/blob/master/manual/pptx/README.md
 
 class OfficeGenUtils
@@ -24,8 +26,9 @@ class OfficeGenUtils
 			#themXml: ''
 		}
 
-		@test()
-
+		#@test()
+		@testChart()
+		
 		#// Let's generate the PowerPoint document into a file:
 
 		new Promise (resolve, reject) => 
@@ -47,6 +50,58 @@ class OfficeGenUtils
 		
 
 
+
+
+	@testChart: ->
+		#// Create a new PPTX file
+		#// Create a new slide
+		slide = @pptx.makeTitleSlide('FileFormat', 'FileFormat Developer Guide')
+		#// Creata a new column chart
+		slide = @pptx.makeNewSlide()
+		slide.name = 'Chart slide'
+		slide.back = 'ffffff'
+
+		slide.addChart  
+			title: 'Column chart',
+			renderType: 'pie' #'bar', #'column',
+			valAxisTitle: 'Costs/Revenues ($)',
+			catAxisTitle: 'Category',
+			valAxisNumFmt: '$0',
+			valAxisMaxValue: 24,
+			data: [
+				{
+					name: 'Income',
+					labels: ['2005', '2006', '2007', '2008', '2009'],
+					values: [23.5, 26.2, 30.1, 29.5, 24.6]
+				},
+				{
+					name: 'Income',
+					labels: ['2005', '2006', '2007', '2008', '2009'],
+					values: [23.5, 26.2, 30.1, 29.5, 24.6]
+				}
+			]  
+			###
+			[ #// each item is one serie
+				{
+					name: 'Income',
+					labels: ['2005', '2006', '2007', '2008', '2009'],
+					values: [23.5, 26.2, 30.1, 29.5, 24.6],
+					color: 'ff0000' #// optional
+				},
+				{
+					name: 'Expense',
+					labels: ['2005', '2006', '2007', '2008', '2009'],
+					values: [18.1, 22.8, 23.9, 25.1, 25],
+					color: '00ff00' #// optional
+				}
+			]
+			###
+
+		
+		#// Set save path
+		#out = fs.createWriteStream('Chart.pptx')
+		#// Save
+		#pptx.generate(out)
 
 
 
@@ -84,6 +139,8 @@ class OfficeGenUtils
 			y: 250, x: 10, cx: '70%',
 			font_face: 'Wide Latin', font_size: 54,
 			color: 'cc0000', bold: true, underline: true } )
+
+
 
 
 	constructor: ->

@@ -9,8 +9,7 @@
     "pptxgenjs": "^3.6.0"
   },
   "devDependencies": {
-    "coffeescript": "^2.5.1",
-    "officegen": "^0.6.5"
+    "coffeescript": "^2.5.1"
   },
   "scripts": {
     "test": "testExcel.js"
