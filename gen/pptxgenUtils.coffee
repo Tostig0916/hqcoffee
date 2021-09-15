@@ -137,30 +137,7 @@ class PPTXGenUtils
 
 
 
-	@readFromExcel: (funcOpts) ->
-		# console.log e2j 
-		source = e2j funcOpts
-		objOfSheets = {}
-		
-		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
-		{mainKeyName="指标名称"} = funcOpts
-
-		for shnm, rows of source
-			@checkForHeaders({mainKeyName,rows})
-			# 去掉空格
-			sheetName = shnm.replace(/\s+/g,'')
-			objOfSheets[sheetName] = {}
-			for rowObj in rows
-				@deleteSpacesOnBothSide({rowObj})
-				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
-				@correctKeyName({rowObj})
-				mainKey = rowObj[mainKeyName]
-				if mainKey? and not /^(undefined|栏次)$/i.test(mainKey) #isnt "undefined"
-					objOfSheets[sheetName][mainKey] = rowObj
-				else
-					console.log("清除废数据行", rowObj)
-		return objOfSheets 
-
+	
 
 
 	@getJSONFilename: (funcOpts) ->
