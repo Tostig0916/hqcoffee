@@ -1,12 +1,11 @@
 path = require 'path'
-PPTXGenUtils = require path.join __dirname, '..', 'gen', 'pptxgenUtils'
+PPTXGenUtils = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 
 funcOpts = {
   basename: "jsszyy"
-  #sheetName: "雷达图"
   headerRows: 1
   sheetStubs: true
   needToRewrite: false #true
@@ -18,7 +17,7 @@ sheetName = "雷达图"
 json = JU.jsonizedExcelData(funcOpts)
 funcOpts.json = json[sheetName]
 
-generating = (pres) ->
+funcOpts.generate = (pres) ->
   slide = pres.addSlide("TITLE_SLIDE")
 
   for key, obj of json[sheetName]
@@ -49,6 +48,5 @@ generating = (pres) ->
       title: obj.科室名 
     })
   
-
-PPTXGenUtils.createPPT(funcOpts, generating)
+PPTXGenUtils.createPPT(funcOpts)
 

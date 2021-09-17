@@ -2,7 +2,7 @@
 path = require 'path'
 
 # there's some bug in this package, give up
-OfficeGenUtils = require path.join __dirname, '..', 'gen', 'officegenUtils'
+OfficeGenUtils = require path.join __dirname, '..', 'useofficegen', 'officegenUtils'
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 

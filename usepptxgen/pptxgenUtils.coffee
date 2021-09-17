@@ -17,12 +17,12 @@ class PPTXGenUtils
 
 
 
-	@createPPT: (funcOpts, generating) ->
-		{json} = funcOpts
+	@createPPT: (funcOpts) ->
+		{json,generate} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
 		unless not fs.existsSync pptname
 			pres = new pptxgen()
-			generating?(pres)
+			generate?(pres)
 
 			###
 			slide = pres.addSlide("TITLE_SLIDE")
