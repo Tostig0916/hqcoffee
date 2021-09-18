@@ -1,22 +1,3 @@
-# abstract information from json
-#dataName = 3
-obj = {dataName: "sjskk", name: 'what', age: 35, unit:{name:"neike", staff:15}}
-#dataName = obj.dataName
-#name = obj.name
-{dataName,name, unit:{staff}} = obj
-
-correctNames = {
-    
-}
-
-# dictionary
-json = {
-    sjskk: 35
-    hkkk: 23
-    a: 300
-    e: 400
-}
-
 class DataManager
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
@@ -38,7 +19,7 @@ class DataManager
  
     @求c: (funcOpts) ->
         {dictionary} = funcOpts
-        @getData({dataName:'a',dictionary:dictionary}) + @getData({dataName:'d',dictionary})
+        @getData({dataName:'a',dictionary}) + @getData({dataName:'d',dictionary})
 
 
     @求b: (funcOpts) ->
@@ -56,7 +37,28 @@ module.exports = {
 }
 
 
-data = DataManager.getData({dataName:'b', dictionary:json})
+
+
+# abstract information from json
+#dataName = 3
+obj = {dataName: "sjskk", name: 'what', age: 35, unit:{name:"neike", staff:15}}
+#dataName = obj.dataName
+#name = obj.name
+{dataName,name, unit:{staff}} = obj
+
+correctNames = {
+    
+}
+
+# dictionary
+json = {
+    sjskk: 35
+    hkkk: 23
+    a: 300
+    e: 400
+}
+
+data = DataManager.getData({dataName:'c', dictionary:json})
 
 console.log {data}
 

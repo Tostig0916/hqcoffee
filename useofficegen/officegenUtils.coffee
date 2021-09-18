@@ -13,7 +13,7 @@ class OfficeGenUtils
 
 	@getPPTFilename: (funcOpts) ->
 		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
-		funcOpts.gen = "officegen"
+		funcOpts.gen = "og" #"officegen"
 		JU.getPPTFilename(funcOpts)
 		
 
