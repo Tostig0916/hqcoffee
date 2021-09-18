@@ -17,7 +17,7 @@ json = {
     e: 400
 }
 
-class Prepare
+class DataManager
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts) ->
@@ -51,7 +51,12 @@ class Prepare
 
 
 
-data = Prepare.getData({dataName:'b', dictionary:json})
+module.exports = {
+  DataManager
+}
+
+
+data = DataManager.getData({dataName:'b', dictionary:json})
 
 console.log {data}
 
