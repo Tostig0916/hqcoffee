@@ -8,18 +8,33 @@ funcOpts = {
   basename: "jsszyy"
   headerRows: 1
   sheetStubs: true
-  needToRewrite: false
+  needToRewrite: false  #true
   mainKeyName: "科室名"
 }
 
 json = JU.jsonizedExcelData(funcOpts)
 
+data = json["雷达图"]
+
 jsonReport = {
-  section1: {
+  "专科散点图": {
+    settings:{
+      chartType: "bar3d" #"scatter"
+    }
+    data: data
+  }
+  "专科线图": {
+    settings:{
+      chartType:"line"
+    }
+    data
+  }
+
+  "专科雷达图": {
     settings:{
       chartType:"radar"
     }
-    data: json["雷达图"]
+    data
   }
 }
 

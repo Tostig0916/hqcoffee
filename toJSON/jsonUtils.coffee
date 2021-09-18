@@ -48,7 +48,7 @@ class JSONUtils
 	@checkForHeaders: (funcOpts) ->
 		{mainKeyName,rows} = funcOpts
 		headers = (key for key, value of rows[0])
-		console.log headers 
+		#console.log headers 
 		unless (headers.length is 0) or (mainKeyName in headers) or ("项目" in headers) 
 			throw new Error("缺少指标名称项") 
 
@@ -100,7 +100,7 @@ class JSONUtils
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 				@correctKeyName({rowObj})
 				mainKey = rowObj[mainKeyName]
-				
+
 				switch
 					when mainKey? and not /^(undefined|栏次)$/i.test(mainKey) then switch #isnt "undefined"
 						when simplest

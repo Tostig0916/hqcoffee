@@ -44,30 +44,24 @@ class MakePPTReport
 	
 	@newReport: (funcOpts) ->
 		{json} = funcOpts
-		pptname = PPTXGenUtils.getPPTFilename(funcOpts)
-		unless fs.existsSync pptname
-			pres = new pptxgen()
-			funcOpts.pres = pres
-			@generate(funcOpts)
-			
-			pres.writeFile({ fileName: pptname })
-					.then((fileName) -> 
-							console.log("created file:#{path.basename fileName} at #{Date()}")
-					)
-
-		console.log {newReport: funcOpts}
+		funcOpts.generate = @generate
+		PPTXGenUtils.createPPT(funcOpts)
 
 
 
-
-	@generate: (funcOpts) ->
-		console.log {generate: funcOpts}
+	@generate: (funcOpts) => # 需要在callback中使用故需使用 =>
 		{pres,json} = funcOpts
 		# slide title page
 		slide = pres.addSlide("TITLE_SLIDE")
+		slide.addText("量化报告")
 
-		for key, section of json  
+		for key, section of json
+			
+			# slide section could be added from key
+			pres.addSection({title:key})
 			funcOpts.json = section
+			funcOpts.sectionTitle = key
+
 			@singleCharts(funcOpts)
 
 
@@ -75,11 +69,11 @@ class MakePPTReport
 
 
 	@singleCharts: (funcOpts) ->
-		{pres,json:{data, settings:{chartType}}} = funcOpts
-		console.log {singleCharts: chartType, data}
+		{pres,sectionTitle,json:{data, settings:{chartType}}} = funcOpts
+		#console.log {singleCharts: chartType, data}
 		
 		for key, obj of data
-			slide = pres.addSlide()
+			slide = pres.addSlide({sectionTitle})
 
 			#slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
 			#slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -121,10 +115,11 @@ class PPTXGenUtils
 
 
 
-	@createPPT: (funcOpts, generate) ->
-		{json} = funcOpts
+	@createPPT: (funcOpts) ->
+		{json,generate} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
-		unless not fs.existsSync pptname
+		
+		if true #not fs.existsSync pptname
 			pres = new pptxgen()
 			funcOpts.pres = pres
 			generate?(funcOpts)

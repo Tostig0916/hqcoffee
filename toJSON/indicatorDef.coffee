@@ -1,4 +1,3 @@
-e2j = require 'convert-excel-to-json'
 JU = require './jsonUtils'
 
 #fs = require 'fs'
@@ -124,7 +123,7 @@ class IndicatorDef
 
 
 
-
+	# 用于整合多个国考指标定义合并成为一个Excel文件
 	@dataSettings4Excel: (funcOpts) ->
 		{arr} = funcOpts
 		data = [
