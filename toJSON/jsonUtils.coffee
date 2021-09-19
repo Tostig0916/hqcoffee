@@ -11,7 +11,7 @@ class JSONUtils
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{simplest=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
+		{unwrap=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
 		
@@ -27,7 +27,7 @@ class JSONUtils
 				columnToKey: {'*':'{{columnHeader}}'}
 				# 以下属性是我加的
 				mainKeyName
-				simplest
+				unwrap
 			}
 			if sheets? then readOpts.sheets = sheets
 			try
@@ -36,7 +36,7 @@ class JSONUtils
 				
 				# 如果只有一个键就删掉他
 				keys = (key for key, value of obj)
-				if simplest and (keys.length is 1)
+				if unwrap and (keys.length is 1)
 					obj = obj[keys[0]]
 				
 				funcOpts.obj = obj
@@ -95,8 +95,8 @@ class JSONUtils
 		objOfSheets = {}
 		
 		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
-		# key、value 一对生成简单字典型的JSON，simplest参数设置为true
-		{mainKeyName="指标名称", simplest=false} = funcOpts
+		# key、value 一对生成简单字典型的JSON，unwrap参数设置为true
+		{mainKeyName="指标名称", unwrap=false} = funcOpts
 
 		for shnm, rows of source
 			@checkForHeaders({mainKeyName,rows})
@@ -111,7 +111,7 @@ class JSONUtils
 
 				switch
 					when mainKey? and not /^(undefined|栏次)$/i.test(mainKey) then switch #isnt "undefined"
-						when simplest
+						when unwrap
 							# 对于只有两个column的简单表格，可以生成简单的JSON
 							rowVals = (rv for rk, rv of rowObj)
 							{length} = rowVals

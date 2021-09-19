@@ -9,7 +9,7 @@ class IndicatorDimension
       sheetStubs: true
       needToRewrite: true
       mainKeyName: "指标正名"
-      simplest: true #false
+      unwrap: true #false
     }
 
     JU.jsonizedExcelData(funcOpts)
