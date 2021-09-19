@@ -14,7 +14,7 @@ funcOpts = {
 
 sheetName = "雷达图"
 
-json = JU.singleJSON(funcOpts)
+json = JU.getJSON(funcOpts)
 funcOpts.json = json[sheetName]
 
 funcOpts.generate = (pres) ->

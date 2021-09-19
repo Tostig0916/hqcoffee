@@ -11,9 +11,9 @@ class AnySingleton
     funcOpts = @options()
     if rebuild
       funcOpts.needToRewrite = true
-      @_json = JU.singleJSON(funcOpts)
+      @_json = JU.getJSON(funcOpts)
     else
-      @_json ?= JU.singleJSON(funcOpts)
+      @_json ?= JU.getJSON(funcOpts)
 
 
 

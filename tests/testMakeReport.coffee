@@ -12,7 +12,7 @@ funcOpts = {
   mainKeyName: "科室名"
 }
 
-json = JU.singleJSON(funcOpts)
+json = JU.getJSON(funcOpts)
 
 data = json["雷达图"]
 
