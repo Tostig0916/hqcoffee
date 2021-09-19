@@ -1,5 +1,5 @@
 path = require 'path'
-{IndicatorDimensionSingleton, DimensionIndicatorSingleton} = require path.join __dirname, '..', 'toJSON', 'indicatorSystem'
+{IndicatorDimensionSingleton, DimensionIndicatorSingleton} = require path.join __dirname, '..', 'toJSON', 'indicatorHelpers'
 
 
 json = IndicatorDimensionSingleton.showJSON(rebuild:true)
