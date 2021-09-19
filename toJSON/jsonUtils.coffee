@@ -18,26 +18,27 @@ class JSONUtils
 		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
 		# 但是为防止后续设计改变,亦可每次皆重读
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
+		
 		unless isReady
+			readOpts = funcOpts
+			readOpts.sourceFile = excelfileName
+			readOpts.header = {rows: headerRows}
+			readOpts.columnToKey = {'*':'{{columnHeader}}'}
+			###
 			readOpts = {
 				sourceFile: excelfileName
-				sheetStubs: sheetStubs
+				sheetStubs
 				header: {rows: headerRows}
-				#sheets: ['Sheet 1']
 				columnToKey: {'*':'{{columnHeader}}'}
 				# 以下属性是我加的
 				mainKeyName
 				unwrap
 			}
+			###
 			if sheets? then readOpts.sheets = sheets
 			try
 				# JSON object
 				obj = @readFromExcel(readOpts)
-				
-				# 如果只有一个键就删掉他
-				keys = (key for key, value of obj)
-				if unwrap and (keys.length is 1)
-					obj = obj[keys[0]]
 				
 				funcOpts.obj = obj
 				@write2JSON(funcOpts)
@@ -96,13 +97,16 @@ class JSONUtils
 		
 		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
 		# key、value 一对生成简单字典型的JSON，unwrap参数设置为true
-		{mainKeyName="指标名称", unwrap=false} = funcOpts
+		{mainKeyName="指标名称", unwrap=false,refining} = funcOpts
 
+		# 每sheet
 		for shnm, rows of source
 			@checkForHeaders({mainKeyName,rows})
 			# 去掉空格
 			sheetName = shnm.replace(/\s+/g,'')
 			objOfSheets[sheetName] = {}
+			
+			# 每行
 			for rowObj in rows
 				@deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
@@ -111,15 +115,16 @@ class JSONUtils
 
 				switch
 					when mainKey? and not /^(undefined|栏次)$/i.test(mainKey) then switch #isnt "undefined"
+						# 拆解方式仅适用于只有两个column情形
 						when unwrap
 							# 对于只有两个column的简单表格，可以生成简单的JSON
 							rowVals = (rv for rk, rv of rowObj)
 							{length} = rowVals
-							console.log {length}
+							#console.log {length}
 							switch
-								when rowVals.length is 2 
+								when length is 2 
 									objOfSheets[sheetName][mainKey] = rowVals[1]
-									console.log {mainKey, value:rowVals[1]}
+									#console.log {mainKey, value:rowVals[1]}
 								else
 									objOfSheets[sheetName][mainKey] = rowObj
 						else
@@ -127,6 +132,14 @@ class JSONUtils
 					else
 						console.log("清除废数据行", rowObj)
 
+		if refining?
+			objOfSheets = refining({json: objOfSheets})
+
+		# 如果经过以上处理之后，仍只有一个键就解开
+		keys = (key for key, value of objOfSheets)
+		if unwrap and (keys.length is 1)
+			objOfSheets = objOfSheets[keys[0]]
+				
 		return objOfSheets 
 
 
