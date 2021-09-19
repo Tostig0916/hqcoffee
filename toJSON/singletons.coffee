@@ -113,7 +113,8 @@ class DimensionIndicatorSingleton extends AnySingleton
     dimensions = {} 
     for key, value of indicators
       (dimensions[value] ?= []).push(key)
-    return @_json = dimensions
+    #console.log {dimensions}
+    @_json = dimensions
     
 
 

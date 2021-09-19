@@ -11,6 +11,6 @@ IndicatorDimensionSingleton.fetchSingleJSON({rebuild:false})
 #    dict:{"某指标别名":"某指标"}, keep:false
 #  })
 #}
-#DimensionIndicatorSingleton.abstract({indicators: json})
-#console.log DimensionIndicatorSingleton.dimensions 
+json = DimensionIndicatorSingleton.abstract()
+#console.log json 
 
