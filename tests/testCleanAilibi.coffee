@@ -1,8 +1,8 @@
 path = require 'path'
-{IndicatorDimensionSingleton, DimensionIndicatorSingleton} = require path.join __dirname, '..', 'toJSON', 'indicatorHelpers'
+{IndicatorDimensionSingleton, DimensionIndicatorSingleton} = require path.join __dirname, '..', 'toJSON', 'singletons'
 
 
-json = IndicatorDimensionSingleton.showJSON(rebuild:true)
+json = IndicatorDimensionSingleton.showSingleJSON({rebuild:true})
 
 #DimensionIndicatorSingleton.abstract({indicators: json})
 #console.log DimensionIndicatorSingleton.dimensions 

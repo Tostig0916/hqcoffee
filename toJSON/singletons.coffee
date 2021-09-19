@@ -2,9 +2,12 @@ JU = require './jsonUtils'
 
 
 # 抽象class 将共性放在此处
-# 所有从Excel转换而来的JSON,均为一对一关系,故均使用class一侧编程
+# 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton
-  @showSingleJSON: (rebuild=false) ->
+  # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
+  @showSingleJSON: (funcOpts={}) ->
+    {rebuild=false} = funcOpts
+    
     funcOpts = @options()
     if rebuild
       funcOpts.needToRewrite = true
