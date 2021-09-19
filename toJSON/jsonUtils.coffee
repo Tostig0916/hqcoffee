@@ -226,7 +226,7 @@ class JSONUtils
 	@readFromJSON: (funcOpts) ->
 		{p=__dirname, folder, basename, jsonfilename} = funcOpts
 		
-		filename = jsonfilename ? path.join(p, '..', folder, "JSON", "#{basename}.json")
+		filename = jsonfilename ? @getJSONFilename(funcOpts) #path.join(p, '..', folder, "JSON", "#{basename}.json")
 		console.log "读取: ", filename
 		obj = require filename
 		return obj

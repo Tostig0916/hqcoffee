@@ -1,9 +1,9 @@
 path = require 'path'
-{SingletonIndicatorDimension, SingletonDimensionIndicator} = require path.join __dirname, '..', 'toJSON', 'indicatorSystem'
+{IndicatorDimensionSingleton, DimensionIndicatorSingleton} = require path.join __dirname, '..', 'toJSON', 'indicatorSystem'
 
 
-json = SingletonIndicatorDimension.fromExcel()
+json = IndicatorDimensionSingleton.fromExcel()
 
-#SingletonDimensionIndicator.rebuild({indicators: json})
-#console.log SingletonDimensionIndicator.dimensions 
+#DimensionIndicatorSingleton.rebuild({indicators: json})
+#console.log DimensionIndicatorSingleton.dimensions 
 
