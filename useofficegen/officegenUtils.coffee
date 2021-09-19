@@ -1,7 +1,9 @@
+###
 fs = require 'fs'
 # use __dirname and __filename to create correct full path filename
 path = require 'path' 
 officegen = require 'officegen'
+
 JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
@@ -81,23 +83,7 @@ class OfficeGenUtils
 					values: [23.5, 26.2, 30.1, 29.5, 24.6]
 				}
 			]  
-			###
-			[ #// each item is one serie
-				{
-					name: 'Income',
-					labels: ['2005', '2006', '2007', '2008', '2009'],
-					values: [23.5, 26.2, 30.1, 29.5, 24.6],
-					color: 'ff0000' #// optional
-				},
-				{
-					name: 'Expense',
-					labels: ['2005', '2006', '2007', '2008', '2009'],
-					values: [18.1, 22.8, 23.9, 25.1, 25],
-					color: '00ff00' #// optional
-				}
-			]
-			###
-
+		
 		
 		#// Set save path
 		#out = fs.createWriteStream('Chart.pptx')
@@ -145,13 +131,7 @@ class OfficeGenUtils
 
 
 	constructor: ->
-		###
-		@pptx = officegen {
-			type:'pptx'
-			#themXml: ''
-		}
-		###
-
+		
 
 
 
@@ -162,7 +142,7 @@ module.exports = OfficeGenUtils
 
 
 
-
+###
 
 
 
