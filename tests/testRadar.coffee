@@ -14,7 +14,7 @@ funcOpts = {
 
 sheetName = "雷达图"
 
-json = JU.jsonizedExcelData(funcOpts)
+json = JU.singleJSON(funcOpts)
 funcOpts.json = json[sheetName]
 
 funcOpts.generate = (pres) ->

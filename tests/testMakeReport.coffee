@@ -12,7 +12,7 @@ funcOpts = {
   mainKeyName: "科室名"
 }
 
-json = JU.jsonizedExcelData(funcOpts)
+json = JU.singleJSON(funcOpts)
 
 data = json["雷达图"]
 

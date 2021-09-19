@@ -7,6 +7,19 @@ xlsx = require 'json-as-xlsx'
 
 
 class JSONUtils
+	@singleJSON: (funcOpts) ->
+		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
+		# 但是为防止后续设计改变,亦可每次皆重读
+		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
+		if isReady
+			# 原本就是JSON object 所以直接读取即可
+			obj = @readFromJSON({jsonfilename})
+		else
+			@jsonizedExcelData(funcOpts)
+
+
+
+
 
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
@@ -24,17 +37,7 @@ class JSONUtils
 			readOpts.sourceFile = excelfileName
 			readOpts.header = {rows: headerRows}
 			readOpts.columnToKey = {'*':'{{columnHeader}}'}
-			###
-			readOpts = {
-				sourceFile: excelfileName
-				sheetStubs
-				header: {rows: headerRows}
-				columnToKey: {'*':'{{columnHeader}}'}
-				# 以下属性是我加的
-				mainKeyName
-				unwrap
-			}
-			###
+			
 			if sheets? then readOpts.sheets = sheets
 			try
 				# JSON object

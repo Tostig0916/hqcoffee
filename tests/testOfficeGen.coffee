@@ -15,7 +15,7 @@ funcOpts = {
   mainKeyName: "科室名"
 }
 
-funcOpts.json = JU.jsonizedExcelData(funcOpts)    
+funcOpts.json = JU.singleJSON(funcOpts)    
 
 OfficeGenUtils.createPPT(funcOpts)
 

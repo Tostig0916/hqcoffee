@@ -1,21 +1,40 @@
 JU = require './jsonUtils'
 
 
+
+class AnySingleton
+  @showSingleJSON: (rebuild=false) ->
+    funcOpts = @options()
+    if rebuild
+      funcOpts.needToRewrite = true
+      @_json = JU.singleJSON(funcOpts)
+    else
+      @_json ?= JU.singleJSON(funcOpts)
+
+
+
+
+
 # 别名正名对照及转换
-class CommonNameSingleton
+class CommonNameSingleton extends AnySingleton
   @options: ->
     {
       folder: 'data'
       basename: '别名表'
+      headerRows: 1
+      sheetStubs: true
+      needToRewrite: true
+      mainKeyName: "指标名称"
+      unwrap: true #false 
     }
 
-  @singleJSON: ->
-    @commonNames ?= JU.readFromJSON(@options())
+
+
 
 
 # 此表为 singleton,只有一个instance,故可使用 class 一侧定义
 # 指标维度表
-class IndicatorDimensionSingleton
+class IndicatorDimensionSingleton extends AnySingleton
   @options: ->
     {
       basename: "指标维度表"
@@ -27,28 +46,26 @@ class IndicatorDimensionSingleton
       unwrap: true #false
       #refining: ({json}) ->
       #  # 维度指标
-      #  json.dimensions = DimensionIndicatorSingleton.rebuild({indicators:json.indicators})
+      #  json.dimensions = DimensionIndicatorSingleton.abstract({indicators:json.indicators})
       #  return json
     }
 
-  @fromExcel: ->
-    @indicators = JU.jsonizedExcelData(@options())
 
 
 
 
 
 # 各维度,及指标
-class DimensionIndicatorSingleton
+class DimensionIndicatorSingleton extends AnySingleton
   
   # 从指标-维度 JSON 产生维度-指标 JSON
-  @rebuild: (funcOpts) ->
-    {indicators=IndicatorDimensionSingleton.singleJSON()} = funcOpts
+  @abstract: (funcOpts) ->
+    {indicators=IndicatorDimensionSingleton.showSingleJSON()} = funcOpts
     # 维度指标
-    @dimensions = {} 
+    dimensions = {} 
     for key, value of indicators
-      (@dimensions[value] ?= []).push(key)
-    return @dimensions
+      (dimensions[value] ?= []).push(key)
+    return @_json = dimensions
     
 
 

@@ -72,7 +72,7 @@ class IndicatorDefInfoByVersion
 
 class IndicatorDef
 	@fromMannualFile: (funcOpts) ->
-		json = JU.jsonizedExcelData(funcOpts)
+		json = JU.singleJSON(funcOpts)
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
@@ -167,7 +167,7 @@ class IndicatorDef
 	###
 	# 各版本独立陈列，备考  
 	@seperatedFromMannualFile: (funcOpts) ->
-		json = JU.jsonizedExcelData(funcOpts)
+		json = JU.singleJSON(funcOpts)
 		indicators = {}
 		for version, mannual of json
 			indicators[version] = {}
