@@ -1,7 +1,9 @@
 JU = require './jsonUtils'
 
+# 此表为 singleton,只有一个instance,故可使用 class 一侧定义
+# 指标维度表
 class IndicatorDimension
-  @convert: ->
+  @fromExcel: ->
     funcOpts = {
       basename: "指标维度表"
       #sheets: ["indicators"]

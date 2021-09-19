@@ -1,5 +1,5 @@
 path = require 'path'
-{IndicatorDimension} = require path.join __dirname, '..', 'toJSON', 'ailibi_indicators'
+{IndicatorDimension} = require path.join __dirname, '..', 'toJSON', 'indicatorSystem'
 
 
-json = IndicatorDimension.convert()
+json = IndicatorDimension.fromExcel()
