@@ -20,5 +20,38 @@ class AnyInstance
 
 
 
+
+class CompanyComparingSource extends AnyInstance
+  constructor: (funcOpts) ->
+    {@dataFilename} = funcOpts
+
+
+    
+
+  options: ->
+    {
+      folder: 'data'
+      basename: @dataFilename
+      #sheets: ["symbols"] # keep it free
+      mainKeyName: "id" # must use id to get data
+      headerRows: 1
+      sheetStubs: true
+      needToRewrite: true
+      unwrap: true #false
+      
+      # 将id转换为数据的正名
+      #refining: ({json}) ->
+      #  # 维度指标
+      #  {symbols} = json
+      #  cleanObj = {}
+      #  for key, value of symbols when not /[、]/i.test(key)
+      #    cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
+      #  return json.symbols = cleanObj
+    }
+
+
+
+
+
 module.exports = {
 }

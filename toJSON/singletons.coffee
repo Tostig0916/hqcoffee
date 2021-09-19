@@ -60,13 +60,17 @@ class CommonNameSingleton extends AnySingleton
     {
       folder: 'data'
       basename: '别名表'
+      mainKeyName: "指标名称"
+      sheets: ["symbols"] # 表格中须有 symbols 这个sheet
       headerRows: 1
       sheetStubs: true
       needToRewrite: false #true
-      mainKeyName: "指标名称"
       unwrap: true #false 
     }
 
+
+
+  # 获取正名,同时会增补更新别名表
   @ajustedName: (funcOpts={}) ->
     {name,keep=false} = funcOpts
     json = @fetchSingleJSON()
@@ -92,12 +96,13 @@ class CommonNameSingleton extends AnySingleton
 class IndicatorDimensionSingleton extends AnySingleton
   @options: ->
     {
+      folder: 'data'
       basename: "指标维度表"
-      #sheets: ["indicators"]
+      sheets: ["indicators"] # sheet 须命名为 indicators
+      mainKeyName: "指标名"
       headerRows: 1
       sheetStubs: true
       needToRewrite: true
-      mainKeyName: "指标正名"
       unwrap: true #false
       refining: ({json}) ->
         # 维度指标
@@ -112,7 +117,28 @@ class IndicatorDimensionSingleton extends AnySingleton
 
 
 
-    
+class SymbolIDSingleton extends AnySingleton
+  @options: ->
+    {
+      folder: 'data'
+      basename: "数据名id表"
+      sheets: ["symbols"] # sheet should be named as this
+      mainKeyName: "数据名"
+      headerRows: 1
+      sheetStubs: true
+      needToRewrite: true
+      unwrap: true #false
+      refining: ({json}) ->
+        # 维度指标
+        {symbols} = json
+        cleanObj = {}
+        for key, value of symbols when not /[、]/i.test(key)
+          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
+        return json.symbols = cleanObj
+    }
+
+
+
 
 
 
