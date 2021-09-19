@@ -1,32 +1,32 @@
 class DataManager
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
-    @getData: (funcOpts) ->
+    @getData: (funcOpts={}) ->
         {dataName, dictionary} = funcOpts
         dictionary[dataName] ? this[@funcName(funcOpts)](funcOpts) #"no data"
 
 
 
-    @funcName: (funcOpts) ->
+    @funcName: (funcOpts={}) ->
       {dataName} = funcOpts
       "求#{dataName}"
 
 
-    @toBeImplemented: (funcOpts) ->
+    @toBeImplemented: (funcOpts={}) ->
       console.log "function #{@funcName(funcOpts)} needs to be implemented!"
       return null
  
  
-    @求c: (funcOpts) ->
+    @求c: (funcOpts={}) ->
         {dictionary} = funcOpts
         @getData({dataName:'a',dictionary}) + @getData({dataName:'d',dictionary})
 
 
-    @求b: (funcOpts) ->
+    @求b: (funcOpts={}) ->
         @toBeImplemented(funcOpts)
 
 
-    @求d: (funcOpts) ->
+    @求d: (funcOpts={}) ->
         {dictionary} = funcOpts
         @getData({dataName:'a', dictionary})
 

@@ -6,11 +6,11 @@ JU = require './jsonUtils'
 #xlsx = require 'json-as-xlsx'
 
 class IndicatorDefCategory
-	constructor: (funcOpts) ->
+	constructor: (funcOpts={}) ->
 		{@name} = funcOpts
 		@subs = []   
 	
-	addInfo: (funcOpts) ->
+	addInfo: (funcOpts={}) ->
 		{subName} = funcOpts
 		@subs.push(subName) unless subName in @subs
 
@@ -22,12 +22,12 @@ class IndicatorDefCategory
 
 class IndicatorDefVersion	
 	
-	constructor: (funcOpts)->
+	constructor: (funcOpts={})->
 		{@versionName} = funcOpts
 		@categoryOne = {} #{name, category}
 		@categoryTwo = {}
 
-	addInfo: (funcOpts) ->
+	addInfo: (funcOpts={}) ->
 		{indicatorKey,一级指标,二级指标} = funcOpts
 		@categoryOne[一级指标] ?= new IndicatorDefCategory({name: 一级指标})
 		@categoryTwo[二级指标] ?= new IndicatorDefCategory({name: 二级指标})
@@ -40,7 +40,7 @@ class IndicatorDefVersion
 
 class IndicatorDefInfoByVersion
 	# 无法直接加class properties，只能这样曲折设置
-	@addVersion: (funcOpts) ->
+	@addVersion: (funcOpts={}) ->
 		@versions ?= {}
 		{versionName} = funcOpts
 		@versions[versionName] ?= new IndicatorDefVersion(funcOpts)
@@ -56,7 +56,7 @@ class IndicatorDefInfoByVersion
 
 	
 
-	constructor: (funcOpts) ->
+	constructor: (funcOpts={}) ->
 		# 此处为可因版本而异的属性, 
 		# 其中 评是指定量指标中，要求逐步提高或降低的指标，理论上说，这项属性应该是各版本一致的，如此设计是为防止万一
 		
@@ -71,7 +71,7 @@ class IndicatorDefInfoByVersion
 
 
 class IndicatorDef
-	@fromMannualFile: (funcOpts) ->
+	@fromMannualFile: (funcOpts={}) ->
 		json = JU.getJSON(funcOpts)
 		indicators = {}
 		for versionName, mannual of json
@@ -124,7 +124,7 @@ class IndicatorDef
 
 
 	# 用于整合多个国考指标定义合并成为一个Excel文件
-	@dataSettings4Excel: (funcOpts) ->
+	@dataSettings4Excel: (funcOpts={}) ->
 		{arr} = funcOpts
 		data = [
 			{
@@ -166,7 +166,7 @@ class IndicatorDef
 
 	###
 	# 各版本独立陈列，备考  
-	@seperatedFromMannualFile: (funcOpts) ->
+	@seperatedFromMannualFile: (funcOpts={}) ->
 		json = JU.getJSON(funcOpts)
 		indicators = {}
 		for version, mannual of json
@@ -179,7 +179,7 @@ class IndicatorDef
 	###
 
 
-	constructor: (funcOpts) ->
+	constructor: (funcOpts={}) ->
 		# 以下指标在不同的版本中都是一致的，否则应该放在 IndicatorDefInfoByVersion
 		{@key, @指标名称, @指标来源='', @指标属性='', @计量单位, @指标导向} = funcOpts
 		@矢量 = /(降低|提高)/.test(@指标导向)

@@ -42,14 +42,14 @@ JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 # 使用 MakePPTReport 之 generate 来生成整个报告
 class MakePPTReport
 	
-	@newReport: (funcOpts) ->
+	@newReport: (funcOpts={}) ->
 		{json} = funcOpts
 		funcOpts.generate = @generate
 		PPTXGenUtils.createPPT(funcOpts)
 
 
 
-	@generate: (funcOpts) => # 需要在callback中使用故需使用 =>
+	@generate: (funcOpts={}) => # 需要在callback中使用故需使用 =>
 		{pres,json} = funcOpts
 		# slide title page
 		slide = pres.addSlide("TITLE_SLIDE")
@@ -68,7 +68,7 @@ class MakePPTReport
 
 
 
-	@singleCharts: (funcOpts) ->
+	@singleCharts: (funcOpts={}) ->
 		{pres,sectionTitle,json:{data, settings:{chartType}}} = funcOpts
 		#console.log {singleCharts: chartType, data}
 		
@@ -108,14 +108,14 @@ class MakePPTReport
 class PPTXGenUtils
 
 
-	@getPPTFilename: (funcOpts) ->
+	@getPPTFilename: (funcOpts={}) ->
 		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
 		funcOpts.gen = "pg" #"pptxgen"
 		JU.getPPTFilename(funcOpts)
 
 
 
-	@createPPT: (funcOpts) ->
+	@createPPT: (funcOpts={}) ->
 		{json,generate} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
 		

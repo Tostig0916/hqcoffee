@@ -13,7 +13,7 @@ JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 class OfficeGenUtils
 
 
-	@getPPTFilename: (funcOpts) ->
+	@getPPTFilename: (funcOpts={}) ->
 		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
 		funcOpts.gen = "og" #"officegen"
 		JU.getPPTFilename(funcOpts)
@@ -21,7 +21,7 @@ class OfficeGenUtils
 
 
 	# 所需使用的数据可由JSON提供，在参数中传递至此
-	@createPPT: (funcOpts) ->
+	@createPPT: (funcOpts={}) ->
 		pptname = @getPPTFilename(funcOpts)
 
 		@pptx = officegen {

@@ -3,7 +3,7 @@ JU = require './jsonUtils'
 
 class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
-  @fromJSONData: (funcOpts) ->
+  @fromJSONData: (funcOpts={}) ->
 
     jsonizedData = JU.jsonizedExcelData(funcOpts)
     histdata = new HistoricData()    
@@ -31,7 +31,7 @@ class Indicator
 
 
 
-  constructor: (funcOpts) ->
+  constructor: (funcOpts={}) ->
     {@指标名称, @单位, @数值} = funcOpts
     if indicatorDef?
       {@计量单位, @指标导向, @指标来源, @指标属性, @二级指标, @一级指标} = indicatorDef
@@ -42,14 +42,14 @@ class Indicator
 
 
 class HistoricData
-  constructor: (funcOpts) ->
+  constructor: (funcOpts={}) ->
     @records = {}
     @years = []
     @units = []
 
   # year: e.g. '2020年'
   # sheetName e.g. '医院','心内科'
-  newRecord: (funcOpts) ->
+  newRecord: (funcOpts={}) ->
     {year, sheetName, key, indicator,update=false} = funcOpts
     @years.push(year) unless year in @years
     @units.push(sheetName) unless sheetName in @units
@@ -63,19 +63,19 @@ class HistoricData
 
   
   
-  addRecord: (funcOpts) ->
+  addRecord: (funcOpts={}) ->
     funcOpts.update = false
     @newRecord(funcOpts)
 
 
-  updateRecord: (funcOpts) ->
+  updateRecord: (funcOpts={}) ->
     funcOpts.update = true
     @newRecord(funcOpts)
 
     
 
   ### year: e.g. '2020年'
-  addTable: (funcOpts) ->
+  addTable: (funcOpts={}) ->
     {year, table} = funcOpts
     @records[year] ?= table
   ###

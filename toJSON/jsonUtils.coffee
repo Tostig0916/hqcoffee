@@ -9,7 +9,7 @@ xlsx = require 'json-as-xlsx'
 class JSONUtils
 	
 	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之
-	@getJSON: (funcOpts) ->
+	@getJSON: (funcOpts={}) ->
 		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
 		# 但是为防止后续设计改变,亦可每次皆重读
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
@@ -24,7 +24,7 @@ class JSONUtils
 
 
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
-	@jsonizedExcelData: (funcOpts) ->
+	@jsonizedExcelData: (funcOpts={}) ->
 		# type could be zh 综合, zy 中医,etc
 		{unwrap=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
 		# read from mannual file and turn it into a dictionary
@@ -59,7 +59,7 @@ class JSONUtils
 
 
 
-	@checkForHeaders: (funcOpts) ->
+	@checkForHeaders: (funcOpts={}) ->
 		{mainKeyName,rows} = funcOpts
 		headers = (key for key, value of rows[0])
 		#console.log headers 
@@ -70,7 +70,7 @@ class JSONUtils
 
 
 	# 去掉名实两边空格
-	@deleteSpacesOnBothSide: (funcOpts) ->
+	@deleteSpacesOnBothSide: (funcOpts={}) ->
 		{rowObj} = funcOpts
 		for key, value of rowObj when (typeof value is 'string') or (value instanceof String)
 			if /^[\+\-]?\d*\.?\d+(?:[Ee][\+\-]?\d+)?$/.test(value) 
@@ -86,7 +86,7 @@ class JSONUtils
 
 
 	# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
-	@correctKeyName: (funcOpts) -> 
+	@correctKeyName: (funcOpts={}) -> 
 		{rowObj} = funcOpts
 		if rowObj.项目? and not rowObj.指标名称?
 			rowObj.指标名称 = rowObj.项目
@@ -95,7 +95,7 @@ class JSONUtils
 
 
 
-	@readFromExcel: (funcOpts) ->
+	@readFromExcel: (funcOpts={}) ->
 		# console.log e2j 
 		source = e2j funcOpts
 		objOfSheets = {}
@@ -149,13 +149,13 @@ class JSONUtils
 
 
 
-	@getJSONFilename: (funcOpts) ->
+	@getJSONFilename: (funcOpts={}) ->
 		{p=__dirname,folder='data', basename} = funcOpts		
 		path.join(p, '..', folder, "JSON", "#{basename}.json")
 
 
 
-	@getExcelFilename: (funcOpts) ->
+	@getExcelFilename: (funcOpts={}) ->
 		{p=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
 		fd = outfolder ? folder
 		ff = path.join(p, '..', fd) 
@@ -166,7 +166,7 @@ class JSONUtils
 
 
 
-	@getPPTFilename: (funcOpts) ->
+	@getPPTFilename: (funcOpts={}) ->
 		{p=__dirname,folder='outputs', basename, gen=""} = funcOpts
 		# 顺便检查有无目录,没有在新建		
 		ff = path.join(p, '..', folder) 
@@ -179,7 +179,7 @@ class JSONUtils
 
 
 
-	@jsonfileNeedsNoFix: (funcOpts) ->
+	@jsonfileNeedsNoFix: (funcOpts={}) ->
 		{p=__dirname,folder='data', basename, needToRewrite=false} = funcOpts
 
 		ff = path.join(p, '..', folder, "JSON") 
@@ -196,7 +196,7 @@ class JSONUtils
 
 
 	# 指标定义详情比较表
-	@write2Excel: (funcOpts) ->
+	@write2Excel: (funcOpts={}) ->
 		{isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			{data,settings} = funcOpts
@@ -212,7 +212,7 @@ class JSONUtils
 
 
 	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
-	@write2JSON: (funcOpts) ->
+	@write2JSON: (funcOpts={}) ->
 		{obj} = funcOpts		
 
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
@@ -229,7 +229,7 @@ class JSONUtils
 
 	
 
-	@readFromJSON: (funcOpts) ->
+	@readFromJSON: (funcOpts={}) ->
 		{p=__dirname, folder, basename, jsonfilename} = funcOpts
 		
 		filename = jsonfilename ? @getJSONFilename(funcOpts) #path.join(p, '..', folder, "JSON", "#{basename}.json")

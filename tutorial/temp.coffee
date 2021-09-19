@@ -20,20 +20,20 @@ json = {
 class Process
     # read data from database
     # funOpts should include the name of indicator you want to read out
-    @getData: (funcOpts) ->
+    @getData: (funcOpts={}) ->
         {indicatorname,database} = funcOpts
         database[indicatorname] ? this["calc_#{indicatorname}"](funcOpts) #"no data"
 
-    @calc_c: (funcOpts) ->
+    @calc_c: (funcOpts={}) ->
         {database} = funcOpts
         #"function calcC has to be defined"
         #database.a + database.b
         @getData({indicatorname:'a',database:database}) + @getData({indicatorname:'d',database})
 
-    @calc_b: (funcOpts) ->
+    @calc_b: (funcOpts={}) ->
         "function calc_#{funcOpts.indicatorname} has to be defined"
         
-    @calc_d: (funcOpts) ->
+    @calc_d: (funcOpts={}) ->
         {database} = funcOpts
         @getData({indicatorname:'a', database})
 

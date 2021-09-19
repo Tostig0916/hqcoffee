@@ -1,5 +1,5 @@
 class TryingCoffee2 
-  constructor: (funcOpts) ->
+  constructor: (funcOpts={}) ->
     {@name} = funcOpts
 
   #@[computed]: -> "hello #{@name}"

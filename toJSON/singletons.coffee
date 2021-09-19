@@ -17,9 +17,19 @@ class AnySingleton
       @_json ?= JU.getJSON(opts)
 
 
+  @reversedJSON: ->
+    dictionary = @fetchSingleJSON()
+    # 维度指标
+    redict = {} 
+    for key, value of dictionary
+      (redict[value] ?= []).push(key)
+    #console.log {redict}
+    redict
 
 
-  @addPairs: (funcOpts) ->
+    
+
+  @addPairs: (funcOpts={}) ->
     {dict,keep=false} = funcOpts
     @fetchSingleJSON(funcOpts)
     for key, value of dict when key isnt value
@@ -57,7 +67,7 @@ class CommonNameSingleton extends AnySingleton
       unwrap: true #false 
     }
 
-  @ajustedName: (funcOpts) ->
+  @ajustedName: (funcOpts={}) ->
     {name,keep=false} = funcOpts
     json = @fetchSingleJSON()
     correctName = json[name]
@@ -102,19 +112,6 @@ class IndicatorDimensionSingleton extends AnySingleton
 
 
 
-
-# 各维度,及指标
-class DimensionIndicatorSingleton extends AnySingleton
-  
-  # 从指标-维度 JSON 产生维度-指标 JSON
-  @abstract: (funcOpts={}) ->
-    {indicators=IndicatorDimensionSingleton.fetchSingleJSON()} = funcOpts
-    # 维度指标
-    dimensions = {} 
-    for key, value of indicators
-      (dimensions[value] ?= []).push(key)
-    #console.log {dimensions}
-    @_json = dimensions
     
 
 
@@ -122,6 +119,5 @@ class DimensionIndicatorSingleton extends AnySingleton
 
 module.exports = {
   CommonNameSingleton
-  DimensionIndicatorSingleton
   IndicatorDimensionSingleton
 }
