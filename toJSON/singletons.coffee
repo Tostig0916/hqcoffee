@@ -1,19 +1,44 @@
 JU = require './jsonUtils'
 
+hsj = '▲'
 
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
-  @showSingleJSON: (funcOpts={}) ->
+  @fetchSingleJSON: (funcOpts={}) ->
     {rebuild=false} = funcOpts
     
-    funcOpts = @options()
+    opts = @options()
     if rebuild
       funcOpts.needToRewrite = true
-      @_json = JU.getJSON(funcOpts)
+      @_json = JU.getJSON(opts)
     else
-      @_json ?= JU.getJSON(funcOpts)
+      @_json ?= JU.getJSON(opts)
+
+
+
+
+  @addPairs: (funcOpts) ->
+    {dict,keep=false} = funcOpts
+    @fetchSingleJSON(funcOpts)
+    for key, value of dict when key isnt value
+      @_json[key] ?= value
+    # 注意,可能会混乱
+    if keep
+      opts = @options()
+      opts.needToRewrite = true
+      opts.obj = @_json
+      JU.write2JSON(opts)
+    return @_json
+    
+
+  @options: ->
+
+
+
+
+
 
 
 
@@ -27,11 +52,27 @@ class CommonNameSingleton extends AnySingleton
       basename: '别名表'
       headerRows: 1
       sheetStubs: true
-      needToRewrite: true
+      needToRewrite: false #true
       mainKeyName: "指标名称"
       unwrap: true #false 
     }
 
+  @ajustedName: (funcOpts) ->
+    {name,keep=false} = funcOpts
+    json = @fetchSingleJSON()
+    correctName = json[name]
+    switch
+      when correctName? then correctName
+      else switch
+        # 正名须去掉黑三角等特殊中英文字符,否则不能作为function 名字
+        when /[()（）/▲\ ]/i.test(name)
+          correctName = (each for each in name when not /[()（）/▲\ ]/.test(each)).join('')
+          dict = {"#{name}":"#{correctName}"}
+          @addPairs({dict,keep})
+          console.log {name, correctName}
+          correctName
+        else
+          name
 
 
 
@@ -48,10 +89,13 @@ class IndicatorDimensionSingleton extends AnySingleton
       needToRewrite: true
       mainKeyName: "指标正名"
       unwrap: true #false
-      #refining: ({json}) ->
-      #  # 维度指标
-      #  json.dimensions = DimensionIndicatorSingleton.abstract({indicators:json.indicators})
-      #  return json
+      refining: ({json}) ->
+        # 维度指标
+        {indicators} = json
+        cleanObj = {}
+        for key, value of indicators
+          cleanObj[CommonNameSingleton.ajustedName({name:key})] = value
+        return json.indicators = cleanObj
     }
 
 
@@ -63,8 +107,8 @@ class IndicatorDimensionSingleton extends AnySingleton
 class DimensionIndicatorSingleton extends AnySingleton
   
   # 从指标-维度 JSON 产生维度-指标 JSON
-  @abstract: (funcOpts) ->
-    {indicators=IndicatorDimensionSingleton.showSingleJSON()} = funcOpts
+  @abstract: (funcOpts={}) ->
+    {indicators=IndicatorDimensionSingleton.fetchSingleJSON()} = funcOpts
     # 维度指标
     dimensions = {} 
     for key, value of indicators
@@ -76,6 +120,7 @@ class DimensionIndicatorSingleton extends AnySingleton
 
 
 module.exports = {
-  IndicatorDimensionSingleton
+  CommonNameSingleton
   DimensionIndicatorSingleton
+  IndicatorDimensionSingleton
 }

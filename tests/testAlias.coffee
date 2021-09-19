@@ -7,4 +7,4 @@ data = require path.join __dirname, '..', 'data','JSON', 'demoData'
 
 console.log {data: data["DRGs组数(组)"]}
 
-console.log {data: data[alias["DRGs组数(组)"].正名]}
+console.log {data: data[alias["DRGs组数(组)"]]}

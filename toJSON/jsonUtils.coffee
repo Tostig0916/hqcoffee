@@ -180,7 +180,7 @@ class JSONUtils
 
 
 	@jsonfileNeedsNoFix: (funcOpts) ->
-		{p=__dirname,folder='data', basename, needToRewrite} = funcOpts
+		{p=__dirname,folder='data', basename, needToRewrite=false} = funcOpts
 
 		ff = path.join(p, '..', folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
@@ -213,9 +213,10 @@ class JSONUtils
 
 	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
 	@write2JSON: (funcOpts) ->
+		{obj} = funcOpts		
+
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
-		unless isReady
-			{obj} = funcOpts		
+		unless isReady			
 			jsonContent = JSON.stringify(obj)
 			fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
 				if err? 
