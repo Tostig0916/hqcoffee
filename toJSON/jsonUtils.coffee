@@ -7,6 +7,8 @@ xlsx = require 'json-as-xlsx'
 
 
 class JSONUtils
+	
+	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之
 	@singleJSON: (funcOpts) ->
 		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
 		# 但是为防止后续设计改变,亦可每次皆重读
