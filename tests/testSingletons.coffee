@@ -6,11 +6,11 @@ path = require 'path'
 
 IndicatorDimensionSingleton.fetchSingleJSON({rebuild:false})
 
-console.log {
-  CommonNameSingleton: CommonNameSingleton.addPairs({
-    dict:{"某指标别名":"某指标"}, keep:false
-  })
-}
+#console.log {
+#  CommonNameSingleton: CommonNameSingleton.addPairs({
+#    dict:{"某指标别名":"某指标"}, keep:false
+#  })
+#}
 #DimensionIndicatorSingleton.abstract({indicators: json})
 #console.log DimensionIndicatorSingleton.dimensions 
 

@@ -69,7 +69,7 @@ class CommonNameSingleton extends AnySingleton
           correctName = (each for each in name when not /[()（）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
           @addPairs({dict,keep})
-          console.log {name, correctName}
+          #console.log {name, correctName}
           correctName
         else
           name
@@ -93,8 +93,8 @@ class IndicatorDimensionSingleton extends AnySingleton
         # 维度指标
         {indicators} = json
         cleanObj = {}
-        for key, value of indicators
-          cleanObj[CommonNameSingleton.ajustedName({name:key})] = value
+        for key, value of indicators when not /[、]/i.test(key)
+          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
         return json.indicators = cleanObj
     }
 
