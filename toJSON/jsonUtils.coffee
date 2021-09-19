@@ -11,7 +11,7 @@ class JSONUtils
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts) ->
 		# type could be zh 综合, zy 中医,etc
-		{folder='data', basename, headerRows=1, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
+		{simplest=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
 		
@@ -19,18 +19,26 @@ class JSONUtils
 		# 但是为防止后续设计改变,亦可每次皆重读
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
-			readOpts =
+			readOpts = {
 				sourceFile: excelfileName
 				sheetStubs: sheetStubs
 				header: {rows: headerRows}
 				#sheets: ['Sheet 1']
 				columnToKey: {'*':'{{columnHeader}}'}
-				# 这一属性是我加的
-				mainKeyName: mainKeyName
-				
+				# 以下属性是我加的
+				mainKeyName
+				simplest
+			}
+			if sheets? then readOpts.sheets = sheets
 			try
-				# 是简单的JSON object
+				# JSON object
 				obj = @readFromExcel(readOpts)
+				
+				# 如果只有一个键就删掉他
+				keys = (key for key, value of obj)
+				if simplest and (keys.length is 1)
+					obj = obj[keys[0]]
+				
 				funcOpts.obj = obj
 				@write2JSON(funcOpts)
 
@@ -106,9 +114,12 @@ class JSONUtils
 						when simplest
 							# 对于只有两个column的简单表格，可以生成简单的JSON
 							rowVals = (rv for rk, rv of rowObj)
+							{length} = rowVals
+							console.log {length}
 							switch
 								when rowVals.length is 2 
 									objOfSheets[sheetName][mainKey] = rowVals[1]
+									console.log {mainKey, value:rowVals[1]}
 								else
 									objOfSheets[sheetName][mainKey] = rowObj
 						else
