@@ -5,7 +5,7 @@ StormDB = require 'stormdb'
 
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
-class AnySingleton  
+class AnySingleton extends JSONUtils
   @db: ->
     switch
       when not @_dbhost?
