@@ -38,14 +38,7 @@ class CompanyComparingSource extends AnyInstance
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      
-      # 将id转换为数据的正名
-      #refining: ({rowObj}) ->
-      #  # 维度指标
-      #  cleanObj = {}
-      #  for key, value of symbols when not /[、]/i.test(key)
-      #    cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-      #  return cleanObj
+      # refining: @normalKeyName      
     }
 
 

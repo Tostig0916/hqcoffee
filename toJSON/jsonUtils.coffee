@@ -80,7 +80,7 @@ class JSONUtils # with no dependences to stormdb
 		{rowObj} = funcOpts
 		if rowObj.项目? and not rowObj.指标名称?
 			rowObj.指标名称 = rowObj.项目
-			# delete rowObj.项目
+			delete rowObj.项目
 		
 
 
@@ -105,27 +105,32 @@ class JSONUtils # with no dependences to stormdb
 				@deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 				@correctKeyName({rowObj})
-				if refining? then rowObj = refining({rowObj})
 				mainKey = rowObj[mainKeyName]
 
 				switch
-					when mainKey? and not /^(undefined|栏次)$/i.test(mainKey) then switch #isnt "undefined"
-						# 拆解方式仅适用于只有两个column情形
-						when unwrap
-							# 对于只有两个column的简单表格，可以生成简单的JSON
-							rowVals = (rv for rk, rv of rowObj)
-							{length} = rowVals
-							#console.log {length}
-							switch
-								when length is 2 
-									objOfSheets[sheetName][mainKey] = rowVals[1]
-									#console.log {mainKey, value:rowVals[1]}
-								else
-									objOfSheets[sheetName][mainKey] = rowObj
-						else
-							objOfSheets[sheetName][mainKey] = rowObj
-					else
+					when (not mainKey?) or /^(undefined|栏次)$/i.test(mainKey)
 						console.log("清除废数据行", rowObj)
+
+					else
+						if refining?
+							mainKey = refining({mainKey})
+							rowObj[mainKeyName] = mainKey
+						
+						switch #isnt "undefined"
+							# 拆解方式仅适用于只有两个column情形
+							when unwrap
+								# 对于只有两个column的简单表格，可以生成简单的JSON
+								rowVals = (rv for rk, rv of rowObj)
+								{length} = rowVals
+								#console.log {length}
+								switch
+									when length is 2 
+										objOfSheets[sheetName][mainKey] = rowVals[1]
+										#console.log {mainKey, value:rowVals[1]}
+									else
+										objOfSheets[sheetName][mainKey] = rowObj
+							else
+								objOfSheets[sheetName][mainKey] = rowObj
 
 
 		# 如果经过以上处理之后，仍只有一个键就解开

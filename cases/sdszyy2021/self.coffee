@@ -24,7 +24,7 @@ class CaseSingleton extends AnyCaseSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      refining: @correctIndicator
+      refining: @normalKeyName
     }
 
 

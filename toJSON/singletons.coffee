@@ -63,11 +63,9 @@ class AnySingleton
 
 
 
-  @correctIndicator: ({rowObj}) =>
-    cleanObj = {}
-    for key, value of indicators when not /[、]/i.test(key)
-      cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-    return cleanObj
+  @normalKeyName: ({mainKey}) =>
+    #if /[、]/i.test(mainKey)
+    CommonNameSingleton.ajustedName({name:mainKey,keep:true})
 
 
 
@@ -154,8 +152,9 @@ class CommonNameSingleton extends AnyCommonSingleton
       when correctName? then correctName
       else switch
         # 正名须去掉黑三角等特殊中英文字符,否则不能作为function 名字
-        when /[()（）/▲\ ]/i.test(name)
-          correctName = (each for each in name when not /[()（）/▲\ ]/.test(each)).join('')
+        when /[()（、）/▲\ ]/i.test(name)
+          console.log("#{name}: 命名不应含顿号") if /、/i.test(name)
+          correctName = (each for each in name when not /[()（、）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
           @addPairs({dict,keep})
           #console.log {name, correctName}
@@ -179,7 +178,7 @@ class IndicatorDimensionSingleton extends AnyCommonSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      refining: @correctIndicator
+      refining: @normalKeyName
       ###({rowObj}) ->
         # 维度指标
         {indicators} = json
@@ -205,7 +204,7 @@ class SymbolIDSingleton extends AnyCommonSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      refining: @correctIndicator
+      refining: @normalKeyName
       ###
       ({rowObj}) ->
         # 维度指标
