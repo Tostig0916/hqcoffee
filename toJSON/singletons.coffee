@@ -64,7 +64,7 @@ class AnySingleton
 
 
   @normalKeyName: ({mainKey}) =>
-    #if /[、]/i.test(mainKey)
+    #if /[、]/i.test(mainKey) 挪到以下function中
     CommonNameSingleton.ajustedName({name:mainKey,keep:true})
 
 
@@ -178,15 +178,7 @@ class IndicatorDimensionSingleton extends AnyCommonSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      refining: @normalKeyName
-      ###({rowObj}) ->
-        # 维度指标
-        {indicators} = json
-        cleanObj = {}
-        for key, value of indicators when not /[、]/i.test(key)
-          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-        return json.indicators = cleanObj
-      ###  
+      refining: @normalKeyName  
     }
 
 
@@ -205,15 +197,6 @@ class SymbolIDSingleton extends AnyCommonSingleton
       needToRewrite: true
       unwrap: true #false
       refining: @normalKeyName
-      ###
-      ({rowObj}) ->
-        # 维度指标
-        {symbols} = json
-        cleanObj = {}
-        for key, value of symbols when not /[、]/i.test(key)
-          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-        return json.symbols = cleanObj
-      ###
     }
 
 
