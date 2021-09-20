@@ -8,16 +8,15 @@ StormDB = require 'stormdb'
 class AnySingleton  
   @db: ->
     switch
-      when @_db?
-        @_db
-      else switch
-        when @_dbPath() 
-          engine = new StormDB.localFileEngine(@_dbPath())
-          @_db = new StormDB(engine)
-          @_setDefaultData()
-          @_db
-        else
-          null
+      when not @_dbhost?
+        null
+      when @_dbhost()._db?
+        @_dbhost()._db
+      else 
+        engine = new StormDB.localFileEngine(@_dbPath())
+        @_dbhost()._db = new StormDB(engine)
+        @_dbhost()._setDefaultData()
+        @_dbhost()._db
 
 
 
@@ -116,13 +115,30 @@ class AnyCaseSingleton extends AnySingleton
 
 
 class AnyGlobalSingleton extends AnySingleton
+  ###
+  @db: ->
+    switch
+      when AnyGlobalSingleton._db? #@_db?
+        AnyGlobalSingleton._db
+      else
+        dbPath = path.join __dirname, '..', 'data', 'db.json'
+        engine = new StormDB.localFileEngine(dbPath)
+        AnyGlobalSingleton._db = new StormDB(engine)
+        @_setDefaultData()
+        AnyGlobalSingleton._db
+  ###
+
+  @_dbhost: -> 
+    AnyGlobalSingleton
   
+
+
   @_dbPath: ->
     path.join __dirname, '..', 'data', 'db.json'
       
 
   @_setDefaultData: ->
-    @_db.default({settings: {}}).save()
+    @db().default({settings: {}}).save()
 
 
 
