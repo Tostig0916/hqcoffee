@@ -2,8 +2,14 @@ path = require 'path'
 {Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
 #ju = require path.join __dirname, '../jsonUtils'
 
+console.log Indicator.fromJSONData  {
+        basename: "二级国考指标填报表"
+        headerRows: 3
+        sheetStubs: false
+        needToRewrite: false #true
+      }
 
-
+###
 getHistdata = (selection) ->
   funcOpts = switch selection
     when 0
@@ -39,3 +45,4 @@ for selection in [1..2]
   console.log funcOpts.basename, histdata.years, histdata.units
   #console.log histdata.yearsSorted((a,b) -> a - b), histdata.unitsSorted()
 
+###
