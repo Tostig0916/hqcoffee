@@ -146,42 +146,55 @@ class JSONSimple  # with no dependences to stormdb
 
 
 	@getJSONFilename: (funcOpts={}) ->
-		{dirname=__dirname,folder='data', basename} = funcOpts		
-		path.join(dirname, '..', folder, "JSON", "#{basename}.json")
+		{dirname,folder='data', basename} = funcOpts		
+		
+		if dirname?
+			path.join(dirname, "#{basename}.json")
+		else
+			dirname = __dirname
+			ff = path.join(dirname, '..', folder, "JSON") 
+			fs.mkdirSync ff unless fs.existsSync ff
+			path.join(dirname, '..', folder, "JSON", "#{basename}.json")
 
 
 	
 	@getExcelFilename: (funcOpts={}) ->
-		{dirname=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
-		fd = outfolder ? folder
-		ff = path.join(dirname, '..', fd) 
-		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(dirname, '..', fd, 'Excel') 
-		fs.mkdirSync ff unless fs.existsSync ff
-		path.join(dirname, '..', outfolder ? folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
+		{dirname,outfolder,folder='data', basename, basenameOnly} = funcOpts
+		
+		if dirname?
+			path.join(dirname, if basenameOnly then basename else "#{basename}.xlsx")
+		else
+			dirname = __dirname
+			fd = outfolder ? folder
+			ff = path.join(dirname, '..', fd) 
+			fs.mkdirSync ff unless fs.existsSync ff
+			ff = path.join(dirname, '..', fd, 'Excel') 
+			fs.mkdirSync ff unless fs.existsSync ff
+			path.join(dirname, '..', outfolder ? folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
 
 
 
 	@getPPTFilename: (funcOpts={}) ->
-		{dirname=__dirname,folder='outputs', basename, gen=""} = funcOpts
-		# 顺便检查有无目录,没有在新建		
-		ff = path.join(dirname, '..', folder) 
-		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(dirname, '..', folder, 'PPT') 
-		fs.mkdirSync ff unless fs.existsSync ff
+		{dirname,folder='outputs', basename, gen=""} = funcOpts
+		
+		if dirname?
+			path.join(dirname, "#{basename}.#{gen}.pptx")
+		else
+			dirname = __dirname
+			# 顺便检查有无目录,没有在新建		
+			ff = path.join(dirname, '..', folder) 
+			fs.mkdirSync ff unless fs.existsSync ff
+			ff = path.join(dirname, '..', folder, 'PPT') 
+			fs.mkdirSync ff unless fs.existsSync ff
 
-		# 生成文件路径名		
-		path.join(dirname, '..', folder,'PPT', "#{basename}.#{gen}.pptx")
+			# 生成文件路径名		
+			path.join(dirname, '..', folder,'PPT', "#{basename}.#{gen}.pptx")
 
 
 
 	@jsonfileNeedsNoFix: (funcOpts={}) ->
-		{dirname=__dirname,folder='data', basename, needToRewrite=false} = funcOpts
-
-		ff = path.join(dirname, '..', folder, "JSON") 
-		fs.mkdirSync ff unless fs.existsSync ff 
 		jsonfilename = @getJSONFilename(funcOpts)
-		
+		{needToRewrite=false} = funcOpts
 		if isReady = fs.existsSync(jsonfilename) and not needToRewrite
 			console.log "已有文件: #{jsonfilename}"
 			
@@ -226,9 +239,9 @@ class JSONSimple  # with no dependences to stormdb
 	
 
 	@readFromJSON: (funcOpts={}) ->
-		{dirname=__dirname, folder, basename, jsonfilename} = funcOpts
+		{jsonfilename} = funcOpts
 		
-		filename = jsonfilename ? @getJSONFilename(funcOpts) #path.join(dirname, '..', folder, "JSON", "#{basename}.json")
+		filename = jsonfilename ? @getJSONFilename(funcOpts)
 		console.log "读取: ", filename
 		obj = require filename
 		return obj
@@ -243,8 +256,9 @@ class JSONDatabase extends JSONSimple
 		{dirname,folder='data', basename} = funcOpts
 		if dirname?
 			path.json(dirname, "db.json")
-		else	
-			path.join(__dirname, '..', folder, "db.json")
+		else
+			dirname = __dirname	
+			path.join(dirname, '..', folder, "db.json")
 
 
 
