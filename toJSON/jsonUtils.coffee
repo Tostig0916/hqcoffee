@@ -6,7 +6,7 @@ pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
 
 
-class JSONUtilsBase # with no dependences to stormdb
+class JSONUtils # with no dependences to stormdb
 	
 	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之
 	@getJSON: (funcOpts={}) ->
@@ -36,46 +36,16 @@ class JSONUtilsBase # with no dependences to stormdb
 
 		try
 			# JSON object
-			obj = @readFromExcel(readOpts)
+			obj = @readFromExcel(readOpts)							
+			funcOpts.obj = obj
+			@write2JSON(funcOpts)
+
 		catch error
 			console.log error
 		return obj
 
 
 
-	# 单纯将Excel文件转化为JSON文件,而不引入classes
-	@jsonizedExcelDataThenSave: (funcOpts={}) ->
-		# type could be zh 综合, zy 中医,etc
-		{unwrap=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
-		# read from mannual file and turn it into a dictionary
-		excelfileName = @getExcelFilename(funcOpts)
-		
-		# 由于是使用简单的JSON object 故除非解析规则改变否则无须重读,
-		# 但是为防止后续设计改变,亦可每次皆重读
-		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
-		
-		unless isReady
-			readOpts = funcOpts
-			readOpts.sourceFile ?= excelfileName
-			readOpts.header ?= {rows: headerRows}
-			readOpts.columnToKey ?= {'*':'{{columnHeader}}'}
-			
-			if sheets? then readOpts.sheets = sheets
-			try
-				# JSON object
-				obj = @readFromExcel(readOpts)
-				
-				funcOpts.obj = obj
-				@write2JSON(funcOpts)
-
-			catch error
-				console.log error
-			
-		else
-			# 原本就是JSON object 所以直接读取即可
-			obj = @readFromJSON({jsonfilename})
-
-		return obj
 
 
 	@checkForHeaders: (funcOpts={}) ->
@@ -172,7 +142,7 @@ class JSONUtilsBase # with no dependences to stormdb
 		path.join(p, '..', folder, "JSON", "#{basename}.json")
 
 
-
+	
 	@getExcelFilename: (funcOpts={}) ->
 		{p=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
 		fd = outfolder ? folder
@@ -259,7 +229,10 @@ class JSONUtilsBase # with no dependences to stormdb
 
 
 # use stormdb
-class JSONUtils extends JSONUtilsBase
+class JSONDatabase extends JSONUtils
+	@getDBFilename: (funcOpts={}) ->
+		{p=__dirname,folder='data', basename} = funcOpts		
+		path.join(p, '..', folder, "JSON", "#{basename}.db.json")
 
 
 
@@ -267,4 +240,7 @@ class JSONUtils extends JSONUtilsBase
 
 
 
-module.exports = JSONUtils
+module.exports = {
+	JSONUtils
+	JSONDatabase
+}

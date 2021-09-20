@@ -1,12 +1,10 @@
-JU = require './jsonUtils'
+{JSONUtils, JSONDatabase} = require './jsonUtils'
 
 
 class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromJSONData: (funcOpts={}) ->
-
-    #jsonizedData = JU.jsonizedExcelDataThenSave(funcOpts)
-    jsonizedData = JU.getJSON(funcOpts)
+    jsonizedData = JSONUtils.getJSON(funcOpts)
     histdata = new HistoricData()    
     
     # sheetName 是单位名,例如"医院",或"普外科"
@@ -23,7 +21,7 @@ class Indicator
     
 		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
     {folder, basename, needToRewrite} = funcOpts
-    JU.write2JSON({folder, basename:"#{basename}Hist", needToRewrite, obj: histdata})
+    JSONUtils.write2JSON({folder, basename:"#{basename}Hist", needToRewrite, obj: histdata})
       
     return histdata
 		

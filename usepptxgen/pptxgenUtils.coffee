@@ -3,7 +3,7 @@ fs = require 'fs'
 path = require 'path' 
 
 pptxgen = require 'pptxgenjs'
-JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 ### 生成报告专用的JSON文件规格
@@ -111,7 +111,7 @@ class PPTXGenUtils
 	@getPPTFilename: (funcOpts={}) ->
 		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
 		funcOpts.gen = "pg" #"pptxgen"
-		JU.getPPTFilename(funcOpts)
+		JSONUtils.getPPTFilename(funcOpts)
 
 
 

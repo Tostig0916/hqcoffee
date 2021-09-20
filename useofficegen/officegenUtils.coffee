@@ -4,7 +4,7 @@ fs = require 'fs'
 path = require 'path' 
 officegen = require 'officegen'
 
-JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 # there's some bug in this package, give up
@@ -16,7 +16,7 @@ class OfficeGenUtils
 	@getPPTFilename: (funcOpts={}) ->
 		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
 		funcOpts.gen = "og" #"officegen"
-		JU.getPPTFilename(funcOpts)
+		JSONUtils.getPPTFilename(funcOpts)
 		
 
 

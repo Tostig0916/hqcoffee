@@ -7,7 +7,7 @@ xlsx = require 'json-as-xlsx'
 
 # use __dirname and __filename to create correct full path filename
 {IndicatorDef, IndicatorDefInfoByVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
-JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 arrayOfDefs = (funcOpts) ->
@@ -48,7 +48,7 @@ funcOpts.arr = arr
 createExcel = (funcOpts) ->
   return "not done yet"
 
-  excelfileName = JU.getExcelFilename(funcOpts)
+  excelfileName = JSONUtils.getExcelFilename(funcOpts)
   {arr,needToRewrite} = funcOpts
   unless fs.existsSync(excelfileName) or needToRewrite
     data = [

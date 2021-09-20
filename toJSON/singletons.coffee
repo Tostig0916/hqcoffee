@@ -1,4 +1,4 @@
-JU = require './jsonUtils'
+{JSONUtils, JSONDatabase} = require './jsonUtils'
 
 hsj = '▲'
 
@@ -12,9 +12,9 @@ class AnySingleton
     opts = @options()
     if rebuild
       funcOpts.needToRewrite = true
-      @_json = JU.getJSON(opts)
+      @_json = JSONUtils.getJSON(opts)
     else
-      @_json ?= JU.getJSON(opts)
+      @_json ?= JSONUtils.getJSON(opts)
 
 
   @reversedJSON: ->
@@ -39,7 +39,7 @@ class AnySingleton
       opts = @options()
       opts.needToRewrite = true
       opts.obj = @_json
-      JU.write2JSON(opts)
+      JSONUtils.write2JSON(opts)
     return @_json
     
 

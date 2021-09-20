@@ -1,6 +1,5 @@
 path = require 'path'
 {Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
-#ju = require path.join __dirname, '../jsonUtils'
 
 console.log Indicator.fromJSONData  {
         basename: "二级国考指标填报表"

@@ -1,4 +1,4 @@
-JU = require './jsonUtils'
+{JSONUtils, JSONDatabase} = require './jsonUtils'
 
 
 # 抽象class 将共性放在此处
@@ -11,9 +11,9 @@ class AnyInstance
     funcOpts = @options()
     if rebuild
       funcOpts.needToRewrite = true
-      @_json = JU.getJSON(funcOpts)
+      @_json = JSONUtils.getJSON(funcOpts)
     else
-      @_json ?= JU.getJSON(funcOpts)
+      @_json ?= JSONUtils.getJSON(funcOpts)
 
   options: ->
 

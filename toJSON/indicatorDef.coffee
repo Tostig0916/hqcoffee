@@ -1,4 +1,4 @@
-JU = require './jsonUtils'
+{JSONUtils, JSONDatabase} = require './jsonUtils'
 
 #fs = require 'fs'
 #path = require 'path' 
@@ -72,7 +72,7 @@ class IndicatorDefInfoByVersion
 
 class IndicatorDef
 	@fromMannualFile: (funcOpts={}) ->
-		json = JU.getJSON(funcOpts)
+		json = JSONUtils.getJSON(funcOpts)
 		indicators = {}
 		for versionName, mannual of json
 			for k, obj of mannual
@@ -102,9 +102,9 @@ class IndicatorDef
 		# json 只是用来查看和纠错的, instance objects 则应每次从原始文件生成
 		{folder,basename,needToRewrite} = funcOpts
 		{data, settings} = @dataSettings4Excel {arr:(v for k, v of indicators)}
-		JU.write2Excel({folder,basename:"#{basename}Analyze", needToRewrite, data, settings})
-		JU.write2JSON({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
-		JU.write2JSON({folder,basename:"#{basename}Versions", needToRewrite, obj: IndicatorDefInfoByVersion.versions})
+		JSONUtils.write2Excel({folder,basename:"#{basename}Analyze", needToRewrite, data, settings})
+		JSONUtils.write2JSON({folder,basename:"#{basename}Dict", needToRewrite, obj:indicators})
+		JSONUtils.write2JSON({folder,basename:"#{basename}Versions", needToRewrite, obj: IndicatorDefInfoByVersion.versions})
 		return indicators
 
 
@@ -167,7 +167,7 @@ class IndicatorDef
 	###
 	# 各版本独立陈列，备考  
 	@seperatedFromMannualFile: (funcOpts={}) ->
-		json = JU.getJSON(funcOpts)
+		json = JSONUtils.getJSON(funcOpts)
 		indicators = {}
 		for version, mannual of json
 			indicators[version] = {}

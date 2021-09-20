@@ -1,6 +1,6 @@
 path = require 'path'
 {MakePPTReport, PPTXGenUtils} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
-JU = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 # 从数据表读取数据,再生成报告用的JSON
@@ -14,7 +14,7 @@ funcOpts = {
 
 sheetName = "雷达图"
 
-json = JU.getJSON(funcOpts)
+json = JSONUtils.getJSON(funcOpts)
 funcOpts.json = json[sheetName]
 
 funcOpts.generate = (pres) ->
