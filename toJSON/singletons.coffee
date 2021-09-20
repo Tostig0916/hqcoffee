@@ -44,6 +44,15 @@ class AnySingleton
     
 
   @options: ->
+    {
+      folder: 'data'
+      header: {rows: 1}
+      columnToKey: {'*':'{{columnHeader}}'}
+      sheetStubs: true
+      needToRewrite: false #true
+      unwrap: true #false 
+    }
+
 
 
 
@@ -57,16 +66,15 @@ class AnySingleton
 # 别名正名对照及转换
 class CommonNameSingleton extends AnySingleton
   @options: ->
-    {
-      folder: 'data'
-      basename: '别名表'
-      mainKeyName: "指标名称"
-      sheets: ["symbols"] # 表格中须有 symbols 这个sheet
-      headerRows: 1
-      sheetStubs: true
-      needToRewrite: false #true
-      unwrap: true #false 
-    }
+    if @_options?
+      @_options
+    else
+      opt = super()
+      opt.sheets = ["symbols"]
+      opt.mainKeyName = "指标名称"
+      opt.basename = "别名表"
+      console.log opt
+      @_options = opt
 
 
 
@@ -99,7 +107,7 @@ class IndicatorDimensionSingleton extends AnySingleton
       folder: 'data'
       basename: "指标维度表"
       sheets: ["indicators"] # sheet 须命名为 indicators
-      mainKeyName: "指标名"
+      mainKeyName: "指标正名"
       headerRows: 1
       sheetStubs: true
       needToRewrite: true

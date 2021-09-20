@@ -5,7 +5,8 @@ class Indicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromJSONData: (funcOpts={}) ->
 
-    jsonizedData = JU.jsonizedExcelData(funcOpts)
+    #jsonizedData = JU.jsonizedExcelDataThenSave(funcOpts)
+    jsonizedData = JU.getJSON(funcOpts)
     histdata = new HistoricData()    
     
     # sheetName 是单位名,例如"医院",或"普外科"

@@ -6,7 +6,7 @@ pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
 
 
-class JSONUtils
+class JSONUtilsBase # with no dependences to stormdb
 	
 	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之
 	@getJSON: (funcOpts={}) ->
@@ -26,6 +26,26 @@ class JSONUtils
 	# 单纯将Excel文件转化为JSON文件,而不引入classes
 	@jsonizedExcelData: (funcOpts={}) ->
 		# type could be zh 综合, zy 中医,etc
+		{headerRows=1, sheets} = funcOpts
+		# read from mannual file and turn it into a dictionary
+		readOpts = funcOpts
+		readOpts.sourceFile ?= @getExcelFilename(funcOpts)
+		readOpts.header ?= {rows: headerRows}
+		readOpts.columnToKey ?= {'*':'{{columnHeader}}'}
+		if sheets? then readOpts.sheets = sheets
+
+		try
+			# JSON object
+			obj = @readFromExcel(readOpts)
+		catch error
+			console.log error
+		return obj
+
+
+
+	# 单纯将Excel文件转化为JSON文件,而不引入classes
+	@jsonizedExcelDataThenSave: (funcOpts={}) ->
+		# type could be zh 综合, zy 中医,etc
 		{unwrap=false,folder='data', basename, headerRows=1, sheets, sheetStubs=true, mainKeyName="指标名称"} = funcOpts
 		# read from mannual file and turn it into a dictionary
 		excelfileName = @getExcelFilename(funcOpts)
@@ -36,9 +56,9 @@ class JSONUtils
 		
 		unless isReady
 			readOpts = funcOpts
-			readOpts.sourceFile = excelfileName
-			readOpts.header = {rows: headerRows}
-			readOpts.columnToKey = {'*':'{{columnHeader}}'}
+			readOpts.sourceFile ?= excelfileName
+			readOpts.header ?= {rows: headerRows}
+			readOpts.columnToKey ?= {'*':'{{columnHeader}}'}
 			
 			if sheets? then readOpts.sheets = sheets
 			try
@@ -56,7 +76,6 @@ class JSONUtils
 			obj = @readFromJSON({jsonfilename})
 
 		return obj
-
 
 
 	@checkForHeaders: (funcOpts={}) ->
@@ -96,8 +115,7 @@ class JSONUtils
 
 
 	@readFromExcel: (funcOpts={}) ->
-		# console.log e2j 
-		source = e2j funcOpts
+		source = e2j(funcOpts)
 		objOfSheets = {}
 		
 		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
@@ -237,6 +255,13 @@ class JSONUtils
 		obj = require filename
 		return obj
 	
+
+
+
+# use stormdb
+class JSONUtils extends JSONUtilsBase
+
+
 
 
 
