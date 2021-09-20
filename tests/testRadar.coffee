@@ -1,6 +1,6 @@
 path = require 'path'
 {MakePPTReport, PPTXGenUtils} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
-{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 # 从数据表读取数据,再生成报告用的JSON

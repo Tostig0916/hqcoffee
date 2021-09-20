@@ -1,24 +1,35 @@
-{JSONUtils, JSONDatabase} = require './jsonUtils'
+{JSONUtils} = require './jsonUtils'
 path = require 'path'
 StormDB = require 'stormdb'
 
-hsj = '▲'
 
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton  
   @db: ->
-    if @_db?
+    switch
+      when @_db?
         @_db
-    else
-      engine = new StormDB.localFileEngine(@_dbPath())
-      @_db = new StormDB(engine)
-      @_setDefaultData()
-      @_db
+      else switch
+        when @_dbPath() 
+          engine = new StormDB.localFileEngine(@_dbPath())
+          @_db = new StormDB(engine)
+          @_setDefaultData()
+          @_db
+        else
+          null
+
+
+
+
+  @_dbPath: ->
+    console.log "_dbPath is not implemented in #{@name}"
+    null    
 
 
   @_setDefaultData: ->
-    @_db.default({options: @options()}).save()
+    console.log "_setDefaultData is not implemented in #{@name}" 
+
 
 
 
@@ -33,6 +44,9 @@ class AnySingleton
       @_json = JSONUtils.getJSON(opts)
     else
       @_json ?= JSONUtils.getJSON(opts)
+
+
+
 
 
   @reversedJSON: ->
@@ -78,10 +92,7 @@ class AnySingleton
 
 # 咨询案例
 class AnyCaseSingleton extends AnySingleton
-  @_dbPath: ->
-    path.join __dirname, '..', 'case', 'db.json'
-    
-
+  
 
 
   @options: ->
@@ -104,12 +115,14 @@ class AnyCaseSingleton extends AnySingleton
 
 
 
-class AnyCommonSingleton extends AnySingleton
-
+class AnyGlobalSingleton extends AnySingleton
+  
   @_dbPath: ->
     path.join __dirname, '..', 'data', 'db.json'
       
 
+  @_setDefaultData: ->
+    @_db.default({settings: {}}).save()
 
 
 
@@ -129,7 +142,7 @@ class AnyCommonSingleton extends AnySingleton
 
 
 # 别名正名对照及转换
-class CommonNameSingleton extends AnyCommonSingleton
+class CommonNameSingleton extends AnyGlobalSingleton
   @options: ->
     if @_options?
       @_options
@@ -167,9 +180,9 @@ class CommonNameSingleton extends AnyCommonSingleton
 
 
 
-# 此表为 singleton,只有一个instance,故可使用 class 一侧定义
+# 此表为 singleton,只有一个instance,故可使用类侧定义
 # 指标维度表
-class IndicatorDimensionSingleton extends AnyCommonSingleton
+class IndicatorDimensionSingleton extends AnyGlobalSingleton
   @options: ->
     {
       folder: 'data'
@@ -187,7 +200,7 @@ class IndicatorDimensionSingleton extends AnyCommonSingleton
 
 
 
-class SymbolIDSingleton extends AnyCommonSingleton
+class SymbolIDSingleton extends AnyGlobalSingleton
   @options: ->
     {
       folder: 'data'
@@ -208,8 +221,12 @@ class SymbolIDSingleton extends AnyCommonSingleton
 
 
 module.exports = {
+  #AnySingleton
   AnyCaseSingleton
-  AnyCommonSingleton
+  AnyGlobalSingleton
+  
   CommonNameSingleton
   IndicatorDimensionSingleton
+  SymbolIDSingleton
 }
+

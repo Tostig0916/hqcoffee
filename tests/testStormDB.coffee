@@ -1,6 +1,6 @@
 path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
-{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 {CommonNameSingleton} = require path.join __dirname, '..', 'toJSON', 'singletons'
 
 dbpath = (basename) -> 

@@ -3,7 +3,7 @@ fs = require 'fs'
 path = require 'path' 
 
 pptxgen = require 'pptxgenjs'
-{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 ### 生成报告专用的JSON文件规格

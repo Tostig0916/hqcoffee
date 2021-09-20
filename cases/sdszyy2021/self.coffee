@@ -42,4 +42,9 @@ class Target extends CaseSingleton
 
 
 
-console.log {options: Client.db().get("customer").value()}
+
+test = ->
+  for each in [Target, Client]
+    console.log { obj: each.name, dbp: each._dbPath(), db: each.db()}
+    #console.log each.name
+test()

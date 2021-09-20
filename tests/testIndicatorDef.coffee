@@ -7,7 +7,7 @@ xlsx = require 'json-as-xlsx'
 
 # use __dirname and __filename to create correct full path filename
 {IndicatorDef, IndicatorDefInfoByVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
-{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
 
 
 arrayOfDefs = (funcOpts) ->

@@ -7,7 +7,7 @@ xlsx = require 'json-as-xlsx'
 StormDB = require 'stormdb'
 
 
-class JSONUtils # with no dependences to stormdb
+class JSONSimple  # with no dependences to stormdb
 	
 	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之
 	@getJSON: (funcOpts={}) ->
@@ -146,39 +146,39 @@ class JSONUtils # with no dependences to stormdb
 
 
 	@getJSONFilename: (funcOpts={}) ->
-		{p=__dirname,folder='data', basename} = funcOpts		
-		path.join(p, '..', folder, "JSON", "#{basename}.json")
+		{dirname=__dirname,folder='data', basename} = funcOpts		
+		path.join(dirname, '..', folder, "JSON", "#{basename}.json")
 
 
 	
 	@getExcelFilename: (funcOpts={}) ->
-		{p=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
+		{dirname=__dirname,outfolder,folder='data', basename, basenameOnly, headerRows=1, sheetStubs=true} = funcOpts
 		fd = outfolder ? folder
-		ff = path.join(p, '..', fd) 
+		ff = path.join(dirname, '..', fd) 
 		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(p, '..', fd, 'Excel') 
+		ff = path.join(dirname, '..', fd, 'Excel') 
 		fs.mkdirSync ff unless fs.existsSync ff
-		path.join(p, '..', outfolder ? folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
+		path.join(dirname, '..', outfolder ? folder,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
 
 
 
 	@getPPTFilename: (funcOpts={}) ->
-		{p=__dirname,folder='outputs', basename, gen=""} = funcOpts
+		{dirname=__dirname,folder='outputs', basename, gen=""} = funcOpts
 		# 顺便检查有无目录,没有在新建		
-		ff = path.join(p, '..', folder) 
+		ff = path.join(dirname, '..', folder) 
 		fs.mkdirSync ff unless fs.existsSync ff
-		ff = path.join(p, '..', folder, 'PPT') 
+		ff = path.join(dirname, '..', folder, 'PPT') 
 		fs.mkdirSync ff unless fs.existsSync ff
 
 		# 生成文件路径名		
-		path.join(p, '..', folder,'PPT', "#{basename}.#{gen}.pptx")
+		path.join(dirname, '..', folder,'PPT', "#{basename}.#{gen}.pptx")
 
 
 
 	@jsonfileNeedsNoFix: (funcOpts={}) ->
-		{p=__dirname,folder='data', basename, needToRewrite=false} = funcOpts
+		{dirname=__dirname,folder='data', basename, needToRewrite=false} = funcOpts
 
-		ff = path.join(p, '..', folder, "JSON") 
+		ff = path.join(dirname, '..', folder, "JSON") 
 		fs.mkdirSync ff unless fs.existsSync ff 
 		jsonfilename = @getJSONFilename(funcOpts)
 		
@@ -226,9 +226,9 @@ class JSONUtils # with no dependences to stormdb
 	
 
 	@readFromJSON: (funcOpts={}) ->
-		{p=__dirname, folder, basename, jsonfilename} = funcOpts
+		{dirname=__dirname, folder, basename, jsonfilename} = funcOpts
 		
-		filename = jsonfilename ? @getJSONFilename(funcOpts) #path.join(p, '..', folder, "JSON", "#{basename}.json")
+		filename = jsonfilename ? @getJSONFilename(funcOpts) #path.join(dirname, '..', folder, "JSON", "#{basename}.json")
 		console.log "读取: ", filename
 		obj = require filename
 		return obj
@@ -237,11 +237,20 @@ class JSONUtils # with no dependences to stormdb
 
 
 # use stormdb
-class JSONDatabase extends JSONUtils
+class JSONDatabase extends JSONSimple
 
 	@getDBFilename: (funcOpts={}) ->
-		{p=__dirname,folder='data', basename} = funcOpts		
-		path.join(p, '..', folder, "JSON", "#{basename}.db.json")
+		{dirname,folder='data', basename} = funcOpts
+		if dirname?
+			path.json(dirname, "db.json")
+		else	
+			path.join(__dirname, '..', folder, "db.json")
+
+
+
+
+
+class JSONUtils extends JSONDatabase
 
 
 
@@ -251,5 +260,4 @@ class JSONDatabase extends JSONUtils
 
 module.exports = {
 	JSONUtils
-	JSONDatabase
 }

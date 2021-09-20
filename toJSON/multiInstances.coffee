@@ -1,4 +1,4 @@
-{JSONUtils, JSONDatabase} = require './jsonUtils'
+{JSONUtils} = require './jsonUtils'
 
 
 # 抽象class 将共性放在此处

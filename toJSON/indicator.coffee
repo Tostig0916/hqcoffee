@@ -1,4 +1,4 @@
-{JSONUtils, JSONDatabase} = require './jsonUtils'
+{JSONUtils} = require './jsonUtils'
 
 
 class Indicator
