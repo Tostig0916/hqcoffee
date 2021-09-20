@@ -151,8 +151,7 @@
           "医务人员满意度"
         ]
       },
-      "null": {
-        "name": null,
+      "undefined": {
         "subs": [
           null
         ]
@@ -284,8 +283,7 @@
           "医务人员满意度"
         ]
       },
-      "null": {
-        "name": null,
+      "undefined": {
         "subs": [
           "重点监控高值医用耗材收入占比"
         ]
@@ -329,8 +327,7 @@
           "医务人员满意度"
         ]
       },
-      "null": {
-        "name": null,
+      "undefined": {
         "subs": [
           null
         ]
@@ -473,8 +470,7 @@
           "医务人员满意度"
         ]
       },
-      "null": {
-        "name": null,
+      "undefined": {
         "subs": [
           "重点监控高值医用耗材收入占比"
         ]
