@@ -40,13 +40,12 @@ class CompanyComparingSource extends AnyInstance
       unwrap: true #false
       
       # 将id转换为数据的正名
-      #refining: ({json}) ->
+      #refining: ({rowObj}) ->
       #  # 维度指标
-      #  {symbols} = json
       #  cleanObj = {}
       #  for key, value of symbols when not /[、]/i.test(key)
       #    cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-      #  return json.symbols = cleanObj
+      #  return cleanObj
     }
 
 

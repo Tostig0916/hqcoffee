@@ -105,6 +105,7 @@ class JSONUtils # with no dependences to stormdb
 				@deleteSpacesOnBothSide({rowObj})
 				# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
 				@correctKeyName({rowObj})
+				if refining? then rowObj = refining({rowObj})
 				mainKey = rowObj[mainKeyName]
 
 				switch
@@ -126,8 +127,6 @@ class JSONUtils # with no dependences to stormdb
 					else
 						console.log("清除废数据行", rowObj)
 
-		if refining?
-			objOfSheets = refining({json: objOfSheets})
 
 		# 如果经过以上处理之后，仍只有一个键就解开
 		keys = (key for key, value of objOfSheets)

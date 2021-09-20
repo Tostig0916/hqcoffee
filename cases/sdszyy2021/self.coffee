@@ -10,13 +10,7 @@ class CaseSingleton extends AnyCaseSingleton
 
 
   @_setDefaultData: ->
-    @_db.default({options: {
-      Client: Client.options()
-      Target: Target.options()
-    }})
-      .set("#{@name}.dirname", __dirname)
-      .set("#{@name}.basename", @name)
-      #.save()
+    @_db.default({customer: "山东中医药大学附属医院"}).save()
 
 
 
@@ -30,13 +24,7 @@ class CaseSingleton extends AnyCaseSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false
-      refining: ({json}) ->
-        # 维度指标
-        {indicators} = json
-        cleanObj = {}
-        for key, value of indicators when not /[、]/i.test(key)
-          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
-        return json.indicators = cleanObj
+      refining: @correctIndicator
     }
 
 
@@ -54,4 +42,4 @@ class Target extends CaseSingleton
 
 
 
-console.log {options: Client.db().get("options").value()}
+console.log {options: Client.db().get("customer").value()}
