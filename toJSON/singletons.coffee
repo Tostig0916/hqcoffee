@@ -64,7 +64,6 @@ class AnySingleton
 
 
   @normalKeyName: ({mainKey}) =>
-    #if /[、]/i.test(mainKey) 挪到以下function中
     CommonNameSingleton.ajustedName({name:mainKey,keep:true})
 
 
@@ -93,7 +92,8 @@ class AnyCaseSingleton extends AnySingleton
       columnToKey: {'*':'{{columnHeader}}'}
       sheetStubs: true
       needToRewrite: false #true
-      unwrap: true #false 
+      unwrap: true #false
+      refining: @normalKeyName
     }
 
 
@@ -156,11 +156,13 @@ class CommonNameSingleton extends AnyCommonSingleton
           console.log("#{name}: 命名不应含顿号") if /、/i.test(name)
           correctName = (each for each in name when not /[()（、）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
-          @addPairs({dict,keep})
+          @addPairs({dict,keep}) #unless /、/i.test(name)
           #console.log {name, correctName}
           correctName
         else
           name
+
+
 
 
 
