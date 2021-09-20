@@ -9,23 +9,44 @@ class CaseSingleton extends AnyCaseSingleton
 
   @_setDefaultData: ->
     @_db.default({options: {
-      client: ClientSingleton.options()
-      target: TargetSingleton.options()
-    }}).save()
+      Client: Client.options()
+      Target: Target.options()
+    }})
+      .set("#{@name}.dirname", __dirname)
+      .set("#{@name}.basename", @name)
+      .save()
+
+  @options: ->
+    {
+      dirname: __dirname
+      basename: @name
+      mainKeyName: "指标名"
+      headerRows: 1
+      sheetStubs: true
+      needToRewrite: true
+      unwrap: true #false
+      refining: ({json}) ->
+        # 维度指标
+        {indicators} = json
+        cleanObj = {}
+        for key, value of indicators when not /[、]/i.test(key)
+          cleanObj[CommonNameSingleton.ajustedName({name:key,keep:true})] = value
+        return json.indicators = cleanObj
+    }
 
 
 
 
 
-class ClientSingleton extends CaseSingleton
+class Client extends CaseSingleton
   
 
 
 
-class TargetSingleton extends CaseSingleton
+class Target extends CaseSingleton
 
 
 
 
 
-console.log {options: ClientSingleton.db().get("options").value()}
+console.log {options: Client.db().get("options").value()}
