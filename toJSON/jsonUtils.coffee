@@ -110,6 +110,9 @@ class JSONUtils # with no dependences to stormdb
 				switch
 					when (not mainKey?) or /^(undefined|栏次)$/i.test(mainKey)
 						console.log("清除废数据行", rowObj)
+					
+					#when /指标/.test(mainKeyName) and /[、]/i.test(mainKey)
+					#	console.log("清除废数据行", rowObj)
 
 					else
 						if refining?
