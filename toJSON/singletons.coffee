@@ -138,7 +138,7 @@ class CommonNameSingleton extends AnyCommonSingleton
       opt.sheets = ["symbols"]
       opt.mainKeyName = "指标名称"
       opt.basename = "别名表"
-      console.log opt
+      #console.log opt
       @_options = opt
 
 
