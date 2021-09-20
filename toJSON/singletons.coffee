@@ -1,10 +1,28 @@
 {JSONUtils, JSONDatabase} = require './jsonUtils'
+path = require 'path'
+StormDB = require 'stormdb'
 
 hsj = '▲'
 
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
-class AnySingleton
+class AnySingleton  
+  @db: ->
+    if @_db?
+        @_db
+    else
+      engine = new StormDB.localFileEngine(@_dbPath())
+      @_db = new StormDB(engine)
+      @_setDefaultData()
+      @_db
+
+
+  @_setDefaultData: ->
+    @_db.default({options: @options()}).save()
+
+
+
+
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
     {rebuild=false} = funcOpts
@@ -44,8 +62,24 @@ class AnySingleton
     
 
   @options: ->
+
+
+
+
+
+
+# 咨询案例
+class AnyCaseSingleton extends AnySingleton
+  @_dbPath: ->
+    path.join __dirname, '..', 'case', 'db.json'
+    
+
+
+
+  @options: ->
     {
-      folder: 'data'
+      folder: 'case'
+      #subfolder: '' # 填写项目客户拼音简称,含年份
       header: {rows: 1}
       columnToKey: {'*':'{{columnHeader}}'}
       sheetStubs: true
@@ -61,10 +95,33 @@ class AnySingleton
 
 
 
+class AnyCommonSingleton extends AnySingleton
+
+  @_dbPath: ->
+    path.join __dirname, '..', 'data', 'db.json'
+      
+
+
+
+
+  @options: ->
+    {
+      folder: 'data'
+      header: {rows: 1}
+      columnToKey: {'*':'{{columnHeader}}'}
+      sheetStubs: true
+      needToRewrite: false #true
+      unwrap: true #false 
+    }
+
+
+
+
+
 
 
 # 别名正名对照及转换
-class CommonNameSingleton extends AnySingleton
+class CommonNameSingleton extends AnyCommonSingleton
   @options: ->
     if @_options?
       @_options
@@ -101,7 +158,7 @@ class CommonNameSingleton extends AnySingleton
 
 # 此表为 singleton,只有一个instance,故可使用 class 一侧定义
 # 指标维度表
-class IndicatorDimensionSingleton extends AnySingleton
+class IndicatorDimensionSingleton extends AnyCommonSingleton
   @options: ->
     {
       folder: 'data'
@@ -125,7 +182,7 @@ class IndicatorDimensionSingleton extends AnySingleton
 
 
 
-class SymbolIDSingleton extends AnySingleton
+class SymbolIDSingleton extends AnyCommonSingleton
   @options: ->
     {
       folder: 'data'
@@ -152,6 +209,8 @@ class SymbolIDSingleton extends AnySingleton
 
 
 module.exports = {
+  AnyCaseSingleton
+  AnyCommonSingleton
   CommonNameSingleton
   IndicatorDimensionSingleton
 }

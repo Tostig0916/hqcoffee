@@ -1,6 +1,13 @@
 path = require 'path'
+{MakePPTReport} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
+{JSONUtils, JSONDatabase} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{CommonNameSingleton} = require path.join __dirname, '..', 'toJSON', 'singletons'
+
+dbpath = (basename) -> 
+  path.join __dirname, '..', 'data', 'JSON', "#{basename}.json"
 StormDB = require 'stormdb'
-engine = new StormDB.localFileEngine( "./db.json")
+engine = new StormDB.localFileEngine(dbpath("demoData"))
+db = new StormDB(engine)
 
 ### 如果要加密就不能用 .json 作为文件扩展名了
 engine = new StormDB.localFileEngine( "./db.stormdb", {
@@ -14,17 +21,21 @@ engine = new StormDB.localFileEngine( "./db.stormdb", {
   
 })
 ###
-db = new StormDB(engine)
 
-db.default({settings:{}})
+#db.default({settings:{}})
 
-db.get("settings")
-  .set("key", "value")
-  .save()
+console.log DRGs组数: db.get("DRGs组数").value()
+json = CommonNameSingleton.fetchSingleJSON()
+#db.set("别名表",json).save()
+#console.log db.get("别名表").value()
+f = ({key, value} for key, value of db.get("别名表").value()).filter (obj) ->
+  #console.log obj.key, obj.value
+  obj.value.length < 5
 
-console.log {
-  settings: db.get("settings").value(), key: db.get("settings").get("key").value()
-}
+console.log {f}
+#console.log {
+#  settings: db.get("settings").value(), key: db.get("settings").get("key").value()
+#}
 
 ###
 alias = require path.join __dirname, '..', 'data','JSON', '别名表'

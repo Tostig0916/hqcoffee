@@ -4,6 +4,7 @@ fs = require 'fs'
 path = require 'path' 
 pptxgen = require 'pptxgenjs'
 xlsx = require 'json-as-xlsx'
+StormDB = require 'stormdb'
 
 
 class JSONUtils # with no dependences to stormdb
@@ -230,6 +231,7 @@ class JSONUtils # with no dependences to stormdb
 
 # use stormdb
 class JSONDatabase extends JSONUtils
+
 	@getDBFilename: (funcOpts={}) ->
 		{p=__dirname,folder='data', basename} = funcOpts		
 		path.join(p, '..', folder, "JSON", "#{basename}.db.json")
