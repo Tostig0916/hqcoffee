@@ -7,6 +7,8 @@ class CaseSingleton extends AnyCaseSingleton
   @_dbPath: ->
     path.join __dirname, 'db.json'
 
+
+
   @_setDefaultData: ->
     @_db.default({options: {
       Client: Client.options()
@@ -14,7 +16,10 @@ class CaseSingleton extends AnyCaseSingleton
     }})
       .set("#{@name}.dirname", __dirname)
       .set("#{@name}.basename", @name)
-      .save()
+      #.save()
+
+
+
 
   @options: ->
     {
