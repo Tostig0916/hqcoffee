@@ -71,8 +71,11 @@ class 对标分析报告 extends CaseSingleton
 
 
 testDB = ->
-  对标资料库.fetchSingleJSON()
-  院内资料库.fetchSingleJSON()
+  对标资料库.data()
+  院内资料库.data()
+
+
+
 
 test2 = ->
   for each in [对标资料库, 院内资料库,院内分析报告,对标分析报告]
@@ -83,13 +86,13 @@ test2 = ->
     console.log { 
       obj: each.fetchSingleJSON() 
       #dbp: each._dbPath(), 
-      #d: each.data()#.value(),
-      #l: each.logs().value()
+      #d: each.db_data()#.value(),
+      #l: each.db_logs().value()
     }
     #console.log each.name
 
   console.log {
-    data: 院内资料库.data().value()
+    data: 院内资料库.db_data().value()
   }
 
 
