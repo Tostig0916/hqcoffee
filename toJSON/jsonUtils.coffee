@@ -292,6 +292,15 @@ class JSONDatabase extends JSONSimple
 
 
 
+	@_setDefaultData: ->
+    #console.log "_setDefaultData is not implemented in #{@name}" 
+		db = @db()
+		# .default {} but .set(key, value)
+		db.default({logs: {}}) #.save()
+		db.set("data", {}).save()
+
+
+
 	@emptyData: ->
 		Object.entries(@db_data().value()).length is 0
 
@@ -311,22 +320,12 @@ class JSONDatabase extends JSONSimple
 
 
 
-	@_setDefaultData: ->
-    #console.log "_setDefaultData is not implemented in #{@name}" 
-		db = @db()
-		# .default {} but .set(key, value)
-		db.default({logs: {}}) #.save()
-		db.set("data", {}).save()
-
-
-
-
+	###
 	@getJSON: (funcOpts={}) ->
+		# 顺序不能错
+		super(funcOpts)
 		@getData(funcOpts)
-		unless @options().dbOnly
-			super(funcOpts)
-
-
+	###
 
 
 
