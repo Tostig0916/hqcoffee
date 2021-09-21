@@ -60,10 +60,10 @@ class AnySingleton extends JSONUtils
 
 
   @normalKeyName: ({mainKey}) =>
-
     newName = 别名库.ajustedName({name:mainKey,keep:true})
     #console.log({mainKey,newName}) if /包括药剂师和临床药师/i.test(mainKey)
     newName
+
 
 
 
