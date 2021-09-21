@@ -276,12 +276,12 @@ class JSONDatabase extends JSONSimple
 
   
 
-	@data: ->
+	@db_data: ->
 		@_dbData ?= @db().get('data')
 
 
 
-	@logs: ->
+	@db_logs: ->
 		@_dbLogs ?= @db().get('logs')
 
 
@@ -311,8 +311,8 @@ class JSONDatabase extends JSONSimple
 		unless isReady
 			super(funcOpts) unless dbOnly
 
-			@db().get('data').set(obj)#.save()
-			console.log "#{@name} saved to db at #{Date()}"
+			#@db_data().set(obj)#.save()
+			#console.log "#{@name} saved to db at #{Date()}"
 
 
 
