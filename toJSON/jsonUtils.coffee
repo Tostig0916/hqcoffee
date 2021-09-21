@@ -310,9 +310,10 @@ class JSONDatabase extends JSONSimple
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			super(funcOpts) unless dbOnly
-
-			#@db_data().set(obj)#.save()
-			#console.log "#{@name} saved to db at #{Date()}"
+			
+			# 这是必须的,原来的设计很周全,只是改变一下入库的方式而已
+			@db_data().set(obj).save()
+			console.log "#{@name} saved to db at #{Date()}"
 
 
 

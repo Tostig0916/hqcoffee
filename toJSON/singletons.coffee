@@ -11,6 +11,7 @@ class AnySingleton extends JSONUtils
     {rebuild=false} = funcOpts
     
     if rebuild or (not @_data?)
+      funcOpts.rebuild = true
       @db_data().set(@fetchSingleJSON(funcOpts)).save()
       @_data = @db_data().value()
 
