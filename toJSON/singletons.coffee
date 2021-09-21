@@ -6,6 +6,13 @@ StormDB = require 'stormdb'
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
+	
+  #@_setDefaultData: ->
+  #  super()
+  #  @db().set("data", @fetchSingleJSON())
+
+
+
 
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
@@ -14,9 +21,9 @@ class AnySingleton extends JSONUtils
     opts = @options()
     if rebuild
       funcOpts.needToRewrite = true
-      @_json = JSONUtils.getJSON(opts)
+      @_json = @getJSON(opts)
     else
-      @_json ?= JSONUtils.getJSON(opts)
+      @_json ?= @getJSON(opts)
 
 
 
@@ -51,8 +58,10 @@ class AnySingleton extends JSONUtils
 
 
   @normalKeyName: ({mainKey}) =>
-    别名库.ajustedName({name:mainKey,keep:true})
 
+    newName = 别名库.ajustedName({name:mainKey,keep:true})
+    #console.log({mainKey,newName}) if /包括药剂师和临床药师/i.test(mainKey)
+    newName
 
 
 
@@ -77,13 +86,18 @@ class AnyGlobalSingleton extends AnySingleton
 
 
   @options: ->
-    {
+    # 此处不可以记入变量,是否影响子法随宜重新定义?
+    @_options ?= {
+      dbOnly: true
       folder: 'data'
+      basename: @name
       header: {rows: 1}
+      mainKeyName: "数据名"
       columnToKey: {'*':'{{columnHeader}}'}
       sheetStubs: true
       needToRewrite: false #true
       unwrap: true #false 
+      refining: @normalKeyName
     }
 
 
@@ -93,18 +107,6 @@ class AnyGlobalSingleton extends AnySingleton
 
 # 别名正名对照及转换
 class 别名库 extends AnyGlobalSingleton
-  @options: ->
-    if @_options?
-      @_options
-    else
-      opt = super()
-      opt.sheets = ["symbols"]
-      opt.mainKeyName = "指标名称"
-      opt.basename = "别名表"
-      #console.log opt
-      @_options = opt
-
-
 
   # 获取正名,同时会增补更新别名表
   @ajustedName: (funcOpts={}) ->
@@ -115,9 +117,9 @@ class 别名库 extends AnyGlobalSingleton
       when correctName? then correctName
       else switch
         # 正名须去掉黑三角等特殊中英文字符,否则不能作为function 名字
-        when /[()（、）/▲\ ]/i.test(name)
+        when /[*()（、）/▲\ ]/i.test(name)
           console.log("#{name}: 命名不应含顿号") if /、/i.test(name)
-          correctName = (each for each in name when not /[()（、）/▲\ ]/.test(each)).join('')
+          correctName = (each for each in name when not /[*()（、）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
           @addPairs({dict,keep}) #unless /、/i.test(name)
           #console.log {name, correctName}
@@ -127,42 +129,26 @@ class 别名库 extends AnyGlobalSingleton
 
 
 
+  @normalKeyName: ({mainKey}) =>
+    return mainKey
+
+
+
 
 
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 # 指标维度表
 class 指标维度库 extends AnyGlobalSingleton
-  @options: ->
-    {
-      folder: 'data'
-      basename: "指标维度表"
-      sheets: ["indicators"] # sheet 须命名为 indicators
-      mainKeyName: "指标正名"
-      headerRows: 1
-      sheetStubs: true
-      needToRewrite: true
-      unwrap: true #false
-      refining: @normalKeyName  
-    }
+    
+
 
 
 
 
 
 class 名字ID库 extends AnyGlobalSingleton
-  @options: ->
-    {
-      folder: 'data'
-      basename: "数据名id表"
-      sheets: ["symbols"] # sheet should be named as this
-      mainKeyName: "数据名"
-      headerRows: 1
-      sheetStubs: true
-      needToRewrite: true
-      unwrap: true #false
-      refining: @normalKeyName
-    }
+
 
 
 
@@ -174,22 +160,10 @@ class 简称库 extends AnyGlobalSingleton
 
 
 
-
 # 咨询案例
 class AnyCaseSingleton extends AnySingleton
   # @_dbPath 涉及到目录位置,似乎无法在此设置
 
-  @options: ->
-    {
-      folder: 'case'
-      #subfolder: '' # 填写项目客户拼音简称,含年份
-      header: {rows: 1}
-      columnToKey: {'*':'{{columnHeader}}'}
-      sheetStubs: true
-      needToRewrite: false #true
-      unwrap: true #false
-      refining: @normalKeyName
-    }
 
 
 
