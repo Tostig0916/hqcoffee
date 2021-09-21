@@ -82,7 +82,6 @@ class AnyGlobalSingleton extends AnySingleton
   @options: ->
     # 此处不可以记入变量,是否影响子法随宜重新定义?
     @_options ?= {
-      dbOnly: false # 目前还存在bug必须同时
       folder: 'data'
       basename: @name
       header: {rows: 1}

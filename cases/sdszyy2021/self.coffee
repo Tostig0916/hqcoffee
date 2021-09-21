@@ -21,7 +21,6 @@ class CaseSingleton extends AnyCaseSingleton
 
   @options: ->
     @_options ?= {
-      dbOnly: true
       dirname: __dirname
       basename: @name
       mainKeyName: "数据名"
@@ -94,5 +93,5 @@ testMore = ->
   }
 
 
-#testDB()
+testDB()
 testMore()
