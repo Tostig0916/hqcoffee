@@ -20,11 +20,14 @@ class AnySingleton extends JSONUtils
     
     opts = @options()
     if rebuild
-      funcOpts.needToRewrite = true
+      opts.needToRewrite = true
       @_json = @getJSON(opts)
+      #@getJSON(opts)
+      #@db().save()
+      #@data().value()
     else
       @_json ?= @getJSON(opts)
-
+      #@data().value() ? @getJSON(opts)
 
 
 
@@ -41,7 +44,7 @@ class AnySingleton extends JSONUtils
 
     
 
-  @addPairs: (funcOpts={}) ->
+  @_addPairs: (funcOpts={}) ->
     {dict,keep=false} = funcOpts
     @fetchSingleJSON(funcOpts)
     for key, value of dict when key isnt value
@@ -51,7 +54,7 @@ class AnySingleton extends JSONUtils
       opts = @options()
       opts.needToRewrite = true
       opts.obj = @_json
-      JSONUtils.write2JSON(opts)
+      @write2JSON(opts)
     return @_json
 
 
@@ -121,7 +124,7 @@ class 别名库 extends AnyGlobalSingleton
           console.log("#{name}: 命名不应含顿号") if /、/i.test(name)
           correctName = (each for each in name when not /[*()（、）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
-          @addPairs({dict,keep}) #unless /、/i.test(name)
+          @_addPairs({dict,keep}) #unless /、/i.test(name)
           #console.log {name, correctName}
           correctName
         else
