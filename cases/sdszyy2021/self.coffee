@@ -76,15 +76,16 @@ testDB = ->
 
 
 
-test2 = ->
+testMore = ->
   for each in [对标资料库, 院内资料库,院内分析报告,对标分析报告]
     # be careful! [].push(each.name) will return 1 other than [each.name]
     #  .get('list')
     #  .push(each.name)
     obj = {"key","value"}
     console.log { 
-      obj: each.fetchSingleJSON() 
-      #dbp: each._dbPath(), 
+      #obj: each.fetchSingleJSON() 
+      dbp: each._dbPath(),
+      d: each.db() 
     }
     #console.log each.name
 
@@ -93,4 +94,5 @@ test2 = ->
   }
 
 
-testDB()
+#testDB()
+testMore()
