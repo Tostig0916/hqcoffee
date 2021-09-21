@@ -7,9 +7,16 @@ StormDB = require 'stormdb'
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
 	
-  #@_setDefaultData: ->
-  #  super()
-  #  @db().set("data", @fetchSingleJSON())
+  @data: (funcOpts={}) ->
+    {rebuild=false} = funcOpts
+    
+    if rebuild or (not @_data?)
+      @db_data().set(@fetchSingleJSON(funcOpts)).save()
+      @_data = @db_data().value()
+
+    @_data
+  
+  
 
 
 
@@ -22,12 +29,10 @@ class AnySingleton extends JSONUtils
     if rebuild
       opts.needToRewrite = true
       @_json = @getJSON(opts)
-      #@getJSON(opts)
-      #@db().save()
-      #@data().value()
     else
       @_json ?= @getJSON(opts)
-      #@data().value() ? @getJSON(opts)
+
+
 
 
 
