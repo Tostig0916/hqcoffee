@@ -169,10 +169,9 @@ class AnyCaseSingleton extends AnySingleton
 module.exports = {
   #AnySingleton
   AnyCaseSingleton
-  AnyGlobalSingleton
+  #AnyGlobalSingleton
+  
   SystemLog
-
-
   别名库
   指标维度库
   名字ID库
