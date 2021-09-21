@@ -11,7 +11,7 @@ class CaseSingleton extends AnyCaseSingleton
     "山东中医药大学附属医院"
 
 
-
+  # 必须置于此处,以便随客户文件夹而建立数据库文件
   @_dbPath: ->
     path.join __dirname, "#{@name}.db.json"
 
@@ -74,6 +74,7 @@ testDB = ->
     }
     #console.log each.name
 
+  console.log {data: 院内资料库.data().value()}
 
 
 testDB()
