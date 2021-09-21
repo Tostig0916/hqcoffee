@@ -21,19 +21,19 @@ class CaseSingleton extends AnyCaseSingleton
 
 
   @_setDefaultData: ->
+    super()
     db = @db()
-    db.default({customer: @customerName()})
     db.set("source", {"Client":{}, "Target":{}})
     db.set("report", {"Client":{}, "Target":{}})
     #db.save()
 
   
   @dbSource: ->
-    @db().get("source").get(@name)
+    @_dbSource ?= @db().get("source").get(@name)
 
 
   @dbReport: ->
-    @db().get("report").get(@name)
+    @_dbReport ?= @db().get("report").get(@name)
 
 
 
@@ -67,6 +67,21 @@ class Target extends CaseSingleton
 
 test = ->
   for each in [Target, Client]
-    console.log { obj: each.name, dbp: each._dbPath(), db: each.dbSource().value()}
+    # be careful! [].push(each.name) will return 1 other than [each.name]
+    each.dbSource().set("list", [each.name]) 
+    #  .get('list')
+    #  .push(each.name)
+    each.dbReport().set("file", each.name)
+    obj = {"key","value"}
+    each.dbReport().set("obj", obj)
+    console.log { 
+      obj: each.name, 
+      dbp: each._dbPath(), 
+      db: each.db(), 
+      source: each.dbSource().get('list').value()
+      _source: each._dbSource.value()
+      report: each.dbReport().value()
+      _report: each._dbReport.value()
+    }
     #console.log each.name
 test()

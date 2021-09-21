@@ -26,9 +26,10 @@ class AnySingleton extends JSONUtils
     null    
 
 
-  @_setDefaultData: ->
-    console.log "_setDefaultData is not implemented in #{@name}" 
 
+  @_setDefaultData: ->
+    #console.log "_setDefaultData is not implemented in #{@name}" 
+    @db().default({logs: {}}) #.save()
 
 
 
@@ -115,18 +116,9 @@ class AnyCaseSingleton extends AnySingleton
 
 
 class AnyGlobalSingleton extends AnySingleton
-  ###
-  @db: ->
-    switch
-      when AnyGlobalSingleton._db? #@_db?
-        AnyGlobalSingleton._db
-      else
-        dbPath = path.join __dirname, '..', 'data', 'db.json'
-        engine = new StormDB.localFileEngine(dbPath)
-        AnyGlobalSingleton._db = new StormDB(engine)
-        @_setDefaultData()
-        AnyGlobalSingleton._db
-  ###
+  @dbEntry: ->
+    @_dbEntry ?= @db().get(@name.replace('Singleton',''))
+
 
   @_dbhost: -> 
     AnyGlobalSingleton
@@ -137,8 +129,8 @@ class AnyGlobalSingleton extends AnySingleton
     path.join __dirname, '..', 'data', 'db.json'
       
 
-  @_setDefaultData: ->
-    @db().default({settings: {}}).save()
+  #@_setDefaultData: ->
+  #  @db().default({logs: {}}).save()
 
 
 
