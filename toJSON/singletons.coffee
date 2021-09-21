@@ -8,6 +8,17 @@ StormDB = require 'stormdb'
 class AnySingleton extends JSONUtils
   @db: ->
     switch
+      when @_db?
+        @_db
+      else 
+        engine = new StormDB.localFileEngine(@_dbPath())
+        @_db = new StormDB(engine)
+        @_setDefaultData()
+        @_db
+
+  
+  @_db_: ->
+    switch
       when not @_dbhost?
         null
       when @_dbhost()._db?
@@ -113,8 +124,7 @@ class AnySingleton extends JSONUtils
 
 # 咨询案例
 class AnyCaseSingleton extends AnySingleton
-  
-
+  # @_dbPath 涉及到目录位置,似乎无法在此设置
 
   @options: ->
     {
@@ -146,7 +156,7 @@ class AnyGlobalSingleton extends AnySingleton
 
 
   @_dbPath: ->
-    path.join __dirname, '..', 'data', 'db.json'
+    path.join __dirname, "..", "data", "#{@name}.db.json"
       
 
   #@_setDefaultData: ->
