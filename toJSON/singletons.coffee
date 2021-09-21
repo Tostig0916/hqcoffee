@@ -75,7 +75,7 @@ class AnySingleton extends JSONUtils
 class AnyGlobalSingleton extends AnySingleton
 
   @_dbPath: ->
-    path.join __dirname, "..", "data","JSON" ,"#{@name}.db.json"
+    path.join __dirname, "..", "data","JSON" ,"#{@name}.json"
 
 
 
@@ -151,6 +151,8 @@ class 简称库 extends AnyGlobalSingleton
 
 
 
+class SystemLog extends AnyGlobalSingleton
+
 
 
 
@@ -169,7 +171,9 @@ module.exports = {
   #AnySingleton
   AnyCaseSingleton
   AnyGlobalSingleton
-  
+  SystemLog
+
+
   别名库
   指标维度库
   名字ID库
