@@ -16,24 +16,24 @@ class CaseSingleton extends AnyCaseSingleton
 
 
   @_dbPath: ->
-    path.join __dirname, 'db.json'
+    path.join __dirname, "#{@dbCategory()}.db.json"
 
 
 
   @_setDefaultData: ->
     super()
     db = @db()
-    db.set("source", {"Client":{}, "Target":{}})
-    db.set("report", {"Client":{}, "Target":{}})
+    db.set("source", {})
+    db.set("report", {})
     #db.save()
 
   
   @dbSource: ->
-    @_dbSource ?= @db().get("source").get(@name)
+    @_dbSource ?= @db().get("source")
 
 
   @dbReport: ->
-    @_dbReport ?= @db().get("report").get(@name)
+    @_dbReport ?= @db().get("report")
 
 
 
@@ -53,20 +53,28 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 
-class Client extends CaseSingleton
+class 院内资料库 extends CaseSingleton
   
 
 
 
-class Target extends CaseSingleton
+class 对标资料库 extends CaseSingleton
 
 
 
 
+class 院内分析报告 extends CaseSingleton
+  
 
 
-test = ->
-  for each in [Target, Client]
+
+class 对标分析报告 extends CaseSingleton
+
+
+
+
+testDB = ->
+  for each in [对标资料库, 院内资料库]
     # be careful! [].push(each.name) will return 1 other than [each.name]
     each.dbSource().set("list", [each.name]) 
     #  .get('list')
@@ -84,4 +92,16 @@ test = ->
       _report: each._dbReport.value()
     }
     #console.log each.name
-test()
+
+
+testSource = ->
+  source = 院内资料库.dbSource()
+  keys = (key for key, value of source.value())
+  if keys.length is 0
+    console.log "no source"
+    source.set(院内资料库.fetchSingleJSON())#.save()
+    console.log {source: source.value(), logs: 院内资料库.db().get('logs').value()}
+  else
+    console.log {keys}
+
+testSource()

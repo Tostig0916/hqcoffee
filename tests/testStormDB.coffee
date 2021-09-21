@@ -1,7 +1,7 @@
 path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
 {JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
-{CommonNameSingleton} = require path.join __dirname, '..', 'toJSON', 'singletons'
+{别名库} = require path.join __dirname, '..', 'toJSON', 'singletons'
 
 dbpath = (basename) -> 
   path.join __dirname, '..', 'data', 'JSON', "#{basename}.json"
@@ -25,7 +25,7 @@ engine = new StormDB.localFileEngine( "./db.stormdb", {
 #db.default({settings:{}})
 
 console.log DRGs组数: db.get("DRGs组数").value()
-json = CommonNameSingleton.fetchSingleJSON()
+json = 别名库.fetchSingleJSON()
 #db.set("别名表",json).save()
 #console.log db.get("别名表").value()
 f = ({key, value} for key, value of db.get("别名表").value()).filter (obj) ->

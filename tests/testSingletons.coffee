@@ -2,9 +2,9 @@ path = require 'path'
 {
   AnyCaseSingleton
   AnyGlobalSingleton
-  CommonNameSingleton
-  IndicatorDimensionSingleton
-  SymbolIDSingleton
+  别名库
+  指标维度库
+  名字ID库
 } = require path.join __dirname, '..', 'toJSON', 'singletons'
 
 
@@ -13,19 +13,19 @@ test = ->
     AnyCaseSingleton
     AnyGlobalSingleton
   
-    CommonNameSingleton
-    IndicatorDimensionSingleton
-    SymbolIDSingleton
+    别名库
+    指标维度库
+    名字ID库
     ]
     console.log { obj: each.name, dbp: each._dbPath(), db: each.db()}
 
 test()
 
-#IndicatorDimensionSingleton.fetchSingleJSON()
-#console.log IndicatorDimensionSingleton.reversedJSON()
-#console.log CommonNameSingleton.fetchSingleJSON()
+#指标维度库.fetchSingleJSON()
+#console.log 指标维度库.reversedJSON()
+#console.log 别名库.fetchSingleJSON()
 #console.log {
-#  CommonNameSingleton: CommonNameSingleton.addPairs({
+#  别名库: 别名库.addPairs({
 #    dict:{"某指标别名":"某指标"}, keep:false
 #  })
 #}

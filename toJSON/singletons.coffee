@@ -20,6 +20,27 @@ class AnySingleton extends JSONUtils
 
 
 
+  @dbLogs: ->
+    switch
+      when @_dbLogs?
+        @_dbLogs
+      else 
+        mylog = @db().get('logs').get(@dbCategory())
+        switch
+          when mylog.value()?
+            @_dbLogs = mylog
+          else
+            @db().get('logs').set(@dbCategory(), [])
+            @_dbLogs = @db().get('logs').get(@dbCategory())
+
+
+
+
+
+  @dbCategory: ->
+    @_dbCategory ?= @name.replace('Singleton','')
+
+
 
   @_dbPath: ->
     console.log "_dbPath is not implemented in #{@name}"
@@ -78,7 +99,7 @@ class AnySingleton extends JSONUtils
 
 
   @normalKeyName: ({mainKey}) =>
-    CommonNameSingleton.ajustedName({name:mainKey,keep:true})
+    别名库.ajustedName({name:mainKey,keep:true})
 
 
 
@@ -117,9 +138,8 @@ class AnyCaseSingleton extends AnySingleton
 
 class AnyGlobalSingleton extends AnySingleton
   @dbEntry: ->
-    @_dbEntry ?= @db().get(@name.replace('Singleton',''))
-
-
+    @_dbEntry ?= @db().get(@dbCategory())
+  
   @_dbhost: -> 
     AnyGlobalSingleton
   
@@ -150,7 +170,7 @@ class AnyGlobalSingleton extends AnySingleton
 
 
 # 别名正名对照及转换
-class CommonNameSingleton extends AnyGlobalSingleton
+class 别名库 extends AnyGlobalSingleton
   @options: ->
     if @_options?
       @_options
@@ -190,7 +210,7 @@ class CommonNameSingleton extends AnyGlobalSingleton
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 # 指标维度表
-class IndicatorDimensionSingleton extends AnyGlobalSingleton
+class 指标维度库 extends AnyGlobalSingleton
   @options: ->
     {
       folder: 'data'
@@ -208,7 +228,7 @@ class IndicatorDimensionSingleton extends AnyGlobalSingleton
 
 
 
-class SymbolIDSingleton extends AnyGlobalSingleton
+class 名字ID库 extends AnyGlobalSingleton
   @options: ->
     {
       folder: 'data'
@@ -233,8 +253,8 @@ module.exports = {
   AnyCaseSingleton
   AnyGlobalSingleton
   
-  CommonNameSingleton
-  IndicatorDimensionSingleton
-  SymbolIDSingleton
+  别名库
+  指标维度库
+  名字ID库
 }
 
