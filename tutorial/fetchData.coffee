@@ -20,7 +20,7 @@ json = {
 class Process
     # read data from database
     # funOpts should include the name of indicator you want to read out
-    @getData: (funcOpts={}) ->
+    @demo_get_data: (funcOpts={}) ->
         {indicatorname,database} = funcOpts
         database[indicatorname] ? this["calc_#{indicatorname}"](funcOpts) #"no data"
 
@@ -28,18 +28,20 @@ class Process
         {database} = funcOpts
         #"function calcC has to be defined"
         #database.a + database.b
-        @getData({indicatorname:'a',database:database}) + @getData({indicatorname:'d',database})
+        a = @demo_get_data({indicatorname:'a',database:database})
+        b = @demo_get_data({indicatorname:'d',database})
+        a + b
 
     @calc_b: (funcOpts={}) ->
         "function calc_#{funcOpts.indicatorname} has to be defined"
         
     @calc_d: (funcOpts={}) ->
         {database} = funcOpts
-        @getData({indicatorname:'a', database})
+        a = @demo_get_data({indicatorname:'a', database})
 
 
 
-data = Process.getData({indicatorname:'c', database:json})
+data = Process.demo_get_data({indicatorname:'c', database:json})
 
 console.log {data}
 
