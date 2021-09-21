@@ -303,15 +303,15 @@ class JSONDatabase extends JSONSimple
 
 
   
-	# 除非简单的JSON objects 否则JSON文件的作用只是用于查看是否有问题,重写与否都无所谓
+	# 写入数据库,也可选则写入单独文件
 	@write2JSON: (funcOpts={}) ->
 		{obj,dbOnly=false} = funcOpts		
 
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady
 			super(funcOpts) unless dbOnly
-			
-			@data().set(obj).save()
+
+			@db().get('data').set(obj)#.save()
 			console.log "#{@name} saved to db at #{Date()}"
 
 
