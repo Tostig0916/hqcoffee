@@ -8,14 +8,7 @@ StormDB = require 'stormdb'
 class AnySingleton extends JSONUtils
 	
   @data: (funcOpts={}) ->
-    {rebuild=false} = funcOpts
-    
-    if rebuild or (not @_data?)
-      funcOpts.rebuild = true
-      @db_data().set(@fetchSingleJSON(funcOpts)).save()
-      @_data = @db_data().value()
-
-    @_data
+    @fetchSingleJSON(funcOpts)
   
   
 
@@ -97,7 +90,7 @@ class AnyGlobalSingleton extends AnySingleton
   @options: ->
     # 此处不可以记入变量,是否影响子法随宜重新定义?
     @_options ?= {
-      dbOnly: true
+      dbOnly: not true
       folder: 'data'
       basename: @name
       header: {rows: 1}

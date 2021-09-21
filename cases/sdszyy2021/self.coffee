@@ -71,6 +71,7 @@ class 对标分析报告 extends CaseSingleton
 
 
 testDB = ->
+  #院内资料库.fetchSingleJSON() #
   院内资料库.data()
 
 
