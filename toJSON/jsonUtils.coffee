@@ -262,7 +262,12 @@ class JSONDatabase extends JSONSimple
 
   
 
-	@dbLogs: ->
+	@data: ->
+		@_dbData ?= @db().get('data')
+
+
+
+	@logs: ->
 		@_dbLogs ?= @db().get('logs')
 
 
@@ -276,7 +281,10 @@ class JSONDatabase extends JSONSimple
 
 	@_setDefaultData: ->
     #console.log "_setDefaultData is not implemented in #{@name}" 
-		@db().default({logs: {}}) #.save()
+		db = @db()
+		# .default {} but .set(key, value)
+		db.default({logs: {}}) #.save()
+		db.set("data", {})
 
 
 
