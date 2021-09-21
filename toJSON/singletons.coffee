@@ -6,65 +6,6 @@ StormDB = require 'stormdb'
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
-  @db: ->
-    switch
-      when @_db?
-        @_db
-      else 
-        engine = new StormDB.localFileEngine(@_dbPath())
-        @_db = new StormDB(engine)
-        @_setDefaultData()
-        @_db
-
-  
-  @_db_: ->
-    switch
-      when not @_dbhost?
-        null
-      when @_dbhost()._db?
-        @_dbhost()._db
-      else 
-        engine = new StormDB.localFileEngine(@_dbPath())
-        @_dbhost()._db = new StormDB(engine)
-        @_dbhost()._setDefaultData()
-        @_dbhost()._db
-
-
-
-  @dbLogs: ->
-    switch
-      when @_dbLogs?
-        @_dbLogs
-      else 
-        mylog = @db().get('logs').get(@dbCategory())
-        switch
-          when mylog.value()?
-            @_dbLogs = mylog
-          else
-            @db().get('logs').set(@dbCategory(), [])
-            @_dbLogs = @db().get('logs').get(@dbCategory())
-
-
-
-
-
-  @dbCategory: ->
-    @_dbCategory ?= @name.replace('Singleton','')
-
-
-
-  @_dbPath: ->
-    console.log "_dbPath is not implemented in #{@name}"
-    null    
-
-
-
-  @_setDefaultData: ->
-    #console.log "_setDefaultData is not implemented in #{@name}" 
-    @db().default({logs: {}}) #.save()
-
-
-
 
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
@@ -122,24 +63,6 @@ class AnySingleton extends JSONUtils
 
 
 
-# 咨询案例
-class AnyCaseSingleton extends AnySingleton
-  # @_dbPath 涉及到目录位置,似乎无法在此设置
-
-  @options: ->
-    {
-      folder: 'case'
-      #subfolder: '' # 填写项目客户拼音简称,含年份
-      header: {rows: 1}
-      columnToKey: {'*':'{{columnHeader}}'}
-      sheetStubs: true
-      needToRewrite: false #true
-      unwrap: true #false
-      refining: @normalKeyName
-    }
-
-
-
 
 
 
@@ -147,20 +70,9 @@ class AnyCaseSingleton extends AnySingleton
 
 
 class AnyGlobalSingleton extends AnySingleton
-  @dbEntry: ->
-    @_dbEntry ?= @db().get(@dbCategory())
-  
-  @_dbhost: -> 
-    AnyGlobalSingleton
-  
-
 
   @_dbPath: ->
-    path.join __dirname, "..", "data", "#{@name}.db.json"
-      
-
-  #@_setDefaultData: ->
-  #  @db().default({logs: {}}).save()
+    path.join __dirname, "..", "data","JSON" ,"#{@name}.db.json"
 
 
 
@@ -248,6 +160,33 @@ class 名字ID库 extends AnyGlobalSingleton
       headerRows: 1
       sheetStubs: true
       needToRewrite: true
+      unwrap: true #false
+      refining: @normalKeyName
+    }
+
+
+
+class 简称库 extends AnyGlobalSingleton
+
+
+
+
+
+
+
+
+# 咨询案例
+class AnyCaseSingleton extends AnySingleton
+  # @_dbPath 涉及到目录位置,似乎无法在此设置
+
+  @options: ->
+    {
+      folder: 'case'
+      #subfolder: '' # 填写项目客户拼音简称,含年份
+      header: {rows: 1}
+      columnToKey: {'*':'{{columnHeader}}'}
+      sheetStubs: true
+      needToRewrite: false #true
       unwrap: true #false
       refining: @normalKeyName
     }

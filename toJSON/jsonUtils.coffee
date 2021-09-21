@@ -1,10 +1,8 @@
 e2j = require 'convert-excel-to-json'
 fs = require 'fs'
-# use __dirname and __filename to create correct full path filename
 path = require 'path' 
-pptxgen = require 'pptxgenjs'
-xlsx = require 'json-as-xlsx'
 StormDB = require 'stormdb'
+xlsx = require 'json-as-xlsx'
 
 
 class JSONSimple  # with no dependences to stormdb
@@ -252,13 +250,45 @@ class JSONSimple  # with no dependences to stormdb
 # use stormdb
 class JSONDatabase extends JSONSimple
 
-	@getDBFilename: (funcOpts={}) ->
-		{dirname,folder='data', basename} = funcOpts
-		if dirname?
-			path.json(dirname, "db.json")
-		else
-			dirname = __dirname	
-			path.join(dirname, '..', folder, "db.json")
+	@db: ->
+		switch
+			when @_db?
+				@_db
+			else 
+				engine = new StormDB.localFileEngine(@_dbPath())
+				@_db = new StormDB(engine)
+				@_setDefaultData()
+				@_db
+
+  
+
+	@dbLogs: ->
+		@_dbLogs ?= @db().get('logs')
+
+
+
+
+	@_dbPath: ->
+		console.log "_dbPath is not implemented in #{@name}"
+		null    
+
+
+
+	@_setDefaultData: ->
+    #console.log "_setDefaultData is not implemented in #{@name}" 
+		@db().default({logs: {}}) #.save()
+
+
+
+  
+      
+
+
+
+
+
+
+
 
 
 

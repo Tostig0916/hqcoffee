@@ -10,14 +10,11 @@ path = require 'path'
 
 test = ->
   for each in [
-    AnyCaseSingleton
-    AnyGlobalSingleton
-  
     别名库
     指标维度库
     名字ID库
     ]
-    console.log { obj: each.name, dbp: each._dbPath(), db: each.db()}
+    console.log { obj: each.name, dbp: each._dbPath(), d: each.db()}
 
 test()
 

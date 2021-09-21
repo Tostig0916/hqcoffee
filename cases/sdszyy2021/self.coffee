@@ -16,7 +16,7 @@ class CaseSingleton extends AnyCaseSingleton
 
 
   @_dbPath: ->
-    path.join __dirname, "#{@dbCategory()}.db.json"
+    path.join __dirname, "#{@name}.db.json"
 
 
 
@@ -85,7 +85,7 @@ testDB = ->
     console.log { 
       obj: each.name, 
       dbp: each._dbPath(), 
-      db: each.db(), 
+      d: each.db(), 
       source: each.dbSource().get('list').value()
       _source: each._dbSource.value()
       report: each.dbReport().value()
@@ -104,4 +104,5 @@ testSource = ->
   else
     console.log {keys}
 
-testSource()
+testDB()
+#testSource()
