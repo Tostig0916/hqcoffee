@@ -3,8 +3,8 @@
 ###
 path = require 'path'
 
-{AnyCaseSingleton} = require path.join __dirname, '..','..', 'toJSON', 'singletons'
-
+{AnyCaseSingleton} = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
+{DataManager} = require path.join __dirname,'..', '..', 'analyze','prepare'
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
@@ -92,6 +92,10 @@ testMore = ->
     data: 院内资料库.db()
   }
 
+testDataManager = ->
+  storm_db = 院内资料库.db().get("医院")
+  console.log {出院患者手术占比: DataManager.getData({dataName:"出院患者手术占比", storm_db, key:"2018年" })}
 
-testDB()
-testMore()
+#testDB()
+#testMore()
+testDataManager()
