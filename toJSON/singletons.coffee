@@ -7,14 +7,6 @@ StormDB = require 'stormdb'
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
 	
-  @data: (funcOpts={}) ->
-    @fetchSingleJSON(funcOpts)
-  
-  
-
-
-
-
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
     {rebuild=false} = funcOpts
@@ -90,7 +82,7 @@ class AnyGlobalSingleton extends AnySingleton
   @options: ->
     # 此处不可以记入变量,是否影响子法随宜重新定义?
     @_options ?= {
-      dbOnly: not true
+      dbOnly: true
       folder: 'data'
       basename: @name
       header: {rows: 1}

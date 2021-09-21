@@ -280,7 +280,6 @@ class JSONDatabase extends JSONSimple
 		@_dbData ?= @db().get('data')
 
 
-
 	@db_logs: ->
 		@_dbLogs ?= @db().get('logs')
 
@@ -293,6 +292,25 @@ class JSONDatabase extends JSONSimple
 
 
 
+	@emptyData: ->
+		Object.entries(@db_data().value()).length is 0
+
+
+
+
+
+	@getData: (funcOpts={}) ->
+		# 为防改变,亦可重读
+		{readAgain=false} = funcOpts
+		switch 
+			when readAgain or @emptyData()
+				@jsonizedExcelData(@options())
+			else
+				@db_data().value()
+
+
+
+
 	@_setDefaultData: ->
     #console.log "_setDefaultData is not implemented in #{@name}" 
 		db = @db()
@@ -302,7 +320,16 @@ class JSONDatabase extends JSONSimple
 
 
 
-  
+
+	@getJSON: (funcOpts={}) ->
+		@getData(funcOpts)
+		unless @options().dbOnly
+			super(funcOpts)
+
+
+
+
+
 	# 写入数据库,也可选则写入单独文件
 	@write2JSON: (funcOpts={}) ->
 		{obj,dbOnly=false} = funcOpts		
