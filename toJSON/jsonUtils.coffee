@@ -265,23 +265,20 @@ class JSONSimple  # with no dependences to stormdb
 class JSONDatabase extends JSONSimple
 
 	@db: ->
+		unless @_dbPath()? 
+			return null
+
 		switch
 			when @_db?
 				@_db
 			else 
 				engine = new StormDB.localFileEngine(@_dbPath())
 				@_db = new StormDB(engine)
-				@_setDefaultData()
 				@_db
 
   
 
-	@db_data: ->
-		@_dbData ?= @db().get('data')
 
-
-	@db_logs: ->
-		@_dbLogs ?= @db().get('logs')
 
 
 
@@ -292,54 +289,12 @@ class JSONDatabase extends JSONSimple
 
 
 
-	@_setDefaultData: ->
-    #console.log "_setDefaultData is not implemented in #{@name}" 
-		db = @db()
-		# .default {} but .set(key, value)
-		db.default({logs: {}}) #.save()
-		db.set("data", {}).save()
-
-
-
-	@emptyData: ->
-		Object.entries(@db_data().value()).length is 0
 
 
 
 
 
-	@getData: (funcOpts={}) ->
-		# 为防改变,亦可重读
-		{readAgain=false} = funcOpts
-		switch 
-			when readAgain or @emptyData()
-				@jsonizedExcelData(@options())
-			else
-				@db_data().value()
 
-
-
-
-	###
-	@getJSON: (funcOpts={}) ->
-		# 顺序不能错
-		super(funcOpts)
-		@getData(funcOpts)
-	###
-
-
-
-	# 写入数据库,也可选则写入单独文件
-	@write2JSON: (funcOpts={}) ->
-		{obj,dbOnly=false} = funcOpts		
-
-		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
-		unless isReady
-			super(funcOpts) unless dbOnly
-			
-			# 这是必须的,原来的设计很周全,只是改变一下入库的方式而已
-			@db_data().set(obj).save()
-			console.log "#{@name} saved to db at #{Date()}"
 
 
 
