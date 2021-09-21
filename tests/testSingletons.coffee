@@ -21,9 +21,4 @@ test()
 #指标维度库.fetchSingleJSON()
 #console.log 指标维度库.reversedJSON()
 #console.log 别名库.fetchSingleJSON()
-#console.log {
-#  别名库: 别名库.addPairs({
-#    dict:{"某指标别名":"某指标"}, keep:false
-#  })
-#}
 
