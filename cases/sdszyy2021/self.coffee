@@ -13,7 +13,7 @@ class CaseSingleton extends AnyCaseSingleton
 
   # 必须置于此处,以便随客户文件夹而建立数据库文件
   @_dbPath: ->
-    path.join __dirname, "#{@name}.db.json"
+    path.join __dirname, "#{@name}.json"
 
   
 
@@ -72,7 +72,6 @@ class 对标分析报告 extends CaseSingleton
 
 testDB = ->
   院内资料库.fetchSingleJSON() #
-  #院内资料库.getData()
 
 
 
@@ -86,13 +85,11 @@ test2 = ->
     console.log { 
       obj: each.fetchSingleJSON() 
       #dbp: each._dbPath(), 
-      #d: each.db_data()#.value(),
-      #l: each.db_logs().value()
     }
     #console.log each.name
 
   console.log {
-    data: 院内资料库.db_data().value()
+    data: 院内资料库.db()
   }
 
 
