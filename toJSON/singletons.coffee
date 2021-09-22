@@ -1,5 +1,6 @@
-{JSONUtils} = require './jsonUtils'
 path = require 'path'
+{DataManager} = require path.join __dirname,'..', 'analyze','prepare'
+{JSONUtils} = require './jsonUtils'
 StormDB = require 'stormdb'
 
 
@@ -158,6 +159,18 @@ class SystemLog extends AnyGlobalSingleton
 # 咨询案例
 class AnyCaseSingleton extends AnySingleton
   # @_dbPath 涉及到目录位置,似乎无法在此设置
+
+  # 用于获取或计算指标数据
+  @getData: (funcOpts) ->
+    # 分别为单位(医院,某科),数据名,以及年度
+    {entityName, dataName, key} = funcOpts
+    funcOpts.storm_db = @db().get(entityName)
+    DataManager.getData(funcOpts)
+
+
+
+
+
 
 
 

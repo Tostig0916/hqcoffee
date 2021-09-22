@@ -282,9 +282,12 @@ class JSONDatabase extends JSONSimple
 
 	# 用于将字典转换成[],以便排序计算等等
 	@dbAsArray: ->
-		({"#{k}": v} for k,v of @dbValue())
-
-
+		#({"#{k}": v} for k,v of @dbValue())
+		arr = []
+		for k,v of @dbValue()
+			v.unitName = k
+			arr.push(v)
+		return arr
 
 
 	@dbClear: ->
@@ -304,7 +307,13 @@ class JSONDatabase extends JSONSimple
 		@db().default(obj)
 
 
-	
+	# must be dictionary
+	@dbDictKeys: (key) ->
+		obj = @dbValue(key)
+		(k for k, v of obj)
+
+
+
 	@dbRevertedValue: ->
 		dictionary = @dbValue()  
 		# 维度指标
