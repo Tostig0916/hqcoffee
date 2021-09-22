@@ -279,6 +279,14 @@ class JSONDatabase extends JSONSimple
 
   
 
+
+	# 用于将字典转换成[],以便排序计算等等
+	@dbAsArray: ->
+		({"#{k}": v} for k,v of @dbValue())
+
+
+
+
 	@dbClear: ->
 		db = @db()
 		@dbDelete(k) for k, v of @dbValue()
