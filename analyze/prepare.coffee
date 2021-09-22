@@ -13,14 +13,17 @@ class DataManager
     @_funcName: (funcOpts={}) ->
       {dataName} = funcOpts
       funcName = "求#{dataName}"
-      console.log {funcName}
+      console.log {现在使用: funcName}
       funcName
 
 
 
     @toBeImplemented: (funcOpts={}) ->
-      console.log "function #{@_funcName(funcOpts)} needs to be implemented!"
-      return null
+      console.log {
+        function: "#{@_funcName(funcOpts)}", needs: "implementing!"
+      }
+      return NaN
+      #Error("function: #{@_funcName(funcOpts)} not implemented!")
  
  
 
@@ -33,9 +36,11 @@ class DataManager
     
     
     @求c: (funcOpts={}) ->
-        {dictionary} = funcOpts
-        a = @getData({dataName:'a',dictionary})
-        b = @getData({dataName:'d',dictionary})
+        funcOpts.dataName = "a"
+        a = @getData(funcOpts)
+        
+        funcOpts.dataName = "b"
+        b = @getData(funcOpts)
         a + b
 
 
@@ -80,4 +85,5 @@ module.exports = {
 
 
 
-# DataManagerDemo.demo()
+# 
+DataManagerDemo.demo()
