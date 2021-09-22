@@ -3,9 +3,15 @@ class DataManager
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
       {dataName, key, dictionary, storm_db} = funcOpts
-      data = storm_db?.get(dataName).value() ? dictionary[dataName] ? \
-      this[@_funcName(funcOpts)](funcOpts) #"no data"
-      if key? then data[key] else data
+      funcName = @_funcName(funcOpts)
+      data = storm_db?.get(dataName).value() ? dictionary?[dataName] ? \
+      try
+        this[funcName](funcOpts) #"no data"
+      catch error
+        console.log {funcName, needs: "to be added!"}
+        null
+
+      if key? then data?[key] else data
 
 
 
@@ -34,6 +40,9 @@ class DataManager
 
 
     
+    #@求出院患者四级手术占比: (funcOpts={}) ->
+    #    @toBeImplemented(funcOpts)
+
     
     @求c: (funcOpts={}) ->
         funcOpts.dataName = "a"

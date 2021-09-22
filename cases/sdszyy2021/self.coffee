@@ -36,6 +36,17 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 
+  @getData: (funcOpts) ->
+    {entityName, dataName, key} = funcOpts
+    funcOpts.storm_db = @db().get(entityName)
+    DataManager.getData(funcOpts)
+
+
+
+
+
+
+
 
 class 院内资料库 extends CaseSingleton
   @normalKeyName: (funcOpts) =>
@@ -95,7 +106,8 @@ testMore = ->
 testDataManager = ->
   storm_db = 院内资料库.db().get("医院")
   console.log {出院患者手术占比: DataManager.getData({dataName:"出院患者手术占比", storm_db, key:"2018年" })}
+  console.log {出院患者手术占比:院内资料库.getData({entityName:"胸外科", dataName:"出院患者四级手术占比", key:"2019年"})}
 
-testDB()
+#testDB()
 #testMore()
-#testDataManager()
+testDataManager()
