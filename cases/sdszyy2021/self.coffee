@@ -96,6 +96,6 @@ testDataManager = ->
   storm_db = 院内资料库.db().get("医院")
   console.log {出院患者手术占比: DataManager.getData({dataName:"出院患者手术占比", storm_db, key:"2018年" })}
 
-#testDB()
+testDB()
 #testMore()
-testDataManager()
+#testDataManager()

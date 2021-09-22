@@ -85,5 +85,4 @@ module.exports = {
 
 
 
-# 
-DataManagerDemo.demo()
+# DataManagerDemo.demo()
