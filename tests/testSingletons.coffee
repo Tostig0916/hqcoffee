@@ -1,22 +1,24 @@
 path = require 'path'
 {
-  AnyCaseSingleton
-  AnyGlobalSingleton
+  SystemLog
   别名库
   指标维度库
   名字ID库
 } = require path.join __dirname, '..', 'toJSON', 'singletons'
 
 
-test = ->
-  for each in [
-    别名库
-    指标维度库
-    名字ID库
-    ]
-    console.log { obj: each.name, dbp: each._dbPath(), d: each.db()}
+testLog = ->
+  sl = SystemLog
+  db = sl.db()
+  
+  sl.dbLog(new Date(), "message")
+  sl.dbLogs()
+  db.save()
+  
+  sl.dbClear()
+    .save()
 
-test()
+testLog()
 
 #指标维度库.fetchSingleJSON()
 #console.log 指标维度库.reversedJSON()
