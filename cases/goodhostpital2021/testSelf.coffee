@@ -69,7 +69,7 @@ class 对标分析报告 extends CaseSingleton
 
 
 
-# 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports
+# 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
 
 
