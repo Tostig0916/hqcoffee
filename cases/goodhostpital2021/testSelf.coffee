@@ -106,8 +106,8 @@ v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
 
 # 研究 院内资料库
 # 将结果存入报告db
-console.log ynbg.dbValue()
-ynbg.dbClear()
+console.log ynzlk:ynzlk.dbValue()
+ynbg.dbClear().save()
 console.log ynbg.dbDefault(ynzlk.dbValue()).save()
 
 # 看看有多少科室数据
@@ -118,14 +118,14 @@ console.log ynbg.dbDefault(ynzlk.dbValue()).save()
 #[entityName,dataName,key] = ['心内科','平均住院日', 'Y2018']
 #console.log {entityName,dataName,key,data: ynbg.getData({entityName,dataName,key})}
 # 看缺多少指标数据,需要用数据计算
-##
+###
 [entityName,dataName,key] = ['医院','平均住院日', 'Y2020']
 zbwd = zbwdk.dbValue()
 ynbg.dbClear().save()
 for indicator, dimension of zbwd
   dataName = indicator
   ynbg.getData({entityName:'医院',dataName,key})
-##
+###
 
 # ynbg.dbClear().save()
 
