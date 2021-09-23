@@ -118,24 +118,28 @@ mzidk = 名字ID库
 
 # 看缺多少指标数据,需要用数据计算
 # 看看有多少科室数据
-units = ynbg.dbDictKeys()
+#units = ynbg.dbDictKeys()
 #console.log {units}
-##
+###
 [entityName,dataName,key] = ['医院','平均住院日', 'Y2020']
 zbwd = zbwdk.dbValue()
 for indicator, dimension of zbwd
   dataName = indicator
   ynbg.getData({entityName:'医院',dataName,key})
+###
+
+#console.log ynbg.dbLog().value()
+ynbg.dbLogClear().save()
+
 ##
 
-# ynbg.dbClear().save()
-
-###
+zbwd = zbwdk.dbValue()
+key = 'Y2020'
 for indicator, dimension of zbwd
   dataName = indicator
   for entityName in ynbg.dbDictKeys()
     ynbg.getData({entityName, dataName, key})
-###
+##
 
 # 先rename keys
 ###
