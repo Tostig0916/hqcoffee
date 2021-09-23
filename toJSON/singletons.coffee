@@ -7,7 +7,10 @@ StormDB = require 'stormdb'
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
-	
+  @dbLog: ->
+    SystemLog.db().get(@name)
+
+
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
     {rebuild=false} = funcOpts
@@ -165,6 +168,7 @@ class AnyCaseSingleton extends AnySingleton
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName, dataName, key} = funcOpts
     funcOpts.storm_db = @db().get(entityName)
+    funcOpts.log_db = SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
 
 

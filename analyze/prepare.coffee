@@ -1,14 +1,24 @@
+
+
 class DataManager
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
-      {dataName, key, dictionary, storm_db} = funcOpts
-      data = storm_db?.get(dataName).value() ? dictionary?[dataName] ? \
+      {dataName, key, dictionary, storm_db, log_db} = funcOpts
+      data = storm_db?.get(dataName)?.value() ? dictionary?[dataName] ? \
       try
         funcName = @_funcName(funcOpts)
         this[funcName](funcOpts) #"no data"
       catch error
         console.log {funcName, needs: "to be added!"}
+        #"to be added!"
+        ##{funcName}: 
+        log_db.set(funcName, """  
+        (funcOpts={}) ->
+          @toBeImplemented(funcOpts)
+
+        """).save()
+
         null
 
       if key? then data?[key] else data

@@ -9,11 +9,17 @@
 ###
 path = require 'path'
 
-{AnyCaseSingleton} = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
+{
+  AnyCaseSingleton
+  SystemLog
+  别名库
+  指标维度库
+  名字ID库
+} = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
-    "建水县人民医院测试"
+    "山东中医药大学"
 
 
   # 必须置于此处,以便随客户文件夹而建立数据库文件
@@ -78,6 +84,9 @@ ynzlk = 院内资料库
 ynbg = 院内分析报告
 dbzlk = 对标资料库
 dbbg = 对标分析报告
+bmk = 别名库
+zbwdk = 指标维度库
+mzidk = 名字ID库
 
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
@@ -86,10 +95,14 @@ dbbg = 对标分析报告
 #console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 试图获取数据,若有Excel源文件,则同时会生成json文件
-v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
+# v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
 
 # 查看各自 db
-#console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg}
+#console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
+
+# 清空 log
+#SystemLog.dbClear().save()
+#SystemLog.db().get(ynzlk.name).set("y",{a:1}).save()
 
 # 研究 院内资料库
 # 将结果存入报告db
@@ -101,9 +114,17 @@ v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
 #console.log {单位:ynbg.dbDictKeys()}
 
 # 测试一下 getData 平均住院日
-#[entityName,dataName,key] = ['医院','平均住院日', '2018年']
-#[entityName,dataName,key] = ['心内科','平均住院日', '2018年']
+#[entityName,dataName,key] = ['医院','编制床位','Y2018']
+#[entityName,dataName,key] = ['心内科','平均住院日', 'Y2018']
 #console.log {entityName,dataName,key,data: ynbg.getData({entityName,dataName,key})}
+# 看缺多少指标数据,需要用数据计算
+##
+[entityName,dataName,key] = ['医院','平均住院日', 'Y2020']
+zw = zbwdk.dbValue()
+for indicator, dimension of zw
+  dataName = indicator
+  ynbg.getData({entityName,dataName,key})
+##
 
 # 先rename keys
 ###
@@ -199,4 +220,8 @@ testDataManager = ->
 #testDB()
 #testMore()
 testDataManager()
+###
+
+###
+
 ###
