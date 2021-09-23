@@ -95,20 +95,20 @@ mzidk = 名字ID库
 #console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 试图获取数据,若有Excel源文件,则同时会生成json文件
-# v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
+v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
 
 # 查看各自 db
 #console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
 
 # 清空 log
-#SystemLog.dbClear().save()
 #SystemLog.db().get(ynzlk.name).set("y",{a:1}).save()
+#SystemLog.dbClear().save()
 
 # 研究 院内资料库
 # 将结果存入报告db
-#console.log ynbg.dbValue()
-#ynbg.dbClear()
-#console.log ynbg.dbDefault(ynzlk.dbValue()).save()
+console.log ynbg.dbValue()
+ynbg.dbClear()
+console.log ynbg.dbDefault(ynzlk.dbValue()).save()
 
 # 看看有多少科室数据
 #console.log {单位:ynbg.dbDictKeys()}
