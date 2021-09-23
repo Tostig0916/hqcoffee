@@ -92,42 +92,41 @@ mzidk = 名字ID库
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 # 查看
-console.log {ynzlk,ynbg,dbzlk,dbbg}
+#console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 试图获取数据,若有Excel源文件,则同时会生成json文件
-v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
+#v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
 
 # 查看各自 db
-#console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
+# console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
 
-# 清空 log
+# 添加,再清空 log
 #SystemLog.db().get(ynzlk.name).set("y",{a:1}).save()
 #SystemLog.dbClear().save()
 
 # 研究 院内资料库
-# 将结果存入报告db
-###
-console.log ynzlk:ynzlk.dbValue()
-ynbg.dbClear().save()
-console.log ynbg.dbDefault(ynzlk.dbValue()).save()
-###
-
-# 看看有多少科室数据
-#console.log {单位:ynbg.dbDictKeys()}
+# 先将结果存入报告db
+##
+#ynbg.dbClear().save()
+#ynbg.dbDefault(ynzlk.dbValue()).save()
+#console.log ynbg:ynbg.dbValue()
+##
 
 # 测试一下 getData 平均住院日
 #[entityName,dataName,key] = ['医院','编制床位','Y2018']
-#[entityName,dataName,key] = ['心内科','平均住院日', 'Y2018']
 #console.log {entityName,dataName,key,data: ynbg.getData({entityName,dataName,key})}
+
 # 看缺多少指标数据,需要用数据计算
-###
+# 看看有多少科室数据
+units = ynbg.dbDictKeys()
+#console.log {units}
+##
 [entityName,dataName,key] = ['医院','平均住院日', 'Y2020']
 zbwd = zbwdk.dbValue()
-ynbg.dbClear().save()
 for indicator, dimension of zbwd
   dataName = indicator
   ynbg.getData({entityName:'医院',dataName,key})
-###
+##
 
 # ynbg.dbClear().save()
 
