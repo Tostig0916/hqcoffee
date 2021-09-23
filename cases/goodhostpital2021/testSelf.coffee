@@ -123,7 +123,8 @@ mzidk = 名字ID库
 zw = zbwdk.dbValue()
 for indicator, dimension of zw
   dataName = indicator
-  ynbg.getData({entityName,dataName,key})
+  #ynbg.getData({entityName:'医院',dataName,key})
+  ynbg.getData({entityName:'心血管内科',dataName,key})
 ##
 
 # 先rename keys
