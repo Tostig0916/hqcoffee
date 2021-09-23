@@ -11,6 +11,11 @@ class AnySingleton extends JSONUtils
     SystemLog.db().get(@name)
 
 
+  @dbLogClear: ->
+    SystemLog.db().get(@name).set({})
+    return SystemLog.db()
+
+
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
     {rebuild=false} = funcOpts
