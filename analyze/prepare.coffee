@@ -4,21 +4,17 @@ class DataManager
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
-      {dataName, key, dictionary, storm_db, log_db} = funcOpts
+      {entityName, dataName, key, dictionary, storm_db, log_db} = funcOpts
       data = storm_db?.get(dataName)?.value() ? dictionary?[dataName] ? \
       try
         funcName = @_funcName(funcOpts)
         this[funcName](funcOpts) #"no data"
       catch error
-        console.log {funcName, needs: "to be added!"}
+        #console.log {funcName, needs: "to be added!"}
         #"to be added!"
         ##{funcName}: 
-        log_db.set(funcName, """  
-        (funcOpts={}) ->
-          @toBeImplemented(funcOpts)
-
-        """).save()
-
+        log_db.set(funcName, "(funcOpts={}) -> @toBeImplemented(funcOpts)  # #{entityName+key}")
+          .save()
         null
 
       if key? then data?[key] else data
@@ -27,9 +23,9 @@ class DataManager
 
 
     @_funcName: (funcOpts={}) ->
-      {dataName} = funcOpts
+      {entityName, dataName, key} = funcOpts
       funcName = "求#{dataName}"
-      console.log {现在使用: funcName}
+      console.log {主体:entityName+key, 现在使用: funcName}
       funcName
 
 
