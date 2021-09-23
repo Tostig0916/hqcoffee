@@ -92,7 +92,7 @@ mzidk = 名字ID库
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 # 查看
-#console.log {ynzlk,ynbg,dbzlk,dbbg}
+console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 试图获取数据,若有Excel源文件,则同时会生成json文件
 v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
@@ -106,9 +106,11 @@ v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,SystemLog}
 
 # 研究 院内资料库
 # 将结果存入报告db
+###
 console.log ynzlk:ynzlk.dbValue()
 ynbg.dbClear().save()
 console.log ynbg.dbDefault(ynzlk.dbValue()).save()
+###
 
 # 看看有多少科室数据
 #console.log {单位:ynbg.dbDictKeys()}
