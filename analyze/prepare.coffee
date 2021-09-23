@@ -13,8 +13,9 @@ class DataManager
         #console.log {funcName, needs: "to be added!"}
         #"to be added!"
         ##{funcName}: 
-        log_db.set(funcName, "(funcOpts={}) -> @toBeImplemented(funcOpts)  # #{entityName+key}")
-          .save()
+        unless log_db.get(funcName)?.value()?
+          log_db.set(funcName, "(funcOpts={}) -> @toBeImplemented(funcOpts)  # #{entityName}#{key}")
+            .save()
         null
 
       if key? then data?[key] else data
