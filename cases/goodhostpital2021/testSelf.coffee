@@ -86,7 +86,7 @@ dbbg = 对标分析报告
 #console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 试图获取数据,若有Excel源文件,则同时会生成json文件
-#v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
+v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
 
 # 查看各自 db
 #console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg}
