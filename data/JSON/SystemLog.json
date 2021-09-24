@@ -1,6 +1,1 @@
-{
-  "院内分析报告": {
-    "求病理医师人数": "(funcOpts={}) -> @toBeImplemented(funcOpts)  # 医院Y2020",
-    "求医师人数": "(funcOpts={}) -> @toBeImplemented(funcOpts)  # 医院Y2020"
-  }
-}
+{"院内分析报告":{},"院内资料库":{}}
