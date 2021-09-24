@@ -12,6 +12,7 @@ path = require 'path'
 {
   AnyCaseSingleton
   SystemLog
+  资料阙如
   别名库
   指标维度库
   名字ID库
@@ -35,7 +36,7 @@ class CaseSingleton extends AnyCaseSingleton
       header: {rows: 1}
       columnToKey: {'*':'{{columnHeader}}'}
       sheetStubs: true
-      needToRewrite: true #true
+      needToRewrite: true
       unwrap: true 
       refining: @normalKeyName
     }
@@ -88,6 +89,8 @@ dbbg = 对标分析报告
 bmk = 别名库
 zbwdk = 指标维度库
 mzidk = 名字ID库
+zlqr = 资料阙如
+
 
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
@@ -96,14 +99,13 @@ mzidk = 名字ID库
 #console.log {ynzlk,ynbg,dbzlk,dbbg}
 
 # 获取最新资料,若有Excel源文件,则同时会生成json文件
-v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,zbwdk,mzidk}
+#v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,zlqr,zbwdk,mzidk}
 
 # 查看各自 db
-# console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
+#console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zlqr,zbwdk,mzidk}
 
 # 添加,再清空 log
 #SystemLog.db().get(ynzlk.name).set("y",{a:1}).save()
-#SystemLog.dbClear().save()
 
 # 研究 院内资料库
 # 先将结果存入报告db
@@ -121,25 +123,19 @@ v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,zbwdk,mzidk}
 # 看看有多少科室数据
 #units = ynbg.dbDictKeys()
 #console.log {units}
-###
-[entityName,dataName,key] = ['医院','平均住院日', 'Y2020']
-zbwd = zbwdk.dbValue()
-for indicator, dimension of zbwd
-  dataName = indicator
-  ynbg.getData({entityName:'医院',dataName,key})
-###
-
 #console.log ynbg.dbLog().value()
-ynbg.dbLogClear().save()
 
 ##
-
+#ynbg.dbLogClear().save()
 zbwd = zbwdk.dbValue()
+#console.log {zbwd}
+
 key = 'Y2020'
 for indicator, dimension of zbwd
   dataName = indicator
   for entityName in ynbg.dbDictKeys()
     ynbg.getData({entityName, dataName, key})
+    #console.log({entityName, dataName, key})
 ##
 
 # 先rename keys

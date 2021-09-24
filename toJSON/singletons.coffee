@@ -163,7 +163,7 @@ class 指标维度库 extends AnyGlobalSingleton
     
 
 
-
+class 资料阙如 extends AnyGlobalSingleton
 
 
 
@@ -191,6 +191,7 @@ class AnyCaseSingleton extends AnySingleton
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName, dataName, key} = funcOpts
     funcOpts.storm_db = @db().get(entityName)
+    funcOpts.regest_db = 资料阙如.db()
     funcOpts.log_db = SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
 
@@ -212,6 +213,7 @@ module.exports = {
   #AnyGlobalSingleton
   
   SystemLog
+  资料阙如
   别名库
   指标维度库
   名字ID库
