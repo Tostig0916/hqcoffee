@@ -126,6 +126,7 @@ zlqr = 资料阙如
 #console.log ynbg.dbLog().value()
 
 ##
+zlqr.dbClear().save()
 ynbg.dbLogClear().save()
 zbwd = zbwdk.dbValue()
 #console.log {zbwd}
