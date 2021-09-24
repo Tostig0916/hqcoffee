@@ -131,8 +131,7 @@ zbwd = zbwdk.dbValue()
 #console.log {zbwd}
 
 key = 'Y2020'
-for indicator, dimension of zbwd
-  dataName = indicator
+for dataName, dimension of zbwd when dataName?
   for entityName in ynbg.dbDictKeys()
     ynbg.getData({entityName, dataName, key})
 ##
