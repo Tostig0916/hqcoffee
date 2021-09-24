@@ -24,10 +24,16 @@ class DataManager
 
 
     @_funcName: (funcOpts={}) ->
-      {entityName, dataName, key} = funcOpts
+      {entityName, dataName, key, regest_db} = funcOpts
       funcName = "求#{dataName}"
-      console.log {主体:entityName+key, 现在使用: funcName}
+      console.log {主体: entityName+key, 现在使用: funcName}
+      regarr = regest_db.get(funcName)
+      #console.log length: regarr.value().length
+      unless regarr.value().length? then regest_db.set(funcName,[]) 
+      regarr.push(entityName+key).save()
       funcName
+
+
 
 
 
