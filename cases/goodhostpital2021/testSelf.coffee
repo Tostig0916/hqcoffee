@@ -126,7 +126,7 @@ zlqr = 资料阙如
 #console.log ynbg.dbLog().value()
 
 ##
-#ynbg.dbLogClear().save()
+ynbg.dbLogClear().save()
 zbwd = zbwdk.dbValue()
 #console.log {zbwd}
 
@@ -135,7 +135,6 @@ for indicator, dimension of zbwd
   dataName = indicator
   for entityName in ynbg.dbDictKeys()
     ynbg.getData({entityName, dataName, key})
-    #console.log({entityName, dataName, key})
 ##
 
 # 先rename keys
