@@ -195,7 +195,7 @@ class 指标导向库 extends AnyGlobalSingleton
 
 
 
-class 资料阙如 extends AnyGlobalSingleton
+class 缺漏追踪库 extends AnyGlobalSingleton
 
 
 
@@ -223,7 +223,7 @@ class AnyCaseSingleton extends AnySingleton
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName} = funcOpts
     funcOpts.storm_db = @db().get(entityName)
-    funcOpts.regest_db = 资料阙如.db()
+    funcOpts.regest_db = 缺漏追踪库.db()
     funcOpts.log_db = @dbLog() #SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
 
@@ -245,7 +245,7 @@ module.exports = {
   #AnyGlobalSingleton
   
   SystemLog
-  资料阙如
+  缺漏追踪库
   别名库
   指标维度库
   指标导向库
