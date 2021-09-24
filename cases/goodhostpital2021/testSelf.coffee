@@ -82,18 +82,18 @@ class 对标分析报告 extends CaseSingleton
 
 class 制作分析报告 extends CaseSingleton
   @processing: ->
-    @_readExcel()
-    @_showDBs()
+    @readExcel()
+    @showDBs()
 
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
-  @_readExcel: ->
+  @readExcel: ->
     console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
     v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
 
 
   # 查看各自 db, 以及log
-  @_showDBs: ->
+  @showDBs: ->
     console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库,SystemLog}
     console.log {log: v.dbLog().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
 
@@ -101,12 +101,24 @@ class 制作分析报告 extends CaseSingleton
 
   # 研究 院内资料库
   # 先将结果存入报告db
-  @_exportSelfDataToReport: ->
+  @exportSelfDataToReport: ->
     院内分析报告.dbClear().save()
     院内分析报告.dbDefault(院内资料库.dbValue()).save()
     console.log 院内分析报告:院内分析报告.dbValue()
 
 
+  @tryGetSomeData: ->
+    # 测试一下 getData 平均住院日
+    [entityName,dataName,key] = ['医院','编制床位','Y2018']
+    console.log {entityName,dataName,key,data: 院内分析报告.getData({entityName,dataName,key})}
+
+
+  @showUnitNames: ->
+    # 看缺多少指标数据,需要用数据计算
+    # 看看有多少科室数据
+    units = 院内分析报告.dbDictKeys()
+    console.log {units}
+    console.log 院内分析报告.dbLog().value()
 
 
 # --------------------------------------- 以下为测试代码 ---------------------------------------- #
@@ -115,24 +127,15 @@ class 制作分析报告 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 #制作分析报告.processing()
-#制作分析报告._showDBs()
+#制作分析报告.showDBs()
+
+#制作分析报告.tryGetSomeData()
+#制作分析报告.showUnitNames()
 
 
 
 
 
-
-
-
-# 测试一下 getData 平均住院日
-#[entityName,dataName,key] = ['医院','编制床位','Y2018']
-#console.log {entityName,dataName,key,data: 院内分析报告.getData({entityName,dataName,key})}
-
-# 看缺多少指标数据,需要用数据计算
-# 看看有多少科室数据
-#units = 院内分析报告.dbDictKeys()
-#console.log {units}
-#console.log 院内分析报告.dbLog().value()
 
 ###
 资料阙如.dbClear().save()
