@@ -92,47 +92,37 @@ class 制作分析报告 extends CaseSingleton
     v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
 
 
+  # 查看各自 db, 以及log
   @_showDBs: ->
-    # 查看各自 db
-    #console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库,SystemLog}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库,SystemLog}
     console.log {log: v.dbLog().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
 
+
+
+  # 研究 院内资料库
+  # 先将结果存入报告db
+  @_exportSelfDataToReport: ->
+    院内分析报告.dbClear().save()
+    院内分析报告.dbDefault(院内资料库.dbValue()).save()
+    console.log 院内分析报告:院内分析报告.dbValue()
 
 
 
 
 # --------------------------------------- 以下为测试代码 ---------------------------------------- #
 
-制作分析报告.processing()
-
-
-
-
-
-
-
-
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-# 查看
+#制作分析报告.processing()
+#制作分析报告._showDBs()
 
-# 获取最新资料,若有Excel源文件,则同时会生成json文件
-#v.fetchSingleJSON() for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,资料阙如,指标维度库,指标导向库,名字ID库}
 
-# 查看各自 db
-#console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
 
-# 添加,再清空 log
-#SystemLog.db().get(院内资料库.name).set("y",{a:1}).save()
 
-# 研究 院内资料库
-# 先将结果存入报告db
-##
-#院内分析报告.dbClear().save()
-#院内分析报告.dbDefault(院内资料库.dbValue()).save()
-#console.log 院内分析报告:院内分析报告.dbValue()
-##
+
+
+
 
 # 测试一下 getData 平均住院日
 #[entityName,dataName,key] = ['医院','编制床位','Y2018']
