@@ -162,6 +162,9 @@ class 别名库 extends AnyGlobalSingleton
 class 指标维度库 extends AnyGlobalSingleton
     
 
+class 指标导向库 extends AnyGlobalSingleton
+
+
 
 class 资料阙如 extends AnyGlobalSingleton
 
@@ -216,6 +219,7 @@ module.exports = {
   资料阙如
   别名库
   指标维度库
+  指标导向库
   名字ID库
 }
 

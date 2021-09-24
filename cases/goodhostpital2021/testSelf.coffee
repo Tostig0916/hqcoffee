@@ -15,6 +15,7 @@ path = require 'path'
   资料阙如
   别名库
   指标维度库
+  指标导向库
   名字ID库
 } = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
 
@@ -81,61 +82,52 @@ class 对标分析报告 extends CaseSingleton
 
 
 # --------------------------------------- 以下为测试代码 ---------------------------------------- #
-ynzlk = 院内资料库
-ynbg = 院内分析报告
-dbzlk = 对标资料库
-dbbg = 对标分析报告
-
-bmk = 别名库
-zbwdk = 指标维度库
-mzidk = 名字ID库
-zlqr = 资料阙如
 
 
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 # 查看
-#console.log {ynzlk,ynbg,dbzlk,dbbg}
+#console.log {院内资料库,院内分析报告,对标资料库,对标分析报告}
 
 # 获取最新资料,若有Excel源文件,则同时会生成json文件
-#v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,zlqr,zbwdk,mzidk}
+v.fetchSingleJSON() for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,资料阙如,指标维度库,指标导向库,名字ID库}
 
 # 查看各自 db
-#console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zlqr,zbwdk,mzidk}
+#console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
 
 # 添加,再清空 log
-#SystemLog.db().get(ynzlk.name).set("y",{a:1}).save()
+#SystemLog.db().get(院内资料库.name).set("y",{a:1}).save()
 
 # 研究 院内资料库
 # 先将结果存入报告db
 ##
-#ynbg.dbClear().save()
-#ynbg.dbDefault(ynzlk.dbValue()).save()
-#console.log ynbg:ynbg.dbValue()
+#院内分析报告.dbClear().save()
+#院内分析报告.dbDefault(院内资料库.dbValue()).save()
+#console.log 院内分析报告:院内分析报告.dbValue()
 ##
 
 # 测试一下 getData 平均住院日
 #[entityName,dataName,key] = ['医院','编制床位','Y2018']
-#console.log {entityName,dataName,key,data: ynbg.getData({entityName,dataName,key})}
+#console.log {entityName,dataName,key,data: 院内分析报告.getData({entityName,dataName,key})}
 
 # 看缺多少指标数据,需要用数据计算
 # 看看有多少科室数据
-#units = ynbg.dbDictKeys()
+#units = 院内分析报告.dbDictKeys()
 #console.log {units}
-#console.log ynbg.dbLog().value()
+#console.log 院内分析报告.dbLog().value()
 
-##
-zlqr.dbClear().save()
-ynbg.dbLogClear().save()
-zbwd = zbwdk.dbValue()
+###
+资料阙如.dbClear().save()
+院内分析报告.dbLogClear().save()
+zbwd = 指标维度库.dbValue()
 #console.log {zbwd}
 
 key = 'Y2020'
 for dataName, dimension of zbwd when dataName?
-  for entityName in ynbg.dbDictKeys()
-    ynbg.getData({entityName, dataName, key})
-##
+  for entityName in 院内分析报告.dbDictKeys()
+    院内分析报告.getData({entityName, dataName, key})
+###
 
 # 先rename keys
 ###
@@ -147,41 +139,41 @@ dict = {
   '2020年': 'y2020'
   '2021年': 'y2021'
 }
-obj = ynbg.dbValue()
+obj = 院内分析报告.dbValue()
 for unit, collection of obj
   for indicator, data of collection
     for key, value of data
       if dict[key]?
-        ynbg.dbSet("#{unit}.#{indicator}.#{dict[key]}", value) 
-        ynbg.dbDelete("#{unit}.#{indicator}.#{key}")
+        院内分析报告.dbSet("#{unit}.#{indicator}.#{dict[key]}", value) 
+        院内分析报告.dbDelete("#{unit}.#{indicator}.#{key}")
 
-ynbg.dbSave()
-newObj = ynbg.dbValue()
+院内分析报告.dbSave()
+newObj = 院内分析报告.dbValue()
 ###
 
 ###
 # 修改平均住院日 2018年数据
-for uname, idx in ynbg.dbDictKeys()
+for uname, idx in 院内分析报告.dbDictKeys()
   key = "#{uname}.平均住院日.y2018"
-  ynbg.dbSet(key, ynbg.dbValue(key)/(idx+1))
-  console.log {uname, 平均住院日:ynbg.dbValue(key)}
+  院内分析报告.dbSet(key, 院内分析报告.dbValue(key)/(idx+1))
+  console.log {uname, 平均住院日:院内分析报告.dbValue(key)}
 
-ynbg.dbSave()
+院内分析报告.dbSave()
 ###
 
 # 将资料库转换成为 []
 
 ###
-arr = ynbg.dbAsArray()
+arr = 院内分析报告.dbAsArray()
 console.log arr
-ynbg.dbClear().save()
-ynbg.dbDefault({data:arr}).save()
+院内分析报告.dbClear().save()
+院内分析报告.dbDefault({data:arr}).save()
 ###
 
 # 根据平均住院日 y2018 数据排序
-#ynbg.db().get("data").sort((a,b)-> a.平均住院日.y2018 - b.平均住院日.y2018)
-#ynbg.dbSave()
-#console.log ynbg.db().get('data').get(0).value().unitName #.平均住院日.y2018
+#院内分析报告.db().get("data").sort((a,b)-> a.平均住院日.y2018 - b.平均住院日.y2018)
+#院内分析报告.dbSave()
+#console.log 院内分析报告.db().get('data').get(0).value().unitName #.平均住院日.y2018
 
 
 
