@@ -1,6 +1,6 @@
 
 
-class DataManager
+class DataManagerBase
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
@@ -27,8 +27,9 @@ class DataManager
       {entityName, dataName, key, regest_db} = funcOpts
       funcName = "求#{dataName}"
       console.log {部门: entityName+key, 现在使用: funcName}
-      regarr = regest_db.get(funcName)
-      unless regarr.value()?.length? then regest_db.set(funcName,[]) 
+
+      regarr = regest_db.get(dataName)
+      unless regarr.value()?.length? then regest_db.set(dataName,[]) 
       regarr.push(entityName+key).save()
       funcName
 
@@ -64,6 +65,11 @@ class DataManager
         a + b
 
 
+
+
+
+
+class DataManager extends DataManagerBase
 
     @求SCI平均影响因子: (funcOpts={}) -> #@toBeImplemented(funcOpts)  # 医院Y2020"
     
@@ -194,7 +200,7 @@ class DataManager
 
 
 
- class DataManagerDemo extends DataManager
+ class DataManagerDemo extends DataManagerBase
   
     @求d: (funcOpts={}) ->
         {dictionary} = funcOpts
