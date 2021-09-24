@@ -66,6 +66,7 @@ class 对标资料库 extends CaseSingleton
 
 
 
+
 class 院内分析报告 extends CaseSingleton
   
 
@@ -79,19 +80,45 @@ class 对标分析报告 extends CaseSingleton
 
 # 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
+class 制作分析报告 extends CaseSingleton
+  @processing: ->
+    @_readExcel()
+    @_showDBs()
+
+
+  # 获取最新资料,若有Excel源文件,则同时会生成json文件
+  @_readExcel: ->
+    console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
+
+
+  @_showDBs: ->
+    # 查看各自 db
+    #console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库,SystemLog}
+    console.log {log: v.dbLog().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
+
+
+
 
 
 # --------------------------------------- 以下为测试代码 ---------------------------------------- #
+
+制作分析报告.processing()
+
+
+
+
+
+
 
 
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 # 查看
-#console.log {院内资料库,院内分析报告,对标资料库,对标分析报告}
 
 # 获取最新资料,若有Excel源文件,则同时会生成json文件
-v.fetchSingleJSON() for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,资料阙如,指标维度库,指标导向库,名字ID库}
+#v.fetchSingleJSON() for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,资料阙如,指标维度库,指标导向库,名字ID库}
 
 # 查看各自 db
 #console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,资料阙如,指标维度库,名字ID库}
@@ -122,7 +149,6 @@ v.fetchSingleJSON() for k, v of {院内资料库,院内分析报告,对标资料
 院内分析报告.dbLogClear().save()
 zbwd = 指标维度库.dbValue()
 #console.log {zbwd}
-
 key = 'Y2020'
 for dataName, dimension of zbwd when dataName?
   for entityName in 院内分析报告.dbDictKeys()
@@ -130,27 +156,6 @@ for dataName, dimension of zbwd when dataName?
 ###
 
 # 先rename keys
-###
-dict = {
-  '2016年': 'y2016'
-  '2017年': 'y2017'
-  '2018年': 'y2018'
-  '2019年': 'y2019'
-  '2020年': 'y2020'
-  '2021年': 'y2021'
-}
-obj = 院内分析报告.dbValue()
-for unit, collection of obj
-  for indicator, data of collection
-    for key, value of data
-      if dict[key]?
-        院内分析报告.dbSet("#{unit}.#{indicator}.#{dict[key]}", value) 
-        院内分析报告.dbDelete("#{unit}.#{indicator}.#{key}")
-
-院内分析报告.dbSave()
-newObj = 院内分析报告.dbValue()
-###
-
 ###
 # 修改平均住院日 2018年数据
 for uname, idx in 院内分析报告.dbDictKeys()
