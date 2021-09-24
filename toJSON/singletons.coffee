@@ -97,7 +97,7 @@ class AnyGlobalSingleton extends AnySingleton
       mainKeyName: "数据名"
       columnToKey: {'*':'{{columnHeader}}'}
       sheetStubs: true
-      needToRewrite: false #true
+      needToRewrite: true
       unwrap: true #false 
       refining: @normalKeyName
     }
@@ -134,6 +134,24 @@ class 别名库 extends AnyGlobalSingleton
   @normalKeyName: ({mainKey}) =>
     return mainKey
 
+
+  @options: ->
+    ###
+    #此处不可以记入变量,是否影响子法随宜重新定义?
+    @_options ?= {
+      folder: 'data'
+      basename: @name
+      header: {rows: 1}
+      mainKeyName: "数据名"
+      columnToKey: {'*':'{{columnHeader}}'}
+      sheetStubs: true
+      needToRewrite: true
+      unwrap: true #false 
+      refining: @normalKeyName
+    }
+    ###
+    super().needToRewrite = false
+    @_options
 
 
 

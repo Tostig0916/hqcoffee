@@ -84,6 +84,7 @@ ynzlk = 院内资料库
 ynbg = 院内分析报告
 dbzlk = 对标资料库
 dbbg = 对标分析报告
+
 bmk = 别名库
 zbwdk = 指标维度库
 mzidk = 名字ID库
@@ -94,8 +95,8 @@ mzidk = 名字ID库
 # 查看
 #console.log {ynzlk,ynbg,dbzlk,dbbg}
 
-# 试图获取数据,若有Excel源文件,则同时会生成json文件
-#v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg}
+# 获取最新资料,若有Excel源文件,则同时会生成json文件
+v.fetchSingleJSON() for k, v of {ynzlk,ynbg,dbzlk,dbbg,zbwdk,mzidk}
 
 # 查看各自 db
 # console.log {db: v.dbValue()} for k, v of {ynzlk,ynbg,dbzlk,dbbg,bmk,zbwdk,mzidk}
