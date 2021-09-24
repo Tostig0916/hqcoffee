@@ -12,7 +12,7 @@ class AnySingleton extends JSONUtils
 
 
   @dbLogClear: ->
-    SystemLog.db().get(@name).set({})
+    @dbLog().set({})
     return SystemLog.db()
 
 
@@ -56,6 +56,35 @@ class AnySingleton extends JSONUtils
       opts.obj = @_json
       @write2JSON(opts)
     return @_json
+
+
+
+
+
+  # 依赖结构形态,使用前先观察一下结构是否一致
+  @renameKey: (funcOpts) ->
+    {dict, theClass} = funcOpts
+    ###
+    {
+      '2016年': 'y2016'
+      '2017年': 'y2017'
+      '2018年': 'y2018'
+      '2019年': 'y2019'
+      '2020年': 'y2020'
+      '2021年': 'y2021'
+    }
+    ###
+    obj = theClass.dbValue()
+    for unit, collection of obj
+      for indicator, data of collection
+        for key, value of data
+          if dict[key]?
+            theClass.dbSet("#{unit}.#{indicator}.#{dict[key]}", value) 
+            theClass.dbDelete("#{unit}.#{indicator}.#{key}")
+
+    theClass.dbSave()
+
+
 
 
 
@@ -195,7 +224,7 @@ class AnyCaseSingleton extends AnySingleton
     {entityName} = funcOpts
     funcOpts.storm_db = @db().get(entityName)
     funcOpts.regest_db = 资料阙如.db()
-    funcOpts.log_db = SystemLog.db().get(@name)
+    funcOpts.log_db = @dbLog() #SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
 
 
