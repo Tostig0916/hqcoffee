@@ -4,19 +4,21 @@ class DataManagerBase
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
-      {entityName, dataName, key, dictionary, storm_db, log_db} = funcOpts
+      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
       data = storm_db?.get(dataName)?.value() ? dictionary?[dataName] ? \
       try
         funcName = @_funcName(funcOpts)
         this[funcName](funcOpts) #"no data"
+      
       catch error
-        #console.log {funcName, needs: "to be added!"}
-        #"to be added!"
-        ##{funcName}: 
         unless log_db.get(funcName)?.value()?
-          log_db.set(funcName, "(funcOpts={}) -> @toBeImplemented(funcOpts)  # #{entityName}#{key}")
-            .save()
-        null
+          log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+
+          regarr = regest_db.get(dataName)
+          unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+          regarr.push(entityName+key).save()
+        
+        null  # use null as returning
 
       if key? then data?[key] else data
 
@@ -26,11 +28,12 @@ class DataManagerBase
     @_funcName: (funcOpts={}) ->
       {entityName, dataName, key, regest_db} = funcOpts
       funcName = "求#{dataName}"
-      console.log {部门: entityName+key, 现在使用: funcName}
-
+      #console.log {部门: entityName+key, 现在使用: funcName}
+      ###
       regarr = regest_db.get(dataName)
       unless regarr.value()?.length? then regest_db.set(dataName,[]) 
       regarr.push(entityName+key).save()
+      ###
       funcName
 
 
@@ -193,8 +196,7 @@ class DataManager extends DataManagerBase
     @求住院手术患者围手术期中医治疗比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
     @求住院中医医疗服务项目收入占住院医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求资产负债率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
-
-
+    @求医院在医学人才培养方面的经费投入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020
 
 
 
