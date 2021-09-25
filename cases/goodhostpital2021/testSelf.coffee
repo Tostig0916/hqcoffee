@@ -135,14 +135,20 @@ class 生成器 extends CaseSingleton
 
 
 
+  # 筛查数据
   @checkForAllIndicators: ->
     缺漏追踪库.dbClear().save()
     院内资料库.logdbClear().save()
+    对标资料库.logdbClear().save()
     指标维度 = 指标维度库.dbValue()
-    key = 'Y2020'
+    k1 = 'Y2020'
+    k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        院内资料库.getData({entityName, dataName, key})
+        院内资料库.getData({entityName, dataName, k1})
+      for entityName in 对标资料库.dbDictKeys()
+        对标资料库.getData({entityName, dataName, k2})
+    console.log "指标数据筛查完毕"
     return this
 
 
@@ -181,11 +187,10 @@ class 生成器 extends CaseSingleton
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
-  ._tryGetSomeData()
-  #.showUnitNames()
+  #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-
+  .exportRawDataToReportDB()
 
 
 
