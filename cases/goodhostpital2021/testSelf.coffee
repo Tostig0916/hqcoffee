@@ -190,7 +190,7 @@ class 生成器 extends CaseSingleton
   #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  .exportRawDataToReportDB()
+  #.exportRawDataToReportDB()
 
 
 
