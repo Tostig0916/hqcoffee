@@ -5,23 +5,110 @@ class DataManagerBase
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
       {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
-      data = storm_db?.get(dataName)?.value() ? dictionary?[dataName] ? \
-      try
-        funcName = @_funcName(funcOpts)
-        this[funcName](funcOpts) #"no data"
-      
-      catch error
-        unless log_db.get(funcName)?.value()?
-          log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+      if key?
+        @getDataWithKey(funcOpts)
+      else
+        @getDataDirectly(funcOpts)
 
-          regarr = regest_db.get(dataName)
-          unless regarr.value()?.length? then regest_db.set(dataName,[]) 
-          regarr.push(entityName+key).save()
+
+
+
+    @getDataDirectly: (funcOpts={}) ->
+      {entityName, dataName, dictionary, storm_db, log_db, regest_db} = funcOpts
+      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? \
+        try
+          funcName = @_funcName(funcOpts)
+          this[funcName](funcOpts)
+
+        catch error
+          unless log_db.get(funcName)?.value()?
+            log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+
+            regarr = regest_db.get(dataName)
+            unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+            regarr.push(entityName).save()
+          
+          null  # use null as returning
+
+      return data
+
+
+
+
+    @getDataWithKey: (funcOpts={}) ->
+      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db, informal=false} = funcOpts
+      #console.log({db:storm_db.value(),entityName,dataName,key,data:storm_db.get(dataName)?.value()})
+      switch
+        when dictionary? and dictionary[dataName]? and dictionary[dataName][key]?
+          dictionary[dataName][key]
         
-        null  # use null as returning
+        # 客户应填数据未填,尝试通过计算获得.此为非常规操作,尽量避免,设置informal为no
+        when informal and storm_db? and storm_db.get(dataName)?.value() and storm_db.get(dataName).get(key)?.value()
+          storm_db.get(dataName).get(key).value()
+        
+        when storm_db? and storm_db.get(dataName)?.value()?
+          storm_db.get(dataName).get(key).value()
+
+        else
+          try
+            funcName = @_funcName(funcOpts)
+            this[funcName](funcOpts)
+
+          catch error
+            unless log_db.get(funcName)?.value()?
+              log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+
+              regarr = regest_db.get(dataName)
+              unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+              regarr.push(entityName+key).save()
+            
+            null  # use null as returning
+
+
+
+
+
+    @getDataWithKey_v0: (funcOpts={}) ->
+      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
+      data = dictionary?[dataName]?[key] ? storm_db?.get(dataName)?.get(key)?.value() ? \
+        try
+          funcName = @_funcName(funcOpts)
+          this[funcName](funcOpts)
+
+        catch error
+          unless log_db.get(funcName)?.value()?
+            log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+
+            regarr = regest_db.get(dataName)
+            unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+            regarr.push(entityName+key).save()
+          
+          null  # use null as returning
+
+      return data
+
+
+
+
+    # don't change, almost correct!
+    @getData_origin: (funcOpts={}) ->
+      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
+      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? \
+        try
+          funcName = @_funcName(funcOpts)
+          this[funcName](funcOpts)
+
+        catch error
+          unless log_db.get(funcName)?.value()?
+            log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+
+            regarr = regest_db.get(dataName)
+            unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+            regarr.push(entityName+key).save()
+          
+          null  # use null as returning
 
       if key? then data?[key] else data
-
 
 
 
@@ -197,8 +284,17 @@ class DataManager extends DataManagerBase
     @求住院中医医疗服务项目收入占住院医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求资产负债率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医院在医学人才培养方面的经费投入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020
-
-
+    
+    @求CMI值: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    @求DRGs组数: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    
+    @求病床使用率: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
+    
+    @求低风险组病例死亡率: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    
+    @求平均住院日: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
+    
+    @求药占比: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 中医外治中心Y2019"
 
 
 
