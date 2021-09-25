@@ -91,6 +91,7 @@ class 生成器 extends CaseSingleton
       .showUnitNames()
       .checkForAllIndicators()
       .showMissingIndicatorsOrDataProblems()
+      .exportRawDataToReportDB()
     
 
 
@@ -107,7 +108,7 @@ class 生成器 extends CaseSingleton
   # 查看各自 db, 以及log
   @showDBs: ->
     console.log {db: v.dbValue()} for k, v of {院内资料库,院内报告库,对标资料库,对标报告库,别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
-    console.log {log: v.dbLog().value()} for k, v of {院内资料库,院内报告库,对标资料库,对标报告库,别名库,缺漏追踪库,指标维度库,名字ID库}
+    console.log {log: v.logdb().value()} for k, v of {院内资料库,院内报告库,对标资料库,对标报告库,别名库,缺漏追踪库,指标维度库,名字ID库}
     return this
 
 
@@ -132,7 +133,7 @@ class 生成器 extends CaseSingleton
 
   @checkForAllIndicators: ->
     缺漏追踪库.dbClear().save()
-    院内资料库.dbLogClear().save()
+    院内资料库.logdbClear().save()
     指标维度 = 指标维度库.dbValue()
     key = 'Y2020'
     for dataName, dimension of 指标维度 when dataName?
@@ -145,8 +146,8 @@ class 生成器 extends CaseSingleton
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->
     console.log { 
-      院内资料: 院内资料库.dbLog().value()
-      对标资料: 对标资料库.dbLog().value()
+      院内资料: 院内资料库.logdb().value()
+      对标资料: 对标资料库.logdb().value()
       缺漏追踪: 缺漏追踪库.dbDictKeys()
     }
     return this
@@ -155,7 +156,7 @@ class 生成器 extends CaseSingleton
 
   # 研究 院内资料库
   # 先将结果存入报告db
-  @exportSelfDataToReport: ->
+  @exportRawDataToReportDB: ->
     院内报告库.dbClear().save()
     院内报告库.dbDefault(院内资料库.dbValue()).save()
     对标报告库.dbClear().save()
