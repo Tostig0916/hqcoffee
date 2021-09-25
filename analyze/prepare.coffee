@@ -15,29 +15,17 @@ class DataManagerBase
 
     @getDataDirectly: (funcOpts={}) ->
       {entityName, dataName, dictionary, storm_db, log_db, regest_db} = funcOpts
-      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? \
-        try
-          funcName = @_funcName(funcOpts)
-          this[funcName](funcOpts)
 
-        catch error
-          unless log_db.get(funcName)?.value()?
-            log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
-
-            regarr = regest_db.get(dataName)
-            unless regarr.value()?.length? then regest_db.set(dataName,[]) 
-            regarr.push(entityName).save()
-          
-          null  # use null as returning
-
+      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? @tryCalculating(funcOpts)
       return data
 
 
 
-
+    # 例如某数据行,有对标对象或年份不同,这些作为key来区分,很常用,也可能是最容易解决的方式
     @getDataWithKey: (funcOpts={}) ->
+      # informal 是指医院该填写的数据没有填写,尝试计算解决,但仅可偶尔使用,因增加了程序复杂性,易错
       {entityName, dataName, key, dictionary, storm_db, log_db, regest_db, informal=false} = funcOpts
-      #console.log({db:storm_db.value(),entityName,dataName,key,data:storm_db.get(dataName)?.value()})
+
       switch
         when dictionary? and dictionary[dataName]? and dictionary[dataName][key]?
           dictionary[dataName][key]
@@ -50,42 +38,28 @@ class DataManagerBase
           storm_db.get(dataName).get(key).value()
 
         else
-          try
-            funcName = @_funcName(funcOpts)
-            this[funcName](funcOpts)
-
-          catch error
-            unless log_db.get(funcName)?.value()?
-              log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
-
-              regarr = regest_db.get(dataName)
-              unless regarr.value()?.length? then regest_db.set(dataName,[]) 
-              regarr.push(entityName+key).save()
-            
-            null  # use null as returning
+          @tryCalculating(funcOpts)
 
 
 
 
 
-    @getDataWithKey_v0: (funcOpts={}) ->
-      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
-      data = dictionary?[dataName]?[key] ? storm_db?.get(dataName)?.get(key)?.value() ? \
-        try
-          funcName = @_funcName(funcOpts)
-          this[funcName](funcOpts)
+    @tryCalculating: (funcOpts) ->
+      {entityName, dataName, key, log_db, regest_db} = funcOpts
+      try
+        funcName = @_funcName(funcOpts)
+        this[funcName](funcOpts)
 
-        catch error
-          unless log_db.get(funcName)?.value()?
-            log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+      catch error
+        unless log_db.get(funcName)?.value()?
+          log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
-            regarr = regest_db.get(dataName)
-            unless regarr.value()?.length? then regest_db.set(dataName,[]) 
-            regarr.push(entityName+key).save()
-          
-          null  # use null as returning
+          regarr = regest_db.get(dataName)
+          unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+          regarr.push(entityName + (key ? "")).save()
+        
+        null  # use null as returning
 
-      return data
 
 
 
@@ -99,6 +73,8 @@ class DataManagerBase
           this[funcName](funcOpts)
 
         catch error
+          @tryCalculating(funcOpts)
+          ###
           unless log_db.get(funcName)?.value()?
             log_db.set(funcName,"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
@@ -107,8 +83,11 @@ class DataManagerBase
             regarr.push(entityName+key).save()
           
           null  # use null as returning
-
+          ###
+      # 这行不对,如果通过计算解决,以上代码并未定位到具体年份或对标相关的数值,故无法计算    
       if key? then data?[key] else data
+
+
 
 
 
