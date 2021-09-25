@@ -7,12 +7,12 @@ StormDB = require 'stormdb'
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class AnySingleton extends JSONUtils
-  @dbLog: ->
+  @logdb: ->
     SystemLog.db().get(@name)
 
 
-  @dbLogClear: ->
-    @dbLog().set({})
+  @logdbClear: ->
+    @logdb().set({})
     return SystemLog.db()
 
 
@@ -224,7 +224,7 @@ class AnyCaseSingleton extends AnySingleton
     {entityName} = funcOpts
     funcOpts.storm_db = @db().get(entityName)
     funcOpts.regest_db = 缺漏追踪库.db()
-    funcOpts.log_db = @dbLog() #SystemLog.db().get(@name)
+    funcOpts.log_db = @logdb() #SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
 
 

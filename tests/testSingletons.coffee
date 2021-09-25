@@ -11,8 +11,8 @@ testLog = ->
   sl = SystemLog
   db = sl.db()
   
-  sl.dbLog(new Date(), "message")
-  sl.dbLogs()
+  sl.logdb(new Date(), "message")
+  sl.logdbs()
   db.save()
   
   sl.dbClear()
