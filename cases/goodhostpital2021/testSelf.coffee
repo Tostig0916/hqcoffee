@@ -115,9 +115,12 @@ class 生成器 extends CaseSingleton
 
   # 看看有多少科室数据
   @showUnitNames: ->
-    localUnits = 院内资料库.dbDictKeys()
-    compareUnits = 对标资料库.dbDictKeys()
-    console.log {localUnits, compareUnits}
+    @localUnits = 院内资料库.dbDictKeys()
+    @compareUnits = 对标资料库.dbDictKeys()
+    dataNames = (k for k, v of 院内资料库.dbValue()[@localUnits[0]]) 
+    years = (k for k, v of 院内资料库.dbValue()[@localUnits[0]][dataNames[0]] when /^y/i.test(k))
+    @years = years.sort((x,y)-> if x > y then -1 else 1)
+    console.log {@localUnits, @compareUnits, @years}
     return this
   
   
@@ -137,17 +140,19 @@ class 生成器 extends CaseSingleton
 
   # 筛查数据
   @checkForAllIndicators: ->
-    缺漏追踪库.dbClear().save()
     院内资料库.logdbClear().save()
     对标资料库.logdbClear().save()
+    缺漏追踪库.dbClear().save()
+
     指标维度 = 指标维度库.dbValue()
+    informal = true
     k1 = 'Y2020'
     k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        院内资料库.getData({entityName, dataName, k1})
+        院内资料库.getData({entityName, dataName, key:k1, informal})
       for entityName in 对标资料库.dbDictKeys()
-        对标资料库.getData({entityName, dataName, k2})
+        对标资料库.getData({entityName, dataName, key:k2, informal})
     console.log "指标数据筛查完毕"
     return this
 
@@ -165,13 +170,33 @@ class 生成器 extends CaseSingleton
 
 
   # 研究 院内资料库
-  # 先将结果存入报告db
+  # 先将指标计算结果存入报告db
   @exportRawDataToReportDB: ->
     院内报告库.dbClear().save()
-    院内报告库.dbDefault(院内资料库.dbValue()).save()
     对标报告库.dbClear().save()
+    ###
+    院内报告库.dbDefault(院内资料库.dbValue()).save()
     对标报告库.dbDefault(对标资料库.dbValue()).save()
     console.log {院内报告库:院内报告库.dbValue(), 对标报告库:对标报告库.dbValue()}
+    ###
+    @showUnitNames()
+    指标维度 = 指标维度库.dbValue()
+    对标项 = ['均1','均2','某A','某B']
+    informal = true
+    for dataName, dimension of 指标维度 when dataName?
+      for entityName in 院内资料库.dbDictKeys()
+        for year in @years
+          key = year
+          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          院内报告库.dbSet("#{entityName}.#{dataName}.#{key}", ownData) #if ownData
+      for entityName in 对标资料库.dbDictKeys()
+        for item in 对标项
+          key = item
+          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          对标报告库.dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
+    院内报告库.dbSave()
+    对标报告库.dbSave()
+    console.log "指标数据移动完毕"
     return this
 
 
@@ -190,7 +215,7 @@ class 生成器 extends CaseSingleton
   #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  #.exportRawDataToReportDB()
+  .exportRawDataToReportDB()
 
 
 
