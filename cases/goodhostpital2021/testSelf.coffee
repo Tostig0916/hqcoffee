@@ -124,8 +124,12 @@ class 生成器 extends CaseSingleton
 
   # 测试一下 getData, 例如平均住院日等等应该有的数据,看看程序逻辑是否走通
   @_tryGetSomeData: ->
-    [entityName,dataName,key] = ['医院','编制床位','Y2018']
-    console.log {entityName,dataName,key,data: 院内资料库.getData({entityName,dataName,key})}
+    [entityName,dataName,key] = ['医院','平均住院日','Y2018']
+    console.log {entityName,dataName,key,院内: 院内资料库.getData({entityName,dataName,key})}
+    console.log {entityName,dataName,key,院内: 院内资料库.getData({entityName,dataName})}
+    [entityName,dataName,key] = ['医院','平均住院日','某A']
+    console.log {entityName,dataName,key,对标: 对标资料库.getData({entityName,dataName,key})}
+    console.log {entityName,dataName,key,对标: 对标资料库.getData({entityName,dataName})}
     return this
 
 
@@ -177,10 +181,10 @@ class 生成器 extends CaseSingleton
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
-  #._tryGetSomeData()
+  ._tryGetSomeData()
   #.showUnitNames()
-  .checkForAllIndicators()
-  .showMissingIndicatorsOrDataProblems()
+  #.checkForAllIndicators()
+  #.showMissingIndicatorsOrDataProblems()
 
 
 
