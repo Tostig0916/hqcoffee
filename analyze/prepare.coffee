@@ -264,16 +264,16 @@ class DataManager extends DataManagerBase
     @求资产负债率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医院在医学人才培养方面的经费投入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020
     
-    @求CMI值: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
-    @求DRGs组数: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    @求CMI值: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    @求DRGs组数: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
     
-    @求病床使用率: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
+    @求病床使用率: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
     
-    @求低风险组病例死亡率: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
+    @求低风险组病例死亡率: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 医院Y2019"
     
-    @求平均住院日: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
+    @求平均住院日: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 男科Y2020"
     
-    @求药占比: (funcOpts={})->  Math.random() # @toBeImplemented(funcOpts) # 中医外治中心Y2019"
+    @求药占比: (funcOpts={})-> Math.random() # @toBeImplemented(funcOpts) # 中医外治中心Y2019"
 
 
 
