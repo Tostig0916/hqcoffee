@@ -53,10 +53,10 @@ class 院内资料库 extends CaseSingleton
     @dbDictKeys()
   
   @dataNames: -> 
-    (k for k, v of 院内资料库.dbValue()[@localUnits[0]]) 
+    (k for k, v of 院内资料库.dbValue()[@localUnits()[0]]) 
   
   @years: -> 
-    years = (k for k, v of 院内资料库.dbValue()[@localUnits[0]][dataNames[0]] when /^y/i.test(k))
+    years = (k for k, v of 院内资料库.dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
     years = years.sort((x,y)-> if x > y then -1 else 1)
 
  
@@ -214,7 +214,7 @@ class 生成器 extends CaseSingleton
     informal = true
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        for year in @years
+        for year in 院内资料库.years()
           key = year
           ownData = 院内资料库.getData({entityName, dataName, key, informal})
           院内报告库.dbSet("#{entityName}.#{dataName}.#{key}", ownData) #if ownData
@@ -265,7 +265,7 @@ class 生成器 extends CaseSingleton
   #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  #.exportRawDataToReportDB()
+  .exportRawDataToReportDB()
 
 
 

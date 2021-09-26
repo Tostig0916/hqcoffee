@@ -1,1 +1,8 @@
-{"院内资料库":{},"对标资料库":{}}
+{
+  "院内资料库": {
+    "求病理医师占比9": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020"
+  },
+  "对标资料库": {
+    "求病理医师占比9": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2"
+  }
+}
