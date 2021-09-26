@@ -49,6 +49,20 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 class 院内资料库 extends CaseSingleton
+  @localUnits: ->
+    @dbDictKeys()
+  
+  @dataNames: -> 
+    (k for k, v of 院内资料库.dbValue()[@localUnits[0]]) 
+  
+  @years: -> 
+    years = (k for k, v of 院内资料库.dbValue()[@localUnits[0]][dataNames[0]] when /^y/i.test(k))
+    years = years.sort((x,y)-> if x > y then -1 else 1)
+
+ 
+ 
+ 
+ 
   # 仅用于建水县的一份国考数据资料,但是演示了一种定制程序的方法
   @normalKeyName: (funcOpts) =>
     {mainKey} = funcOpts
@@ -68,8 +82,23 @@ class 对标资料库 extends CaseSingleton
 
 
 class 院内报告库 extends CaseSingleton
-  
 
+
+  class 院内专科指标简单排序库 extends 院内报告库
+
+
+  class 院内专科指标同向评分库 extends 院内报告库
+
+  class 院内专科指标评分排序库 extends 院内报告库
+
+  class 院内专科指标评分雷达图库 extends 院内报告库
+
+  class 院内专科BCG散点图库 extends 院内报告库
+
+  class 院内专科梯队Topsis评分库 extends 院内报告库
+
+  class 院内专科梯队表格库 extends 院内报告库
+  
 
 
 class 对标报告库 extends CaseSingleton
@@ -115,12 +144,12 @@ class 生成器 extends CaseSingleton
 
   # 看看有多少科室数据
   @showUnitNames: ->
-    @localUnits = 院内资料库.dbDictKeys()
-    @compareUnits = 对标资料库.dbDictKeys()
-    dataNames = (k for k, v of 院内资料库.dbValue()[@localUnits[0]]) 
-    years = (k for k, v of 院内资料库.dbValue()[@localUnits[0]][dataNames[0]] when /^y/i.test(k))
-    @years = years.sort((x,y)-> if x > y then -1 else 1)
-    console.log {@localUnits, @compareUnits, @years}
+    localUnits = 院内资料库.localUnits()
+    dataNames = 院内资料库.dataNames() 
+    years = 院内资料库.years()
+
+    compareUnits = 对标资料库.dbDictKeys()
+    console.log {localUnits, compareUnits, years}
     return this
   
   
@@ -201,7 +230,18 @@ class 生成器 extends CaseSingleton
 
   
   
-  
+
+  # 院内专科指标简单排序存储备用
+
+
+  # 院内专科指标同向化及评分
+
+
+  # 院内专科指标按照评分简单排序
+
+
+
+
 
 
 
@@ -225,7 +265,7 @@ class 生成器 extends CaseSingleton
   #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  .exportRawDataToReportDB()
+  #.exportRawDataToReportDB()
 
 
 
