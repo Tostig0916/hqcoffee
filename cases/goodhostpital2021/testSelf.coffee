@@ -7,6 +7,7 @@
     coffee -w cases/goodhostpital2021/testSelf.coffee
   ```
 ###
+util = require 'util'
 path = require 'path'
 
 {
@@ -53,10 +54,10 @@ class 院内资料库 extends CaseSingleton
     @dbDictKeys()
   
   @dataNames: -> 
-    (k for k, v of 院内资料库.dbValue()[@localUnits[0]]) 
+    (k for k, v of 院内资料库.dbValue()[@localUnits()[0]]) 
   
   @years: -> 
-    years = (k for k, v of 院内资料库.dbValue()[@localUnits[0]][dataNames[0]] when /^y/i.test(k))
+    years = (k for k, v of 院内资料库.dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
     years = years.sort((x,y)-> if x > y then -1 else 1)
 
  
@@ -82,27 +83,82 @@ class 对标资料库 extends CaseSingleton
 
 
 class 院内报告库 extends CaseSingleton
+  @rawDataToIndicators: ->
+    @dbClear().save()
+    指标维度 = 指标维度库.dbValue()
+    years = 院内资料库.years()
+    units = 院内资料库.localUnits()
+    informal = true
+    for dataName, dimension of 指标维度 when dataName?
+      for entityName in units 
+        for year in years
+          key = year
+          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          #console.log {entityName, dataName, year, ownData}
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
+          #@dbSave()
+    @dbSave()
+    console.log "院内报告库: 指标数据移动完毕"
+    return this
 
 
-  class 院内专科指标简单排序库 extends 院内报告库
 
 
-  class 院内专科指标同向评分库 extends 院内报告库
 
-  class 院内专科指标评分排序库 extends 院内报告库
+class 院内专科指标简单排序库 extends 院内报告库
+  @指标简单排序: ->
+    @dbClear().save()
+    year = 院内资料库.years()[0]
+    localUnits = 院内资料库.localUnits()
+    指标维度 = 指标维度库.dbValue()
+    #console.log 指标简单排序: arr[0] #.unitName
 
-  class 院内专科指标评分雷达图库 extends 院内报告库
+    for dataName, dimension of 指标维度 when dataName?
+      arr = 院内报告库.dbAsArray({dataName,key:year})
+      _arr = arr.sort (a,b)-> 
+        try
+          b[dataName] - a[dataName]
+        catch error
+          -1
+      @dbSet dataName, _arr
 
-  class 院内专科BCG散点图库 extends 院内报告库
+    @dbSave()
 
-  class 院内专科梯队Topsis评分库 extends 院内报告库
 
-  class 院内专科梯队表格库 extends 院内报告库
+
+
+
+class 院内专科指标同向评分库 extends 院内报告库
+
+class 院内专科指标评分排序库 extends 院内报告库
+
+class 院内专科指标评分雷达图库 extends 院内报告库
+
+class 院内专科BCG散点图库 extends 院内报告库
+
+class 院内专科梯队Topsis评分库 extends 院内报告库
+
+class 院内专科梯队表格库 extends 院内报告库
   
 
 
 class 对标报告库 extends CaseSingleton
-
+  @rawDataToIndicators: ->
+    @dbClear().save()
+    units = 对标资料库.dbDictKeys()
+    指标维度 = 指标维度库.dbValue()
+    对标项 = ['均1','均2','某A','某B']
+    informal = true
+    for dataName, dimension of 指标维度 when dataName?     
+      for entityName in units
+        for item in 对标项
+          key = item
+          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
+    
+    @.dbSave()
+    console.log "对标报告库: 指标数据移动完毕"
+    return this    
 
 
 
@@ -201,31 +257,8 @@ class 生成器 extends CaseSingleton
   # 研究 院内资料库
   # 先将指标计算结果存入报告db
   @exportRawDataToReportDB: ->
-    院内报告库.dbClear().save()
-    对标报告库.dbClear().save()
-    ###
-    院内报告库.dbDefault(院内资料库.dbValue()).save()
-    对标报告库.dbDefault(对标资料库.dbValue()).save()
-    console.log {院内报告库:院内报告库.dbValue(), 对标报告库:对标报告库.dbValue()}
-    ###
-    @showUnitNames()
-    指标维度 = 指标维度库.dbValue()
-    对标项 = ['均1','均2','某A','某B']
-    informal = true
-    for dataName, dimension of 指标维度 when dataName?
-      for entityName in 院内资料库.dbDictKeys()
-        for year in @years
-          key = year
-          ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          院内报告库.dbSet("#{entityName}.#{dataName}.#{key}", ownData) #if ownData
-      for entityName in 对标资料库.dbDictKeys()
-        for item in 对标项
-          key = item
-          otherData = 对标资料库.getData({entityName, dataName, key, informal})
-          对标报告库.dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
-    院内报告库.dbSave()
-    对标报告库.dbSave()
-    console.log "指标数据移动完毕"
+    院内报告库.rawDataToIndicators()
+    对标报告库.rawDataToIndicators()
     return this
 
   
@@ -267,6 +300,10 @@ class 生成器 extends CaseSingleton
   #.showMissingIndicatorsOrDataProblems()
   #.exportRawDataToReportDB()
 
+
+
+console.log 院内专科指标简单排序库.指标简单排序()
+#console.log 指标导向库.导向指标集()
 
 
 

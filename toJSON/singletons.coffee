@@ -192,7 +192,8 @@ class 指标维度库 extends AnyGlobalSingleton
     
 
 class 指标导向库 extends AnyGlobalSingleton
-
+  @导向指标集: ->
+    @dbRevertedValue()
 
 
 class 缺漏追踪库 extends AnyGlobalSingleton
