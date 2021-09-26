@@ -10,6 +10,8 @@
 util = require 'util'
 path = require 'path'
 
+{MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
+
 {
   AnyCaseSingleton
   SystemLog
@@ -42,9 +44,6 @@ class CaseSingleton extends AnyCaseSingleton
       unwrap: true 
       refining: @normalKeyName
     }
-
-
-
 
 
 
@@ -82,7 +81,42 @@ class 对标资料库 extends CaseSingleton
 
 
 
-class 院内报告库 extends CaseSingleton
+class 院内分析报告 extends CaseSingleton
+  @newReport: ->
+    jsonReport = {
+      院内专科指标简单排序: {
+        settings:{
+          chartType: "bar3d" #"scatter"
+        }
+        data: 院内专科指标简单排序.dbValue()
+      }
+      "专科线图": {
+        settings:{
+          chartType:"line"
+        }
+        data
+      }
+
+      "专科雷达图": {
+        settings:{
+          chartType:"radar"
+        }
+        data
+      }
+    }
+
+
+    funcOpts.json = jsonReport
+    funcOpts.needToRewrite = true
+
+    #console.log funcOpts, MakePPTReport
+
+    MakePPTReport.newReport(funcOpts)
+
+
+
+
+
   @rawDataToIndicators: ->
     @dbClear().save()
     指标维度 = 指标维度库.dbValue()
@@ -98,14 +132,14 @@ class 院内报告库 extends CaseSingleton
           @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
           #@dbSave()
     @dbSave()
-    console.log "院内报告库: 指标数据移动完毕"
+    console.log "院内分析报告: 指标数据移动完毕"
     return this
 
 
 
 
 
-class 院内专科指标简单排序库 extends 院内报告库
+class 院内专科指标简单排序 extends 院内分析报告
   @指标简单排序: ->
     @dbClear().save()
     year = 院内资料库.years()[0]
@@ -114,13 +148,13 @@ class 院内专科指标简单排序库 extends 院内报告库
     #console.log 指标简单排序: arr[0] #.unitName
 
     for dataName, dimension of 指标维度 when dataName?
-      arr = 院内报告库.dbAsArray({dataName,key:year})
+      arr = 院内分析报告.dbAsArray({dataName,key:year})
       _arr = arr.sort (a,b)-> 
         try
           b[dataName] - a[dataName]
         catch error
           -1
-      @dbSet dataName, _arr
+      @dbSet(dataName, _arr)
 
     @dbSave()
 
@@ -128,21 +162,21 @@ class 院内专科指标简单排序库 extends 院内报告库
 
 
 
-class 院内专科指标同向评分库 extends 院内报告库
+class 院内专科指标同向评分 extends 院内分析报告
 
-class 院内专科指标评分排序库 extends 院内报告库
+class 院内专科指标评分排序 extends 院内分析报告
 
-class 院内专科指标评分雷达图库 extends 院内报告库
+class 院内专科指标评分雷达图 extends 院内分析报告
 
-class 院内专科BCG散点图库 extends 院内报告库
+class 院内专科BCG散点图 extends 院内分析报告
 
-class 院内专科梯队Topsis评分库 extends 院内报告库
+class 院内专科梯队Topsis评分 extends 院内分析报告
 
-class 院内专科梯队表格库 extends 院内报告库
+class 院内专科梯队表格 extends 院内分析报告
   
 
 
-class 对标报告库 extends CaseSingleton
+class 对标分析报告 extends CaseSingleton
   @rawDataToIndicators: ->
     @dbClear().save()
     units = 对标资料库.dbDictKeys()
@@ -157,7 +191,7 @@ class 对标报告库 extends CaseSingleton
           @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
     
     @.dbSave()
-    console.log "对标报告库: 指标数据移动完毕"
+    console.log "对标分析报告: 指标数据移动完毕"
     return this    
 
 
@@ -192,8 +226,8 @@ class 生成器 extends CaseSingleton
 
   # 查看各自 db, 以及log
   @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院内报告库,对标资料库,对标报告库,别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
-    console.log {log: v.logdb().value()} for k, v of {院内资料库,院内报告库,对标资料库,对标报告库,别名库,缺漏追踪库,指标维度库,名字ID库}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
+    console.log {log: v.logdb().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库}
     return this
 
 
@@ -257,8 +291,8 @@ class 生成器 extends CaseSingleton
   # 研究 院内资料库
   # 先将指标计算结果存入报告db
   @exportRawDataToReportDB: ->
-    院内报告库.rawDataToIndicators()
-    对标报告库.rawDataToIndicators()
+    院内分析报告.rawDataToIndicators()
+    对标分析报告.rawDataToIndicators()
     return this
 
   
@@ -289,7 +323,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-#生成器.run()
+生成器.run()
 
 生成器
   #.showDBs()
@@ -302,7 +336,7 @@ class 生成器 extends CaseSingleton
 
 
 
-console.log 院内专科指标简单排序库.指标简单排序()
+#console.log 院内专科指标简单排序.指标简单排序()
 #console.log 指标导向库.导向指标集()
 
 
@@ -310,27 +344,27 @@ console.log 院内专科指标简单排序库.指标简单排序()
 # 先rename keys
 ###
 # 修改平均住院日 2018年数据
-for uname, idx in 院内报告库.dbDictKeys()
+for uname, idx in 院内分析报告.dbDictKeys()
   key = "#{uname}.平均住院日.y2018"
-  院内报告库.dbSet(key, 院内报告库.dbValue(key)/(idx+1))
-  console.log {uname, 平均住院日:院内报告库.dbValue(key)}
+  院内分析报告.dbSet(key, 院内分析报告.dbValue(key)/(idx+1))
+  console.log {uname, 平均住院日:院内分析报告.dbValue(key)}
 
-院内报告库.dbSave()
+院内分析报告.dbSave()
 ###
 
 # 将资料库转换成为 []
 
 ###
-arr = 院内报告库.dbAsArray()
+arr = 院内分析报告.dbAsArray()
 console.log arr
-院内报告库.dbClear().save()
-院内报告库.dbDefault({data:arr}).save()
+院内分析报告.dbClear().save()
+院内分析报告.dbDefault({data:arr}).save()
 ###
 
 # 根据平均住院日 y2018 数据排序
-#院内报告库.db().get("data").sort((a,b)-> a.平均住院日.y2018 - b.平均住院日.y2018)
-#院内报告库.dbSave()
-#console.log 院内报告库.db().get('data').get(0).value().unitName #.平均住院日.y2018
+#院内分析报告.db().get("data").sort((a,b)-> a.平均住院日.y2018 - b.平均住院日.y2018)
+#院内分析报告.dbSave()
+#console.log 院内分析报告.db().get('data').get(0).value().unitName #.平均住院日.y2018
 
 
 
@@ -356,7 +390,7 @@ testDB = ->
   院内资料库.fetchSingleJSON() #
 
 testMore = ->
-  for each in [对标资料库, 院内资料库,院内报告库,对标报告库]
+  for each in [对标资料库, 院内资料库,院内分析报告,对标分析报告]
     # be careful! [].push(each.name) will return 1 other than [each.name]
     #  .get('list')
     #  .push(each.name)
