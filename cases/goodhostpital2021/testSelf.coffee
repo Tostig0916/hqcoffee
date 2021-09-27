@@ -80,29 +80,27 @@ class 对标资料库 extends CaseSingleton
 
 
 
+class 分析报告 extends CaseSingleton
+  @newReport: ->
 
-class 院内分析报告 extends CaseSingleton
+
+
+  @charts: ->
+    []
+
+
+
+
+
+class 院内分析报告 extends 分析报告
+
   @newReport: ->
     jsonReport = {
-      院内专科指标简单排序: {
-        settings:{
-          chartType: "bar3d" #"scatter"
-        }
-        data: 院内专科指标简单排序.dbValue()
-      }
-      "专科线图": {
-        settings:{
-          chartType:"line"
-        }
-        data
-      }
-
-      "专科雷达图": {
-        settings:{
-          chartType:"radar"
-        }
-        data
-      }
+      院内专科指标简单排序
+      院内专科指标评分排序
+      院内专科指标评分雷达图
+      院内专科BCG散点图
+      院内专科梯队表格
     }
 
 
@@ -114,7 +112,7 @@ class 院内分析报告 extends CaseSingleton
     MakePPTReport.newReport(funcOpts)
 
 
-
+  
 
 
   @rawDataToIndicators: ->
@@ -140,12 +138,12 @@ class 院内分析报告 extends CaseSingleton
 
 
 class 院内专科指标简单排序 extends 院内分析报告
-  @指标简单排序: ->
+  @run: ->
     @dbClear().save()
     year = 院内资料库.years()[0]
     localUnits = 院内资料库.localUnits()
     指标维度 = 指标维度库.dbValue()
-    #console.log 指标简单排序: arr[0] #.unitName
+    #console.log ru'n: arr[0] #.unitName
 
     for dataName, dimension of 指标维度 when dataName?
       arr = 院内分析报告.dbAsArray({dataName,key:year})
@@ -159,6 +157,14 @@ class 院内专科指标简单排序 extends 院内分析报告
     @dbSave()
 
 
+
+  @charts: ->
+    [
+      {
+        settings:{}
+        data: @dbValue()
+      }
+    ]
 
 
 
@@ -176,7 +182,7 @@ class 院内专科梯队表格 extends 院内分析报告
   
 
 
-class 对标分析报告 extends CaseSingleton
+class 对标分析报告 extends 分析报告
   @rawDataToIndicators: ->
     @dbClear().save()
     units = 对标资料库.dbDictKeys()
@@ -190,7 +196,7 @@ class 对标分析报告 extends CaseSingleton
           otherData = 对标资料库.getData({entityName, dataName, key, informal})
           @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
     
-    @.dbSave()
+    @dbSave()
     console.log "对标分析报告: 指标数据移动完毕"
     return this    
 
@@ -323,7 +329,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-生成器.run()
+#生成器.run()
 
 生成器
   #.showDBs()
@@ -336,7 +342,7 @@ class 生成器 extends CaseSingleton
 
 
 
-#console.log 院内专科指标简单排序.指标简单排序()
+#console.log 院内专科指标简单排序.run()
 #console.log 指标导向库.导向指标集()
 
 
