@@ -40,6 +40,38 @@ pptxgen = require 'pptxgenjs'
 
 # 生成一个完整的报告使用的数据库JSON,其中按照报告的section分成几个部分
 # 使用 MakePPTReport 之 generate 来生成整个报告
+
+class PPTXGenUtils
+	@getPPTFilename: (funcOpts={}) ->
+		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
+		funcOpts.gen = "pg" #"pptxgen"
+		JSONUtils.getPPTFilename(funcOpts)
+
+
+
+
+	@createPPT: (funcOpts={}) ->
+		{generate} = funcOpts
+		pres = new pptxgen()
+
+		if generate? #not fs.existsSync pptname
+			funcOpts.pres = pres
+			generate(funcOpts)
+			
+			pptname = @getPPTFilename(funcOpts)		
+			pres.writeFile({ fileName: pptname })
+					.then((fileName) -> 
+							console.log("created file:#{path.basename fileName} at #{Date()}")
+					)
+
+			#// For simple cases, you can omit `then`
+			# pres.writeFile({ fileName: pptname})			
+			#// Using Promise to determine when the file has actually completed generating
+
+
+
+
+
 class MakePPTReport
 	
 	@newReport: (funcOpts={}) ->
@@ -49,7 +81,7 @@ class MakePPTReport
 
 
 	@generate: (funcOpts={}) => # 需要在callback中使用故需使用 =>
-		{pres,json, newSlide} = funcOpts
+		{pres,json} = funcOpts
 		# slide title page
 		slide = pres.addSlide("TITLE_SLIDE")
 		slide.addText("量化报告")
@@ -61,11 +93,10 @@ class MakePPTReport
 			funcOpts.json = section
 			funcOpts.sectionTitle = key
 
-			(newSlide ? @singleObjectCharts)(funcOpts)
+			@singleObjectCharts(funcOpts)
 
 
 
-	@newSlide: (funcOpts={}) ->
 
 
 
@@ -99,39 +130,6 @@ class MakePPTReport
 				showTitle: true, 
 				title: obj[unitNameLabel] 
 			})
-
-
-
-
-
-
-class PPTXGenUtils
-
-
-	@getPPTFilename: (funcOpts={}) ->
-		# 未来便于测试对比其他的库，在文件名中加上使用的PPT生成库名
-		funcOpts.gen = "pg" #"pptxgen"
-		JSONUtils.getPPTFilename(funcOpts)
-
-
-
-
-	@createPPT: (funcOpts={}) ->
-		{json,generate} = funcOpts
-		pptname = @getPPTFilename(funcOpts)
-		
-		if generate? #not fs.existsSync pptname
-			pres = new pptxgen()
-			funcOpts.pres = pres
-			generate(funcOpts)
-			
-			#// For simple cases, you can omit `then`
-			# pres.writeFile({ fileName: pptname})			
-			#// Using Promise to determine when the file has actually completed generating
-			pres.writeFile({ fileName: pptname })
-					.then((fileName) -> 
-							console.log("created file:#{path.basename fileName} at #{Date()}")
-					)
 
 
 
