@@ -47,16 +47,21 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 
+class 资料库 extends CaseSingleton
+  @years: ->
+    院内资料库.years()
 
-class 院内资料库 extends CaseSingleton
+
+
+class 院内资料库 extends 资料库
   @localUnits: ->
     @dbDictKeys()
   
   @dataNames: -> 
-    (k for k, v of 院内资料库.dbValue()[@localUnits()[0]]) 
+    (k for k, v of @dbValue()[@localUnits()[0]]) 
   
   @years: -> 
-    years = (k for k, v of 院内资料库.dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
+    years = (k for k, v of @dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
     years = years.sort((x,y)-> if x > y then -1 else 1)
 
  
@@ -75,7 +80,7 @@ class 院内资料库 extends CaseSingleton
 
 
 
-class 对标资料库 extends CaseSingleton
+class 对标资料库 extends 资料库
 
 
 
@@ -294,10 +299,8 @@ class 生成器 extends CaseSingleton
   # 看看有多少科室数据
   @showUnitNames: ->
     localUnits = 院内资料库.localUnits()
-    dataNames = 院内资料库.dataNames() 
-    years = 院内资料库.years()
-
     compareUnits = 对标资料库.dbDictKeys()
+    years = 院内资料库.years()
     console.log {localUnits, compareUnits, years}
     return this
   
