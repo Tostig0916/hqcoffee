@@ -82,11 +82,24 @@ class 对标资料库 extends CaseSingleton
 
 class 分析报告 extends CaseSingleton
   @newReport: ->
+    opts = @options()
+    opts.generate = (funcOpts) => 
+      {pres} = funcOpts
+      # title slide
+      slide = pres.addSlide("TITLE_SLIDE")
+      slide.addText("量化报告")
+      # slides in sections
+      for section in @sections() #院内分析报告.sections() #
+        # slide section could be added from key
+        pres.addSection({title: section.name})
+        section.slides({pres})
+
+    MakePPTReport.newReport(opts)
 
 
 
-  @charts: ->
-    []
+
+ 
 
 
 
@@ -94,25 +107,26 @@ class 分析报告 extends CaseSingleton
 
 class 院内分析报告 extends 分析报告
 
-  @newReport: ->
-    jsonReport = {
+  @sections: ->
+    [
       院内专科指标简单排序
       院内专科指标评分排序
       院内专科指标评分雷达图
       院内专科BCG散点图
       院内专科梯队表格
-    }
+    ]
 
 
-    funcOpts.json = jsonReport
-    funcOpts.needToRewrite = true
-
-    #console.log funcOpts, MakePPTReport
-
-    MakePPTReport.newReport(funcOpts)
 
 
-  
+  @slides:(funcOpts) ->
+    {pres} = funcOpts
+    console.log {slides: @name}
+
+
+
+
+
 
 
   @rawDataToIndicators: ->
@@ -157,6 +171,48 @@ class 院内专科指标简单排序 extends 院内分析报告
     @dbSave()
 
 
+
+
+  @slides: (funcOpts) ->
+    {pres} = funcOpts
+    chartType = 'bar3d'
+    @run()
+    data = @dbValue()
+
+    console.log {indicator, slides: @name, data}
+
+    for indicator, arr of data
+      slide = pres.addSlide({@name})
+      #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+      #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+      #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+      #slide.color = "696969"  # Set slide default font color
+      # EX: Styled Slide Numbers
+      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      chartData = [
+        {
+          name: indicator
+          labels: arr.map (each,idx)-> each.unitName
+          values: arr.map (each,idx)-> each[indicator]
+        }
+      ]
+			
+      slide.addChart(pres.ChartType[chartType], chartData, { 
+        x: 0.1, y: 0.1, 
+        w: "95%", h: "90%"
+        showLegend: true, legendPos: 'b'
+        showTitle: true, 
+        title: indicator 
+      })
+
+
+
+
+
+
+
+
+    
 
   @charts: ->
     [
@@ -329,7 +385,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-#生成器.run()
+生成器.run()
 
 生成器
   #.showDBs()
@@ -341,6 +397,7 @@ class 生成器 extends CaseSingleton
   #.exportRawDataToReportDB()
 
 
+院内分析报告.newReport()
 
 #console.log 院内专科指标简单排序.run()
 #console.log 指标导向库.导向指标集()
