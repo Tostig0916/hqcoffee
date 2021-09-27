@@ -89,7 +89,7 @@ class 分析报告 extends CaseSingleton
       slide = pres.addSlide("TITLE_SLIDE")
       slide.addText("量化报告")
       # slides in sections
-      for section in @sections() #院内分析报告.sections() #
+      for section in @sections()
         # slide section could be added from key
         pres.addSection({title: section.name})
         section.slides({pres})
@@ -98,7 +98,7 @@ class 分析报告 extends CaseSingleton
 
 
 
-
+  @run: ->
  
 
 
@@ -121,7 +121,7 @@ class 院内分析报告 extends 分析报告
 
   @slides:(funcOpts) ->
     {pres} = funcOpts
-    console.log {slides: @name}
+    #console.log {slides: @name}
 
 
 
@@ -176,11 +176,9 @@ class 院内专科指标简单排序 extends 院内分析报告
   @slides: (funcOpts) ->
     {pres} = funcOpts
     chartType = 'bar3d'
-    @run()
+    
+    #@run()
     data = @dbValue()
-
-    console.log {indicator, slides: @name, data}
-
     for indicator, arr of data
       slide = pres.addSlide({@name})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
@@ -213,14 +211,6 @@ class 院内专科指标简单排序 extends 院内分析报告
 
 
     
-
-  @charts: ->
-    [
-      {
-        settings:{}
-        data: @dbValue()
-      }
-    ]
 
 
 
@@ -273,7 +263,14 @@ class 生成器 extends CaseSingleton
       .checkForAllIndicators()
       .showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
-    
+      .simpleLocalIndicatorOrdering()
+      .localIndicatorSameDirection()
+      .localIndicatorScoreSort()
+      .localIndicatorRadarChart()
+      .localIndicatorBCGChart()
+      .localTeamsTable()
+      .localReport()
+      .compareReport()
 
 
 
@@ -361,9 +358,46 @@ class 生成器 extends CaseSingleton
   
 
   # 院内专科指标简单排序存储备用
+  @simpleLocalIndicatorOrdering: ->
+    院内专科指标简单排序.run()
+    return this
+
+  
+
+  @localIndicatorSameDirection: ->
+    院内专科指标同向评分.run()
+    return this
 
 
-  # 院内专科指标同向化及评分
+  @localIndicatorScoreSort: ->
+    院内专科指标评分排序.run()
+    return this
+
+
+  @localIndicatorRadarChart: ->
+    院内专科指标评分雷达图.run()
+    return this
+
+
+  @localIndicatorBCGChart: ->
+    院内专科BCG散点图.run()
+    return this
+
+
+
+  @localTeamsTable: ->
+    院内专科梯队表格.run()
+    return this
+
+
+  @localReport: ->
+    院内分析报告.newReport()
+    return this
+
+
+  @compareReport: ->
+    对标分析报告.newReport()
+    return this
 
 
   # 院内专科指标按照评分简单排序
@@ -385,7 +419,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-生成器.run()
+#生成器.run()
 
 生成器
   #.showDBs()
@@ -397,7 +431,7 @@ class 生成器 extends CaseSingleton
   #.exportRawDataToReportDB()
 
 
-院内分析报告.newReport()
+#院内分析报告.newReport()
 
 #console.log 院内专科指标简单排序.run()
 #console.log 指标导向库.导向指标集()
