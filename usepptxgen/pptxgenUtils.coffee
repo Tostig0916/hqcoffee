@@ -43,14 +43,13 @@ pptxgen = require 'pptxgenjs'
 class MakePPTReport
 	
 	@newReport: (funcOpts={}) ->
-		{json} = funcOpts
-		funcOpts.generate = @generate
+		funcOpts.generate ?= @generate
 		PPTXGenUtils.createPPT(funcOpts)
 
 
 
 	@generate: (funcOpts={}) => # 需要在callback中使用故需使用 =>
-		{pres,json,chartFunction='singleObjectCharts'} = funcOpts
+		{pres,json, newSlide} = funcOpts
 		# slide title page
 		slide = pres.addSlide("TITLE_SLIDE")
 		slide.addText("量化报告")
@@ -62,41 +61,11 @@ class MakePPTReport
 			funcOpts.json = section
 			funcOpts.sectionTitle = key
 
-			@[chartFunction](funcOpts)
+			(newSlide ? @singleObjectCharts)(funcOpts)
 
 
 
-
-	@singleArrayCharts: (funcOpts={}) ->
-		{pres,sectionTitle,json:{data, settings:{chartType,unitNameLabel="科室名"}}} = funcOpts
-		
-		for key, obj of data
-			slide = pres.addSlide({sectionTitle})
-
-			#slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
-			#slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
-			#slide.background = { path: "https://some.url/image.jpg" }  # image: url
-
-			#slide.color = "696969"  # Set slide default font color
-
-			# EX: Styled Slide Numbers
-			slide.slideNumber = { x: "90%", y: "90%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
-			chartData = [
-				{
-					name: key
-					labels: ((if k.length < 7 then k else k[0..5] + k[-1..]) for k, v of obj when k isnt unitNameLabel)[0..11]
-					values: (v for k, v of obj when k isnt unitNameLabel)[0..11]
-				}
-			]
-				
-
-			slide.addChart(pres.ChartType[chartType], chartData, { 
-				x: 0.1, y: 0.1, 
-				w: "95%", h: "90%"
-				showLegend: true, legendPos: 'b'
-				showTitle: true, 
-				title: obj[unitNameLabel] 
-			})
+	@newSlide: (funcOpts={}) ->
 
 
 
@@ -146,14 +115,15 @@ class PPTXGenUtils
 
 
 
+
 	@createPPT: (funcOpts={}) ->
 		{json,generate} = funcOpts
 		pptname = @getPPTFilename(funcOpts)
 		
-		if true #not fs.existsSync pptname
+		if generate? #not fs.existsSync pptname
 			pres = new pptxgen()
 			funcOpts.pres = pres
-			generate?(funcOpts)
+			generate(funcOpts)
 			
 			#// For simple cases, you can omit `then`
 			# pres.writeFile({ fileName: pptname})			
