@@ -103,7 +103,7 @@ class 分析报告 extends CaseSingleton
 
 
 
-  @run: ->
+  @dataPrepare: ->
  
 
 
@@ -145,9 +145,7 @@ class 院内分析报告 extends 分析报告
         for year in years
           key = year
           ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          #console.log {entityName, dataName, year, ownData}
           @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
-          #@dbSave()
     @dbSave()
     console.log "院内分析报告: 指标数据移动完毕"
     return this
@@ -157,12 +155,11 @@ class 院内分析报告 extends 分析报告
 
 
 class 院内专科指标简单排序 extends 院内分析报告
-  @run: ->
+  @dataPrepare: ->
     @dbClear().save()
     year = 院内资料库.years()[0]
     localUnits = 院内资料库.localUnits()
     指标维度 = 指标维度库.dbValue()
-    #console.log ru'n: arr[0] #.unitName
 
     for dataName, dimension of 指标维度 when dataName?
       arr = 院内分析报告.dbAsArray({dataName,key:year})
@@ -182,7 +179,7 @@ class 院内专科指标简单排序 extends 院内分析报告
     {pres} = funcOpts
     chartType = 'bar3d'
     
-    #@run()
+    #@dataPrepare()
     data = @dbValue()
     for indicator, arr of data
       slide = pres.addSlide({@name})
@@ -220,6 +217,24 @@ class 院内专科指标简单排序 extends 院内分析报告
 
 
 class 院内专科指标同向评分 extends 院内分析报告
+  @dataPrepare: ->
+    @dbClear().save()
+    direction = 指标导向库.dbRevertedValue()
+    #@db().default(obj).save()
+    obj = 院内专科指标简单排序.dbValue()
+    for indicator, arr of obj
+      switch 
+        when indicator in direction.逐步提高
+          @dbSet(indicator, arr)
+        when indicator in direction.逐步降低
+          @dbSet(indicator, arr)
+    @dbSave()
+
+    #console.log direction
+
+
+
+
 
 class 院内专科指标评分排序 extends 院内分析报告
 
@@ -258,7 +273,7 @@ class 对标分析报告 extends 分析报告
 
 class 生成器 extends CaseSingleton
 
-  @run: ->
+  @dataPrepare: ->
     this
       .showDBs()
       .readExcel()
@@ -362,34 +377,34 @@ class 生成器 extends CaseSingleton
 
   # 院内专科指标简单排序存储备用
   @simpleLocalIndicatorOrdering: ->
-    院内专科指标简单排序.run()
+    院内专科指标简单排序.dataPrepare()
     return this
 
   
 
   @localIndicatorSameDirection: ->
-    院内专科指标同向评分.run()
+    院内专科指标同向评分.dataPrepare()
     return this
 
 
   @localIndicatorScoreSort: ->
-    院内专科指标评分排序.run()
+    院内专科指标评分排序.dataPrepare()
     return this
 
 
   @localIndicatorRadarChart: ->
-    院内专科指标评分雷达图.run()
+    院内专科指标评分雷达图.dataPrepare()
     return this
 
 
   @localIndicatorBCGChart: ->
-    院内专科BCG散点图.run()
+    院内专科BCG散点图.dataPrepare()
     return this
 
 
 
   @localTeamsTable: ->
-    院内专科梯队表格.run()
+    院内专科梯队表格.dataPrepare()
     return this
 
 
@@ -432,11 +447,21 @@ class 生成器 extends CaseSingleton
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
   #.exportRawDataToReportDB()
+  #.simpleLocalIndicatorOrdering()
+  .localIndicatorSameDirection()
+  #.localIndicatorScoreSort()
+  #.localIndicatorRadarChart()
+  #.localIndicatorBCGChart()
+  #.localTeamsTable()
+  #.localReport()
+  #.compareReport()
+
+
 
 
 #院内分析报告.newReport()
 
-#console.log 院内专科指标简单排序.run()
+#console.log 院内专科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
 
 
@@ -451,20 +476,6 @@ for uname, idx in 院内分析报告.dbDictKeys()
 
 院内分析报告.dbSave()
 ###
-
-# 将资料库转换成为 []
-
-###
-arr = 院内分析报告.dbAsArray()
-console.log arr
-院内分析报告.dbClear().save()
-院内分析报告.dbDefault({data:arr}).save()
-###
-
-# 根据平均住院日 y2018 数据排序
-#院内分析报告.db().get("data").sort((a,b)-> a.平均住院日.y2018 - b.平均住院日.y2018)
-#院内分析报告.dbSave()
-#console.log 院内分析报告.db().get('data').get(0).value().unitName #.平均住院日.y2018
 
 
 
