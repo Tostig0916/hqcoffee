@@ -6,6 +6,10 @@
   ```
     coffee -w cases/goodhostpital2021/testSelf.coffee
   ```
+
+  TODO:
+    医院库和专科库分开?
+    若不分开,每次需要剔除医院
 ###
 util = require 'util'
 path = require 'path'
@@ -51,6 +55,12 @@ class 资料库 extends CaseSingleton
   @years: ->
     院内资料库.years()
 
+
+  @localUnits: ->
+    院内资料库.localUnits()
+
+  @focusUnits: ->
+    对标资料库.dbDictKeys()
 
 
 class 院内资料库 extends 资料库
@@ -109,6 +119,11 @@ class 分析报告 extends CaseSingleton
 
 
 class 排序报告 extends 分析报告
+  @chartType: ->
+    'bar3d'
+
+
+
   @slides: (funcOpts) ->
     {pres} = funcOpts
     chartType = @chartType()
@@ -141,8 +156,15 @@ class 排序报告 extends 分析报告
 
 
 
+
+
+
+
+class 雷达图报告 extends 分析报告
   @chartType: ->
-    'bar3d'
+    'radar'
+
+
 
 
 
@@ -247,8 +269,63 @@ class 院内专科指标评分排序 extends 排序报告
 
 
 
+class 院内专科指标对比雷达图 extends 雷达图报告
 
-class 院内专科指标评分雷达图 extends 院内分析报告
+
+
+
+class 院内专科指标评分雷达图 extends 雷达图报告
+
+
+
+
+# 以指标维度为主体,看相关指标趋势离散度
+class 院内专科维度对比雷达图 extends 雷达图报告
+  ###
+    {
+      dimension: {
+        unitName: {
+          unitName,
+          dimension:[
+            indicator
+          ]
+        }
+      }
+      dimension:{
+        unitName: {
+          unitName,
+          dimension:[
+            indicator
+          ]
+        }
+      }
+    }
+  
+  ###
+  @dataPrepare: ->
+    @dbClear().save()
+    dimensions = 指标维度库.dbValue()
+    focusUnits = 资料库.focusUnits()[1..]
+    obj = 院内专科指标评分排序.dbValue()
+    newObj = {}
+    for indicator, arr of obj
+      dmi = dimensions[indicator]
+      newObj[dmi] = {} 
+      for each in arr 
+        unit = (newObj[dmi][each.unitName] ?= {unitName:each.unitName,dmi:[]})
+        unit.dmi.push(each[indicator])
+    @db().default(newObj).save()
+
+
+
+
+
+# 以专科为单位,各维度雷达图
+class 院内专科维度评分雷达图 extends 雷达图报告
+
+
+
+
 
 class 院内专科BCG散点图 extends 院内分析报告
 
@@ -397,7 +474,7 @@ class 生成器 extends CaseSingleton
 
 
   @localIndicatorRadarChart: ->
-    院内专科指标评分雷达图.dataPrepare()
+    院内专科维度评分雷达图.dataPrepare()
     return this
 
 
@@ -452,7 +529,7 @@ class 生成器 extends CaseSingleton
   #.showMissingIndicatorsOrDataProblems()
   #.exportRawDataToReportDB()
   #.simpleLocalIndicatorOrdering()
-  .localIndicatorScoreSort()
+  #.localIndicatorScoreSort()
   #.localIndicatorRadarChart()
   #.localIndicatorBCGChart()
   #.localTeamsTable()
@@ -461,8 +538,9 @@ class 生成器 extends CaseSingleton
 
 
 
-
-院内分析报告.newReport()
+院内专科维度对比雷达图.dataPrepare()
+#console.log 资料库.focusUnits()[1..9]
+#院内分析报告.newReport()
 
 #console.log 院内专科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
