@@ -212,6 +212,11 @@ class 院内分析报告 extends 分析报告
 
 
 class 院内专科指标简单排序 extends 排序报告
+  @chartType: ->
+    'bar'
+
+
+
   @dataPrepare: ->
     @dbClear().save()
     year = 院内资料库.years()[0]
@@ -231,8 +236,6 @@ class 院内专科指标简单排序 extends 排序报告
 
 
 
-  @chartType: ->
-    'bar'
 
 
 
@@ -250,14 +253,20 @@ class 院内专科指标评分排序 extends 排序报告
     for indicator, arr of obj
       switch 
         when indicator in direction.逐步提高
+          first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
-            unit[indicator] = 100 * unit[indicator] / arr[0][indicator]
+            value = 100 * unit[indicator] / first
+            console.log {bug:"> 100" ,value, first} if value > 101
+            unit[indicator] = value
             unit
           )
         when indicator in direction.逐步降低
           arr.reverse()
+          first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
-            unit[indicator] = 100 * arr[0][indicator] / unit[indicator]
+            value = 100 * first / unit[indicator]
+            console.log {bug:"> 100" ,value, first} if value > 101
+            unit[indicator] = value
             unit
           )
 
@@ -281,40 +290,46 @@ class 院内专科指标评分雷达图 extends 雷达图报告
 
 # 以指标维度为主体,看相关指标趋势离散度
 class 院内专科维度对比雷达图 extends 雷达图报告
-  ###
-    {
-      dimension: {
-        unitName: {
-          unitName,
-          dimension:[
-            indicator
-          ]
-        }
-      }
-      dimension:{
-        unitName: {
-          unitName,
-          dimension:[
-            indicator
-          ]
-        }
-      }
-    }
-  
-  ###
   @dataPrepare: ->
+    console.log("use 院内专科维度评分雷达图 to prepare")
+    return
+
     @dbClear().save()
     dimensions = 指标维度库.dbValue()
     focusUnits = 资料库.focusUnits()[1..]
     obj = 院内专科指标评分排序.dbValue()
+
     newObj = {}
+    # step one: collect all indicators in a dimension
+    # 注意: 这一步还可以根据设置好的指标权重进行预处理
     for indicator, arr of obj
       dmi = dimensions[indicator]
-      newObj[dmi] = {} 
+      newObj[dmi] ?= {} 
       for each in arr 
         unit = (newObj[dmi][each.unitName] ?= {unitName:each.unitName,dmi:[]})
-        unit.dmi.push(each[indicator])
+        unit.dmi.push(each[indicator]) if each[indicator]
+        console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
+    # step two: calculate dimension value
+    
+    for dmName, dmObj of newObj
+      for unitName, unitObj of dmObj
+        {dmi} = unitObj
+        unitObj[dmName] 
+        v = 0
+        v += each for each in dmi
+        s = dmi.length
+        if s > 0
+          unitObj[dmName] = v / s
+        delete(unitObj.dmi)
+    
+    # step three: turning into an ordered array
+      newObj[dmName] = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+
     @db().default(newObj).save()
+
+
+
+
 
 
 
@@ -322,6 +337,51 @@ class 院内专科维度对比雷达图 extends 雷达图报告
 
 # 以专科为单位,各维度雷达图
 class 院内专科维度评分雷达图 extends 雷达图报告
+  @chartType: -> 
+    'radar'
+  
+
+
+  @dataPrepare: ->
+    院内专科维度对比雷达图.dbClear().save()
+    @dbClear().save()
+    dimensions = 指标维度库.dbValue()
+    focusUnits = 资料库.focusUnits()[1..]
+    obj = 院内专科指标评分排序.dbValue()
+
+    newObj = {}
+    compareObj = {}
+    # step one: collect all indicators in a dimension
+    # 注意: 这一步还可以根据设置好的指标权重进行预处理
+    for indicator, arr of obj
+      dmi = dimensions[indicator]
+      newObj[dmi] ?= {} 
+      for each in arr 
+        unit = (newObj[dmi][each.unitName] ?= {unitName:each.unitName,dmi:[]})
+        unit.dmi.push(each[indicator]) if each[indicator]
+        console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
+    # step two: calculate dimension value
+    
+    for dmName, dmObj of newObj
+      for unitName, unitObj of dmObj
+        {dmi} = unitObj
+        unitObj[dmName] 
+        v = 0
+        v += each for each in dmi
+        s = dmi.length
+        if s > 0
+          unitObj[dmName] = v / s
+        delete(unitObj.dmi)
+    
+    # step three: turning into an ordered array
+      compareObj[dmName] = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+
+
+    @db().default(newObj).save()
+    院内专科维度对比雷达图.db().default(compareObj).save()
+
+
+
 
 
 
@@ -360,7 +420,7 @@ class 对标分析报告 extends 分析报告
 
 class 生成器 extends CaseSingleton
 
-  @dataPrepare: ->
+  @run: ->
     this
       .showDBs()
       .readExcel()
@@ -538,7 +598,7 @@ class 生成器 extends CaseSingleton
 
 
 
-院内专科维度对比雷达图.dataPrepare()
+院内专科维度评分雷达图.dataPrepare()
 #console.log 资料库.focusUnits()[1..9]
 #院内分析报告.newReport()
 
