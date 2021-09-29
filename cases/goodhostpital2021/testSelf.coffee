@@ -166,6 +166,9 @@ class 雷达图报告 extends 分析报告
 
 
 class 对比雷达图报告 extends 雷达图报告
+  #@chartType: -> 'line'
+
+
   @slides: (funcOpts) ->
     {pres} = funcOpts
     chartType = @chartType()
@@ -173,33 +176,37 @@ class 对比雷达图报告 extends 雷达图报告
     #@dataPrepare()
     data = @dbValue()
     for indicator, arr of data
-      slide = pres.addSlide({@name})
-      #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
-      #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
-      #slide.background = { path: "https://some.url/image.jpg" }  # image: url
-      #slide.color = "696969"  # Set slide default font color
-      # EX: Styled Slide Numbers
-      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
-      chartData = [
-        {
-          name: '质量安全'
-          labels: arr.map (each,idx)-> each.unitName #data.质量安全.map (each,idx)-> each.unitName
-          values: data.质量安全.map (each,idx)-> each.质量安全 #* 100 / arr[0].质量安全
-        }
-        {
-          name: indicator
-          labels: arr.map (each,idx)-> each.unitName
-          values: arr.map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
-        }
-      ]
-			
-      slide.addChart(pres.ChartType[chartType], chartData, { 
-        x: 0.1, y: 0.1, 
-        w: "95%", h: "90%"
-        showLegend: true, legendPos: 'b'
-        showTitle: true, 
-        title: indicator 
-      })
+      for _indicator, _arr of data when _indicator isnt indicator
+        nar = []
+        arr.map (each, idx) -> 
+          nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
+        slide = pres.addSlide({@name})
+        #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+        #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+        #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+        #slide.color = "696969"  # Set slide default font color
+        # EX: Styled Slide Numbers
+        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        chartData = [
+          {
+            name: indicator
+            labels: arr.map (each,idx)-> each.unitName
+            values: arr.map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
+          }
+          {
+            name: _indicator
+            labels: nar.map (each,idx)-> each.unitName
+            values: nar.map (each,idx)-> each[_indicator] * 100 / _arr[0][_indicator]
+          }
+        ]
+        
+        slide.addChart(pres.ChartType[chartType], chartData, { 
+          x: 0.1, y: 0.1, 
+          w: "95%", h: "90%"
+          showLegend: true, legendPos: 'b'
+          showTitle: true, 
+          title: indicator 
+        })
 
 
 
@@ -248,8 +255,8 @@ class 院内分析报告 extends 分析报告
       #院内专科指标简单排序
       #院内专科指标评分排序
 
-      院内专科维度评分雷达图
       院内专科维度对比雷达图
+      院内专科维度评分雷达图
 
       院内专科BCG散点图
       院内专科梯队表格
