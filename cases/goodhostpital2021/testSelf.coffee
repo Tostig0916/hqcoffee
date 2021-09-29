@@ -182,9 +182,14 @@ class 对比雷达图报告 extends 雷达图报告
       slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
       chartData = [
         {
+          name: '质量安全'
+          labels: arr.map (each,idx)-> each.unitName #data.质量安全.map (each,idx)-> each.unitName
+          values: data.质量安全.map (each,idx)-> each.质量安全 #* 100 / arr[0].质量安全
+        }
+        {
           name: indicator
           labels: arr.map (each,idx)-> each.unitName
-          values: arr.map (each,idx)-> each[indicator]
+          values: arr.map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
         }
       ]
 			
