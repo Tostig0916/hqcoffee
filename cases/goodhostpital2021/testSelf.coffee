@@ -165,6 +165,70 @@ class 雷达图报告 extends 分析报告
     'radar'
 
 
+class 对比雷达图报告 extends 雷达图报告
+  @slides: (funcOpts) ->
+    {pres} = funcOpts
+    chartType = @chartType()
+    
+    #@dataPrepare()
+    data = @dbValue()
+    for indicator, arr of data
+      slide = pres.addSlide({@name})
+      #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+      #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+      #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+      #slide.color = "696969"  # Set slide default font color
+      # EX: Styled Slide Numbers
+      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      chartData = [
+        {
+          name: indicator
+          labels: arr.map (each,idx)-> each.unitName
+          values: arr.map (each,idx)-> each[indicator]
+        }
+      ]
+			
+      slide.addChart(pres.ChartType[chartType], chartData, { 
+        x: 0.1, y: 0.1, 
+        w: "95%", h: "90%"
+        showLegend: true, legendPos: 'b'
+        showTitle: true, 
+        title: indicator 
+      })
+
+
+
+class 专科雷达图报告 extends 雷达图报告
+  @slides: (funcOpts) ->
+    {pres} = funcOpts
+    chartType = @chartType()
+    
+    #@dataPrepare()
+    data = @dbValue()
+    for unitName, arr of data
+      slide = pres.addSlide({@name})
+      #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+      #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+      #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+      #slide.color = "696969"  # Set slide default font color
+      # EX: Styled Slide Numbers
+      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      chartData = [
+        {
+          name: unitName
+          labels: arr.map (each,idx)-> each.dimension
+          values: arr.map (each,idx)-> each[each.dimension]
+        }
+      ]
+			
+      slide.addChart(pres.ChartType[chartType], chartData, { 
+        x: 0.1, y: 0.1, 
+        w: "95%", h: "90%"
+        showLegend: true, legendPos: 'b'
+        showTitle: true, 
+        title: unitName 
+      })
+
 
 
 
@@ -176,9 +240,12 @@ class 院内分析报告 extends 分析报告
 
   @sections: ->
     [
-      院内专科指标简单排序
-      院内专科指标评分排序
-      院内专科指标评分雷达图
+      #院内专科指标简单排序
+      #院内专科指标评分排序
+
+      院内专科维度评分雷达图
+      院内专科维度对比雷达图
+
       院内专科BCG散点图
       院内专科梯队表格
     ]
@@ -248,11 +315,12 @@ class 院内专科指标评分排序 extends 排序报告
   @dataPrepare: ->
     @dbClear().save()
     direction = 指标导向库.dbRevertedValue()
-    #@db().default(obj).save()
     obj = 院内专科指标简单排序.dbValue()
+    #@db().default(obj).save()
     for indicator, arr of obj
       switch 
         when indicator in direction.逐步提高
+          #console.log({indicator, arr})
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * unit[indicator] / first
@@ -278,54 +346,21 @@ class 院内专科指标评分排序 extends 排序报告
 
 
 
-class 院内专科指标对比雷达图 extends 雷达图报告
+class 院内专科指标对比雷达图 extends 对比雷达图报告
 
 
 
 
-class 院内专科指标评分雷达图 extends 雷达图报告
+class 院内专科指标评分雷达图 extends 专科雷达图报告
 
 
 
 
 # 以指标维度为主体,看相关指标趋势离散度
-class 院内专科维度对比雷达图 extends 雷达图报告
+class 院内专科维度对比雷达图 extends 对比雷达图报告
   @dataPrepare: ->
     console.log("use 院内专科维度评分雷达图 to prepare")
     return
-
-    @dbClear().save()
-    dimensions = 指标维度库.dbValue()
-    focusUnits = 资料库.focusUnits()[1..]
-    obj = 院内专科指标评分排序.dbValue()
-
-    newObj = {}
-    # step one: collect all indicators in a dimension
-    # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj
-      dmi = dimensions[indicator]
-      newObj[dmi] ?= {} 
-      for each in arr 
-        unit = (newObj[dmi][each.unitName] ?= {unitName:each.unitName,dmi:[]})
-        unit.dmi.push(each[indicator]) if each[indicator]
-        console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
-    # step two: calculate dimension value
-    
-    for dmName, dmObj of newObj
-      for unitName, unitObj of dmObj
-        {dmi} = unitObj
-        unitObj[dmName] 
-        v = 0
-        v += each for each in dmi
-        s = dmi.length
-        if s > 0
-          unitObj[dmName] = v / s
-        delete(unitObj.dmi)
-    
-    # step three: turning into an ordered array
-      newObj[dmName] = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
-
-    @db().default(newObj).save()
 
 
 
@@ -336,12 +371,7 @@ class 院内专科维度对比雷达图 extends 雷达图报告
 
 
 # 以专科为单位,各维度雷达图
-class 院内专科维度评分雷达图 extends 雷达图报告
-  @chartType: -> 
-    'radar'
-  
-
-
+class 院内专科维度评分雷达图 extends 专科雷达图报告
   @dataPrepare: ->
     院内专科维度对比雷达图.dbClear().save()
     @dbClear().save()
@@ -351,9 +381,10 @@ class 院内专科维度评分雷达图 extends 雷达图报告
 
     newObj = {}
     compareObj = {}
+    selfObj = {}
     # step one: collect all indicators in a dimension
     # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj
+    for indicator, arr of obj when dimensions[indicator]?
       dmi = dimensions[indicator]
       newObj[dmi] ?= {} 
       for each in arr 
@@ -374,10 +405,15 @@ class 院内专科维度评分雷达图 extends 雷达图报告
         delete(unitObj.dmi)
     
     # step three: turning into an ordered array
+        selfObj[unitName] ?= []
+        newUnitObj = {}
+        newUnitObj.dimension = dmName
+        newUnitObj[dmName] = unitObj[dmName]
+        selfObj[unitName].push(newUnitObj)
+
       compareObj[dmName] = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
 
-
-    @db().default(newObj).save()
+    @db().default(selfObj).save()
     院内专科维度对比雷达图.db().default(compareObj).save()
 
 
@@ -589,8 +625,8 @@ class 生成器 extends CaseSingleton
   #.showMissingIndicatorsOrDataProblems()
   #.exportRawDataToReportDB()
   #.simpleLocalIndicatorOrdering()
-  #.localIndicatorScoreSort()
-  #.localIndicatorRadarChart()
+  .localIndicatorScoreSort()
+  .localIndicatorRadarChart()
   #.localIndicatorBCGChart()
   #.localTeamsTable()
   #.localReport()
@@ -598,9 +634,9 @@ class 生成器 extends CaseSingleton
 
 
 
-院内专科维度评分雷达图.dataPrepare()
+#院内专科维度评分雷达图.dataPrepare()
 #console.log 资料库.focusUnits()[1..9]
-#院内分析报告.newReport()
+院内分析报告.newReport()
 
 #console.log 院内专科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
