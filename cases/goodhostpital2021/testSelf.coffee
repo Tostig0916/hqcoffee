@@ -190,13 +190,13 @@ class 对比雷达图报告 extends 雷达图报告
         chartData = [
           {
             name: indicator
-            labels: arr.map (each,idx)-> each.unitName
-            values: arr.map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
+            labels: arr[0..19].map (each,idx)-> each.unitName
+            values: arr[0..19].map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
           }
           {
             name: _indicator
-            labels: nar.map (each,idx)-> each.unitName
-            values: nar.map (each,idx)-> each[_indicator] * 100 / _arr[0][_indicator]
+            labels: nar[0..19].map (each,idx)-> each.unitName
+            values: nar[0..19].map (each,idx)-> each[_indicator] * 100 / _arr[0][_indicator]
           }
         ]
         
