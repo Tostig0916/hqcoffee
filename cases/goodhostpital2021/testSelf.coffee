@@ -191,12 +191,12 @@ class 对比雷达图报告 extends 雷达图报告
           {
             name: indicator
             labels: arr[0..19].map (each,idx)-> each.unitName
-            values: arr[0..19].map (each,idx)-> each[indicator] * 100 / arr[0][indicator]
+            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
           }
           {
             name: _indicator
             labels: nar[0..19].map (each,idx)-> each.unitName
-            values: nar[0..19].map (each,idx)-> each[_indicator] * 100 / _arr[0][_indicator]
+            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
           }
         ]
         
@@ -394,6 +394,7 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
     newObj = {}
     compareObj = {}
     selfObj = {}
+    #self
     # step one: collect all indicators in a dimension
     # 注意: 这一步还可以根据设置好的指标权重进行预处理
     for indicator, arr of obj when dimensions[indicator]?
@@ -423,7 +424,16 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
         newUnitObj[dmName] = unitObj[dmName]
         selfObj[unitName].push(newUnitObj)
 
-      compareObj[dmName] = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+      sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+      compareObj[dmName] = sorted
+      ### 
+      # 不需要比例放大维度分数,各指标分数提高,则维度分数提高,故不比例放大才合乎实际情况
+      first = sorted[0]
+      compareObj[dmName] = sorted.map (each, idx) -> 
+        refined = 100 * each[dmName] / first[dmName]
+        each[dmName] = refined
+        each
+      ### 
 
     @db().default(selfObj).save()
     院内专科维度对比雷达图.db().default(compareObj).save()
@@ -635,8 +645,8 @@ class 生成器 extends CaseSingleton
   #._tryGetSomeData()
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  #.exportRawDataToReportDB()
-  #.simpleLocalIndicatorOrdering()
+  .exportRawDataToReportDB()
+  .simpleLocalIndicatorOrdering()
   .localIndicatorScoreSort()
   .localIndicatorRadarChart()
   #.localIndicatorBCGChart()
@@ -646,7 +656,8 @@ class 生成器 extends CaseSingleton
 
 
 
-#院内专科维度评分雷达图.dataPrepare()
+#
+院内专科维度评分雷达图.dataPrepare()
 #console.log 资料库.focusUnits()[1..9]
 院内分析报告.newReport()
 
