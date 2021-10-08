@@ -62,7 +62,7 @@ if fs.existsSync jsonfilename
 
     # EX: Styled Slide Numbers
     slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 32, color: "FF3399" }
-    dataChartAreaLine = [
+    chartData = [
         {
             name: arr[0].科室名称,
             labels: ["医服收","收合","门收合","住收合"],
@@ -75,11 +75,11 @@ if fs.existsSync jsonfilename
         },
     ]
 
-    slide.addChart(pres.ChartType.radar, dataChartAreaLine, { 
+    slide.addChart(pres.ChartType.radar, chartData, { 
       x: 0, y: "50%", w: '45%', h: "50%" 
       showLegend: true, legendPos: "b"
     })
-    slide.addChart(pres.ChartType.bar, dataChartAreaLine, { 
+    slide.addChart(pres.ChartType.bar, chartData, { 
       x: 5, y: "50%", w: '45%', h: "50%" 
       showLegend: true, legendPos: "b"
       showTitle: true, title: "Bar Chart"

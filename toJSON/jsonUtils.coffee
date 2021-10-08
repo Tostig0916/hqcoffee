@@ -281,12 +281,24 @@ class JSONDatabase extends JSONSimple
 
 
 	# 用于将字典转换成[],以便排序计算等等
-	@dbAsArray: ->
+	@dbAsArray: (funcOpts={}) ->
+		{dataName,key} = funcOpts
 		#({"#{k}": v} for k,v of @dbValue())
 		arr = []
 		for k,v of @dbValue()
-			v.unitName = k
-			arr.push(v)
+			if dataName?
+				obj = {}
+				obj.unitName = k
+				if key?
+					obj[dataName] = v[dataName]?[key]
+				else
+					obj[dataName] = v[dataName]
+			else
+				obj = v
+				obj.unitName = k
+			
+			arr.push(obj)
+			#console.log dbAsArray:v
 		return arr
 
 

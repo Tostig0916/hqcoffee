@@ -31,7 +31,7 @@ funcOpts.generate = (pres) ->
 
     # EX: Styled Slide Numbers
     slide.slideNumber = { x: "90%", y: "90%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
-    dataChartAreaLine = [
+    chartData = [
       {
         name: key
         labels: ((if k.length < 7 then k else k[0..5] + k[-1..]) for k, v of obj when k isnt '科室名')[0..11]
@@ -40,7 +40,7 @@ funcOpts.generate = (pres) ->
     ]
       
 
-    slide.addChart(pres.ChartType.radar, dataChartAreaLine, { 
+    slide.addChart(pres.ChartType.radar, chartData, { 
       x: 0.1, y: 0.1, 
       w: "95%", h: "90%"
       showLegend: true, legendPos: 'b'
