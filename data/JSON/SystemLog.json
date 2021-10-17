@@ -1,1 +1,8 @@
-{"院内资料库":{"求医疗服务收入":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020"},"对标资料库":{"求医疗服务收入":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科均2"}}
+{
+  "院内资料库": {
+    "求医疗服务收入": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020"
+  },
+  "对标资料库": {
+    "求医疗服务收入": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科均2"
+  }
+}
