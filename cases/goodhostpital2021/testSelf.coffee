@@ -279,7 +279,7 @@ class 对比雷达图报告 extends 雷达图报告
           w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
-          title: indicator 
+          title: "#{indicator} vs #{_indicator}" #indicator 
         })
 
 
