@@ -28,7 +28,7 @@ path = require 'path'
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
-    "山东中医药大学"
+    "Good Hospital"
 
 
   # 必须置于此处,以便随客户文件夹而建立数据库文件
@@ -117,6 +117,82 @@ class 分析报告 extends CaseSingleton
  
 
 
+  @slides:(funcOpts) ->
+    {pres} = funcOpts
+    console.log {slides: @name}
+
+
+
+
+
+
+
+class 散点图报告 extends 分析报告
+  @chartType: -> 'scatter' #'line'
+
+
+  @slides: (funcOpts) ->
+    {pres} = funcOpts
+    chartType = @chartType()
+    
+    #@dataPrepare()
+    data = @dbValue()
+    for indicator, arr of data
+      for _indicator, _arr of data when _indicator isnt indicator
+        nar = []
+        arr.map (each, idx) -> 
+          nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
+        slide = pres.addSlide({@name})
+        #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+        #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+        #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+        #slide.color = "696969"  # Set slide default font color
+        # EX: Styled Slide Numbers
+        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        chartData = [
+          {
+            name: _indicator
+            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
+            labels: arr[0..19].map (each,idx)-> "x#{idx}"  #each.unitName
+          }
+          {
+            name: indicator
+            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
+            labels: arr[0..19].map (each,idx)-> "y#{idx}"  #each.unitName
+          }
+        ]
+        
+        slide.addChart(pres.ChartType[chartType], chartData, { 
+          x: 0.1 
+          y: 0.1 
+          w: "95%"
+          h: "95%"
+          showLegend: false, 
+          #legendPos: 'b'
+          
+          showTitle: true, 
+          title: "#{indicator} vs #{_indicator}"
+          
+          valAxisTitle: indicator,
+          valAxisTitleColor: "428442",
+          valAxisTitleFontSize: 10,
+          showValAxisTitle: true,
+          lineSize: 0,
+          
+          catAxisTitle: _indicator,
+          catAxisTitleColor: "428442",
+          catAxisTitleFontSize: 10,
+          showCatAxisTitle: true,
+          
+          showLabel: true, #// Must be set to true or labels will not be shown
+          dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
+          #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
+        })
+
+
+
+
+
 
 class 排序报告 extends 分析报告
   @chartType: ->
@@ -166,8 +242,6 @@ class 雷达图报告 extends 分析报告
 
 
 class 对比雷达图报告 extends 雷达图报告
-  #@chartType: -> 'line'
-
 
   @slides: (funcOpts) ->
     {pres} = funcOpts
@@ -255,8 +329,8 @@ class 院内分析报告 extends 分析报告
       #院内专科指标简单排序
       #院内专科指标评分排序
 
-      院内专科维度对比雷达图
-      院内专科维度评分雷达图
+      #院内专科维度对比雷达图
+      #院内专科维度评分雷达图
 
       院内专科BCG散点图
       院内专科梯队表格
@@ -264,10 +338,6 @@ class 院内分析报告 extends 分析报告
 
 
 
-
-  @slides:(funcOpts) ->
-    {pres} = funcOpts
-    #console.log {slides: @name}
 
 
 
@@ -385,6 +455,7 @@ class 院内专科维度对比雷达图 extends 对比雷达图报告
 # 以专科为单位,各维度雷达图
 class 院内专科维度评分雷达图 extends 专科雷达图报告
   @dataPrepare: ->
+    院内专科BCG散点图.dbClear().save() # 临时测试绘制散点图
     院内专科维度对比雷达图.dbClear().save()
     @dbClear().save()
     dimensions = 指标维度库.dbValue()
@@ -437,6 +508,7 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
 
     @db().default(selfObj).save()
     院内专科维度对比雷达图.db().default(compareObj).save()
+    院内专科BCG散点图.db().default(compareObj).save() # 临时测试绘制散点图
 
 
 
@@ -444,8 +516,12 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
 
 
 
+class 院内专科BCG散点图 extends 散点图报告
+  @dataPrepare: ->
 
-class 院内专科BCG散点图 extends 院内分析报告
+
+
+
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
 
@@ -643,12 +719,16 @@ class 生成器 extends CaseSingleton
   #.readExcel()
   #.showUnitNames()
   #._tryGetSomeData()
+  
   #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
-  .exportRawDataToReportDB()
-  .simpleLocalIndicatorOrdering()
-  .localIndicatorScoreSort()
-  .localIndicatorRadarChart()
+  
+  #.exportRawDataToReportDB()
+  
+  #.simpleLocalIndicatorOrdering()
+  #.localIndicatorScoreSort()
+  #.localIndicatorRadarChart()
+  
   #.localIndicatorBCGChart()
   #.localTeamsTable()
   #.localReport()
