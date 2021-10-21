@@ -239,7 +239,7 @@ class JSONSimple  # with no dependences to stormdb
 		{jsonfilename, isReady} = @jsonfileNeedsNoFix(funcOpts)
 		unless isReady			
 			jsonContent = JSON.stringify(obj)
-			fs.writeFile jsonfilename, jsonContent, 'utf8', (err) ->
+			fs.writeFileSync jsonfilename, jsonContent, 'utf8', (err) ->
 				if err? 
 					console.log(err)
 				else

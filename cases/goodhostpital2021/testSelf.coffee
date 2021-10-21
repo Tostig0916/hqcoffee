@@ -96,6 +96,24 @@ class 对标资料库 extends 资料库
 
 
 class 分析报告 extends CaseSingleton
+
+  @sections: ->
+    [
+      #院内专科指标简单排序
+      #院内专科指标评分排序
+
+      #院内专科维度对比雷达图
+      #院内专科维度评分雷达图
+
+      院内专科BCG散点图
+      院内专科梯队表格
+    ]
+
+
+
+
+
+
   @newReport: ->
     opts = @options()
     opts.generate = (funcOpts) => 
@@ -324,23 +342,6 @@ class 专科雷达图报告 extends 雷达图报告
 
 class 院内分析报告 extends 分析报告
 
-  @sections: ->
-    [
-      #院内专科指标简单排序
-      #院内专科指标评分排序
-
-      #院内专科维度对比雷达图
-      #院内专科维度评分雷达图
-
-      院内专科BCG散点图
-      院内专科梯队表格
-    ]
-
-
-
-
-
-
   @rawDataToIndicators: ->
     @dbClear().save()
     指标维度 = 指标维度库.dbValue()
@@ -397,6 +398,10 @@ class 院内专科指标评分排序 extends 排序报告
   @dataPrepare: ->
     @dbClear().save()
     direction = 指标导向库.dbRevertedValue()
+    console.log {direction}
+    
+    #return null unless direction.逐步提高?
+    
     obj = 院内专科指标简单排序.dbValue()
     #@db().default(obj).save()
     for indicator, arr of obj
@@ -559,11 +564,12 @@ class 生成器 extends CaseSingleton
       .showDBs()
       .readExcel()
       .showUnitNames()
-      ._tryGetSomeData()
+      #._tryGetSomeData()
       .showUnitNames()
       .checkForAllIndicators()
       .showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
+      
       .simpleLocalIndicatorOrdering()
       .localIndicatorScoreSort()
       .localIndicatorRadarChart()
@@ -571,7 +577,6 @@ class 生成器 extends CaseSingleton
       .localTeamsTable()
       .localReport()
       .compareReport()
-
 
 
 
@@ -712,7 +717,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-#生成器.run()
+生成器.run()
 
 生成器
   #.showDBs()
@@ -737,9 +742,9 @@ class 生成器 extends CaseSingleton
 
 
 #
-院内专科维度评分雷达图.dataPrepare()
+#院内专科维度评分雷达图.dataPrepare()
 #console.log 资料库.focusUnits()[1..9]
-院内分析报告.newReport()
+#院内分析报告.newReport()
 
 #console.log 院内专科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
