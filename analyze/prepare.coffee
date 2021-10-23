@@ -4,7 +4,7 @@ class DataManagerBase
     # read data from dictionary
     # funcOpts should include the name of indicator you want to read out
     @getData: (funcOpts={}) ->
-      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
+      {entityName, dataName, key, dictionary, dbItem, log_db, regest_db} = funcOpts
       if key?
         @getDataWithKey(funcOpts)
       else
@@ -14,9 +14,9 @@ class DataManagerBase
 
 
     @getDataDirectly: (funcOpts={}) ->
-      {entityName, dataName, dictionary, storm_db, log_db, regest_db} = funcOpts
+      {entityName, dataName, dictionary, dbItem, log_db, regest_db} = funcOpts
 
-      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? @tryCalculating(funcOpts)
+      data = dictionary?[dataName] ? dbItem?.get(dataName)?.value() ? @tryCalculating(funcOpts)
       return data
 
 
@@ -24,18 +24,18 @@ class DataManagerBase
     # 例如某数据行,有对标对象或年份不同,这些作为key来区分,很常用,也可能是最容易解决的方式
     @getDataWithKey: (funcOpts={}) ->
       # informal 是指医院该填写的数据没有填写,尝试计算解决,但仅可偶尔使用,因增加了程序复杂性,易错
-      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db, informal=false} = funcOpts
+      {entityName, dataName, key, dictionary, dbItem, log_db, regest_db, informal=false} = funcOpts
 
       switch
         when dictionary? and dictionary[dataName]? and dictionary[dataName][key]?
           dictionary[dataName][key]
         
         # 客户应填数据未填,尝试通过计算获得.此为非常规操作,尽量避免,设置informal为no
-        when informal and storm_db? and storm_db.get(dataName)?.value() and storm_db.get(dataName).get(key)?.value()
-          storm_db.get(dataName).get(key).value()
+        when informal and dbItem? and dbItem.get(dataName)?.value() and dbItem.get(dataName).get(key)?.value()
+          dbItem.get(dataName).get(key).value()
         
-        when storm_db? and storm_db.get(dataName)?.value()?
-          storm_db.get(dataName).get(key).value()
+        when dbItem? and dbItem.get(dataName)?.value()?
+          dbItem.get(dataName).get(key).value()
 
         else
           @tryCalculating(funcOpts)
@@ -66,8 +66,8 @@ class DataManagerBase
 
     # don't change, almost correct!
     @getData_origin: (funcOpts={}) ->
-      {entityName, dataName, key, dictionary, storm_db, log_db, regest_db} = funcOpts
-      data = dictionary?[dataName] ? storm_db?.get(dataName)?.value() ? \
+      {entityName, dataName, key, dictionary, dbItem, log_db, regest_db} = funcOpts
+      data = dictionary?[dataName] ? dbItem?.get(dataName)?.value() ? \
         try
           funcName = @_funcName(funcOpts)
           this[funcName](funcOpts)
@@ -143,15 +143,13 @@ class DataManager extends DataManagerBase
     @求SCI平均影响因子: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     
     
-    @求病理医师占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
-      ###
+    @求病理医师占比: (funcOpts={}) -> #Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
       funcOpts.dataName = "病理医师人数"
       病理医师人数 = @getData(funcOpts)
       funcOpts.dataName = "医师人数"
       医师人数 = @getData(funcOpts)
       
       return 病理医师人数 / 医师人数 * 100
-      ###
 
 
     @求博士研究生导师占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
@@ -232,6 +230,9 @@ class DataManager extends DataManagerBase
     @求下转患者人次数: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医床比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医护比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+    求医疗服务收入: (funcOpts={})-> Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020",
+    求医疗服务收入三年复合增长率: (funcOpts={})-> Math.random();@toBeImplemented(funcOpts) # 医院Y2020",
+    求医疗服务收入在全院医疗服务收入中的比重: (funcOpts={})-> Math.random();@toBeImplemented(funcOpts) # 医院Y2020"
     @求医疗服务收入占医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医疗机构中药制剂收入占药品收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     @求医疗收入增幅: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"

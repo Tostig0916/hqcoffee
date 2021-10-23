@@ -223,7 +223,8 @@ class AnyCaseSingleton extends AnySingleton
   @getData: (funcOpts) ->
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName} = funcOpts
-    funcOpts.storm_db = @db().get(entityName)
+    funcOpts.storm_db = @db()
+    funcOpts.dbItem = @db().get(entityName)
     funcOpts.regest_db = 缺漏追踪库.db()
     funcOpts.log_db = @logdb() #SystemLog.db().get(@name)
     DataManager.getData(funcOpts)
