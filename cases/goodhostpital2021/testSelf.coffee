@@ -105,8 +105,8 @@ class 分析报告 extends CaseSingleton
       #院内专科维度对比雷达图
       #院内专科维度评分雷达图
 
-      院内专科BCG散点图
-      院内专科梯队表格
+      #院内专科BCG散点图
+      #院内专科梯队表格
     ]
 
 
@@ -349,8 +349,8 @@ class 院内分析报告 extends 分析报告
       #院内专科维度对比雷达图
       #院内专科维度评分雷达图
 
-      院内专科BCG散点图
-      院内专科梯队表格
+      #院内专科BCG散点图
+      #院内专科梯队表格
     ]
 
   @rawDataToIndicators: ->
@@ -548,6 +548,18 @@ class 院内专科梯队表格 extends 院内分析报告
 
 
 class 对标分析报告 extends 分析报告
+  @sections: ->
+    [
+      #院内专科指标简单排序
+      #院内专科指标评分排序
+
+      #院内专科维度对比雷达图
+      #院内专科维度评分雷达图
+
+      院内专科BCG散点图
+      院内专科梯队表格
+    ]
+
   @rawDataToIndicators: ->
     @dbClear().save()
     units = 对标资料库.dbDictKeys()
