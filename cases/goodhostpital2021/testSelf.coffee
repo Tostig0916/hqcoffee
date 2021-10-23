@@ -341,6 +341,17 @@ class 专科雷达图报告 extends 雷达图报告
 
 
 class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      院内专科指标简单排序
+      院内专科指标评分排序
+
+      #院内专科维度对比雷达图
+      #院内专科维度评分雷达图
+
+      院内专科BCG散点图
+      院内专科梯队表格
+    ]
 
   @rawDataToIndicators: ->
     @dbClear().save()
