@@ -15,18 +15,17 @@
    1. 图表嵌入PPT
    2. 根据数据分析结果自动制作Word文档
 
-
 ### 经过试用，较好的库
 
-1. Excel-JSON 互相转化，读入输出Excel文件： 
-   1. convert-excel-to-json 
+1. Excel-JSON 互相转化，读入输出Excel文件：
+   1. convert-excel-to-json
    2. json-as-xlsx
+   3. alasql <https://github.com/agershun/alasql> in memory database, using SQL
 2. PPT程序化制作
    1. pptxgenjs 排版需要探索功能究竟有多强，图形较全
    2. officegen 存在bug故暂时不好用
-3. Word、PDF、md等文件格式生成和转换 
+3. Word、PDF、md等文件格式生成和转换
    1. pandoc
-
 
 ### 注意事项
 
@@ -45,7 +44,6 @@
 
    世卫 IDC-11 <http://www.nhc.gov.cn/ewebeditor/uploadfile/2018/12/20181221160228191.xlsx>
 
-
 ### 其他
 
-https://youtu.be/2LhoCfjm8R4
+<https://youtu.be/2LhoCfjm8R4>
