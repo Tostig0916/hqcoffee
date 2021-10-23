@@ -1,1 +1,12 @@
-{"院内资料库":{"求医疗服务收入":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020","求医疗服务收入三年复合增长率":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020","求医疗服务收入在全院医疗服务收入中的比重":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020"},"对标资料库":{"求医疗服务收入":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科均2","求医疗服务收入三年复合增长率":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2","求医疗服务收入在全院医疗服务收入中的比重":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2"}}
+{
+  "院内资料库": {
+    "求医疗服务收入": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020",
+    "求医疗服务收入三年复合增长率": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020",
+    "求医疗服务收入在全院医疗服务收入中的比重": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020"
+  },
+  "对标资料库": {
+    "求医疗服务收入": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科均2",
+    "求医疗服务收入三年复合增长率": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2",
+    "求医疗服务收入在全院医疗服务收入中的比重": "(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2"
+  }
+}

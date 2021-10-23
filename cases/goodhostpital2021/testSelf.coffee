@@ -347,7 +347,9 @@ class 院内分析报告 extends 分析报告
     指标维度 = 指标维度库.dbValue()
     years = 院内资料库.years()
     units = 院内资料库.localUnits()
+    
     informal = true
+
     for dataName, dimension of 指标维度 when dataName?
       for entityName in units 
         for year in years
@@ -540,7 +542,9 @@ class 对标分析报告 extends 分析报告
     units = 对标资料库.dbDictKeys()
     指标维度 = 指标维度库.dbValue()
     对标项 = ['均1','均2','某A','某B']
+    
     informal = true
+
     for dataName, dimension of 指标维度 when dataName?     
       for entityName in units
         for item in 对标项
@@ -626,7 +630,9 @@ class 生成器 extends CaseSingleton
     缺漏追踪库.dbClear().save()
 
     指标维度 = 指标维度库.dbValue()
+
     informal = true
+    
     k1 = 'Y2020'
     k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
