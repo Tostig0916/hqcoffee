@@ -189,7 +189,7 @@ class DataManager extends DataManagerBase
   @求护理人员系统接受中医药知识和技能培训比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求基本药物采购金额占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求基本药物采购品种数占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
-  @求检查收入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+  @求检查检验收入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求抗菌药物费用占药费总额的百分率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
   @求抗菌药物使用强度DDDs: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求理法方药使用一致的出院患者比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
@@ -278,7 +278,7 @@ class DataManager extends DataManagerBase
 
 
 
-  @求医疗服务收入在全院医疗服务收入中的比重: (funcOpts={})-> #Math.random() #@toBeImplemented(funcOpts) # 医院Y2020"
+  @求医疗服务收入占全院比重: (funcOpts={})-> #Math.random() #@toBeImplemented(funcOpts) # 医院Y2020"
     funcOpts.dataName = '医疗服务收入' 
     医疗服务收入 = @getData(funcOpts)
     funcOpts.dbItem = funcOpts.storm_db.get('医院')

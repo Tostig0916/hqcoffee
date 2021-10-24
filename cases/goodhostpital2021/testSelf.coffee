@@ -11,8 +11,11 @@
     医院库和专科库分开?
     若不分开,每次需要剔除医院
 ###
+
+alasql = require 'alasql'
 util = require 'util'
 path = require 'path'
+
 
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 
@@ -396,7 +399,7 @@ class 院内专科指标评分排序 extends 排序报告
   @dataPrepare: ->
     @dbClear().save()
     direction = 指标导向库.dbRevertedValue()
-    console.log {direction}
+    # console.log {direction}
     
     #return null unless direction.逐步提高?
     
@@ -458,7 +461,7 @@ class 院内专科维度对比雷达图 extends 对比雷达图报告
 # 以专科为单位,各维度雷达图
 class 院内专科维度评分雷达图 extends 专科雷达图报告
   @dataPrepare: ->
-    院内专科BCG散点图.dbClear().save() # 临时测试绘制散点图
+    院内专科维度对比散点图.dbClear().save() # 临时测试绘制散点图
     院内专科维度对比雷达图.dbClear().save()
     @dbClear().save()
     dimensions = 指标维度库.dbValue()
@@ -511,16 +514,41 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
 
     @db().default(selfObj).save()
     院内专科维度对比雷达图.db().default(compareObj).save()
-    院内专科BCG散点图.db().default(compareObj).save() # 临时测试绘制散点图
+    院内专科维度对比散点图.db().default(compareObj).save() # 临时测试绘制散点图
 
 
 
+
+
+
+class 院内专科维度对比散点图 extends 散点图报告
+  @dataPrepare: ->
+
+
+
+
+
+class 院内专科维度评分散点图 extends 散点图报告
+  @dataPrepare: ->
 
 
 
 
 class 院内专科BCG散点图 extends 散点图报告
   @dataPrepare: ->
+    @dbClear().save()
+    
+    obj = 院内专科指标简单排序.dbValue()
+    selfObj = {}
+    #@db().default(obj).save()
+    for indicator, arr of obj when indicator in [
+      '医疗服务收入三年复合增长率'
+      '医疗服务收入占全院比重'
+    ]
+      selfObj[indicator] = arr
+
+    @db().default(selfObj).save()
+
 
 
 
@@ -573,11 +601,10 @@ class 生成器 extends CaseSingleton
 
   @run: ->
     this
-      .showDBs()
+      #.showDBs()
       .readExcel()
-      .showUnitNames()
+      #.showUnitNames()
       #._tryGetSomeData()
-      .showUnitNames()
       .checkForAllIndicators()
       .showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
@@ -594,7 +621,7 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
-    console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
+    #console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
     v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
     return this
 
