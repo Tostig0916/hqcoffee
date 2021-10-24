@@ -47,3 +47,4 @@
 ### 其他
 
 <https://youtu.be/2LhoCfjm8R4>
+sql 99 tutorial <https://crate.io/docs/sql-99/en/latest/> 
