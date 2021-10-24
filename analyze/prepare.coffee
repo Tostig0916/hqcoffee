@@ -1,8 +1,12 @@
 
 
 class DataManagerBase
-  @ratio: (startV, endV, n) -> 
-    100 * Math.pow(endV/startV, 1/n) - 100
+  @ratio: (startV, endV, n) ->
+    if convinient = true
+      # 便于评分,保持正数
+      Math.pow(endV/startV, 1/n)
+    else 
+      100 * Math.pow(endV/startV, 1/n) - 100
   
 
   # read data from dictionary
