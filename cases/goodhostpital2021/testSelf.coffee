@@ -171,12 +171,12 @@ class 散点图报告 extends 分析报告
           {
             name: _indicator
             values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
-            labels: arr[0..19].map (each,idx)-> "x#{idx}"  #each.unitName
+            #labels: arr[0..19].map (each,idx)-> each.unitName
           }
           {
             name: indicator
             values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
-            labels: arr[0..19].map (each,idx)-> "y#{idx}"  #each.unitName
+            labels: arr[0..19].map (each,idx)-> each.unitName
           }
         ]
         
