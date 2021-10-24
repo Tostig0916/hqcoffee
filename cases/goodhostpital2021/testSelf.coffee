@@ -97,23 +97,6 @@ class 对标资料库 extends 资料库
 
 class 分析报告 extends CaseSingleton
 
-  @sections: ->
-    [
-      #院内专科指标简单排序
-      #院内专科指标评分排序
-
-      #院内专科维度对比雷达图
-      #院内专科维度评分雷达图
-
-      #院内专科BCG散点图
-      #院内专科梯队表格
-    ]
-
-
-
-
-
-
   @newReport: ->
     opts = @options()
     opts.generate = (funcOpts) => 
@@ -124,8 +107,10 @@ class 分析报告 extends CaseSingleton
       # slides in sections
       for section in @sections()
         # slide section could be added from key
-        pres.addSection({title: section.name})
-        section.slides({pres})
+        sectionTitle = section.name
+
+        pres.addSection({title: sectionTitle})
+        section.slides({pres, sectionTitle})
 
     MakePPTReport.newReport(opts)
 
@@ -136,8 +121,8 @@ class 分析报告 extends CaseSingleton
 
 
   @slides:(funcOpts) ->
-    {pres} = funcOpts
-    console.log {slides: @name}
+    {pres, sectionTitle} = funcOpts
+    console.log {slides: sectionTitle}
 
 
 
@@ -150,7 +135,7 @@ class 散点图报告 extends 分析报告
 
 
   @slides: (funcOpts) ->
-    {pres} = funcOpts
+    {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
     #@dataPrepare()
@@ -160,7 +145,7 @@ class 散点图报告 extends 分析报告
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
-        slide = pres.addSlide({@name})
+        slide = pres.addSlide({sectionTitle})
         #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
         #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
@@ -219,13 +204,13 @@ class 排序报告 extends 分析报告
 
 
   @slides: (funcOpts) ->
-    {pres} = funcOpts
+    {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
     #@dataPrepare()
     data = @dbValue()
     for indicator, arr of data
-      slide = pres.addSlide({@name})
+      slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
@@ -262,7 +247,7 @@ class 雷达图报告 extends 分析报告
 class 对比雷达图报告 extends 雷达图报告
 
   @slides: (funcOpts) ->
-    {pres} = funcOpts
+    {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
     #@dataPrepare()
@@ -272,7 +257,7 @@ class 对比雷达图报告 extends 雷达图报告
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
-        slide = pres.addSlide({@name})
+        slide = pres.addSlide({sectionTitle})
         #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
         #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
@@ -304,13 +289,13 @@ class 对比雷达图报告 extends 雷达图报告
 
 class 专科雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
-    {pres} = funcOpts
+    {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
     #@dataPrepare()
     data = @dbValue()
     for unitName, arr of data
-      slide = pres.addSlide({@name})
+      slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
