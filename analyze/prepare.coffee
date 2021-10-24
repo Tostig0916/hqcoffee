@@ -147,14 +147,15 @@ class DataManager extends DataManagerBase
   @求SCI平均影响因子: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   
   
-  @求病理医师占比: (funcOpts={}) -> #Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+  @求病理医师占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+    ###
     funcOpts.dataName = "病理医师人数"
     病理医师人数 = @getData(funcOpts)
     funcOpts.dataName = "医师人数"
     医师人数 = @getData(funcOpts)
     
     return 病理医师人数 / 医师人数 * 100
-
+    ###
 
   @求博士研究生导师占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
     
@@ -235,7 +236,8 @@ class DataManager extends DataManagerBase
   @求医床比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求医护比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   
-  @求医疗服务收入: (funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 心血管内科Y2020",
+  @求医疗服务收入: (funcOpts={})-> Math.random() #@toBeImplemented(funcOpts) # 心血管内科Y2020",
+    ###
     funcOpts.dataName = '医疗收入' 
     医疗收入 = @getData(funcOpts)
     funcOpts.dataName = '药品收入' 
@@ -245,9 +247,9 @@ class DataManager extends DataManagerBase
     funcOpts.dataName = '检查检验收入' 
     检查检验收入 = @getData(funcOpts)
     医疗收入 - 药品收入 - 耗材收入 - 检查检验收入
+    ###
 
-
-  @求医疗服务收入三年复合增长率: (funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020",
+  @求医疗服务收入三年复合增长率: (funcOpts={})-> #Math.random() #@toBeImplemented(funcOpts) # 医院Y2020",
     funcOpts.dataName = '医疗服务收入' 
     今医疗服务收入 = @getData(funcOpts)
     
@@ -272,7 +274,7 @@ class DataManager extends DataManagerBase
 
 
 
-  @求医疗服务收入在全院医疗服务收入中的比重: (funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020"
+  @求医疗服务收入在全院医疗服务收入中的比重: (funcOpts={})-> #Math.random() #@toBeImplemented(funcOpts) # 医院Y2020"
     funcOpts.dataName = '医疗服务收入' 
     医疗服务收入 = @getData(funcOpts)
     funcOpts.dbItem = funcOpts.storm_db.get('医院')
@@ -280,13 +282,14 @@ class DataManager extends DataManagerBase
     return 医疗服务收入 / 全院医疗服务收入 * 100
 
 
-  @求医疗服务收入占医疗收入比例: (funcOpts={}) -> #Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+  @求医疗服务收入占医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
+    ###
     funcOpts.dataName = '医疗收入' 
     医疗收入 = @getData(funcOpts)
     funcOpts.dataName = '医疗服务收入' 
     医疗服务收入 = @getData(funcOpts)
     医疗服务收入 / 医疗收入 * 100 - 100
-
+    ###
 
 
   @求医疗机构中药制剂收入占药品收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
