@@ -29,6 +29,8 @@ path = require 'path'
   名字ID库
 } = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
 
+
+
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
     "Good Hospital"
