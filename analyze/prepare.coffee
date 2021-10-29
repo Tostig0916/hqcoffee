@@ -221,7 +221,6 @@ class DataManager extends DataManagerBase
   @求门诊患者中药饮片使用率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求门诊散装中药饮片和小包装中药饮片处方比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
   @求门诊收入占医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
-  @求门诊收入中来自医保基金的比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求门诊中药处方比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求门诊中医医疗服务项目收入占门诊医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求人才培养经费投入占比: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
@@ -298,7 +297,6 @@ class DataManager extends DataManagerBase
 
   @求医疗机构中药制剂收入占药品收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求医疗收入增幅: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
-  @求医疗收入中来自医保基金的比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求医疗盈余率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求医务人员满意度: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求医院感染发生率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
@@ -321,7 +319,6 @@ class DataManager extends DataManagerBase
   @求住院患者31天非计划再返率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求住院患者基本药物使用率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
   @求住院收入占医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
-  @求住院收入中来自医保基金的比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求住院手术患者围手术期中医治疗比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 心血管内科Y2020"
   @求住院中医医疗服务项目收入占住院医疗收入比例: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"
   @求资产负债率: (funcOpts={}) -> Math.random()*100  #@toBeImplemented(funcOpts)  # 医院Y2020"

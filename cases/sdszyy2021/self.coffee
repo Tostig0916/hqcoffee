@@ -31,7 +31,7 @@ class CaseSingleton extends AnyCaseSingleton
       sheetStubs: true
       needToRewrite: true #true
       unwrap: true 
-      refining: @normalKeyName
+      renaming: @normalKeyName
     }
 
 

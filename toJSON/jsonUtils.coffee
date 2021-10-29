@@ -102,7 +102,7 @@ class JSONSimple  # with no dependences to stormdb
 		
 		# 设置主键名,一般可作为第一列字段名,后面的字段看成是改名称object的属性
 		# key、value 一对生成简单字典型的JSON，unwrap参数设置为true
-		{mainKeyName="数据名", unwrap=false,refining} = funcOpts
+		{mainKeyName="数据名", unwrap=false,renaming} = funcOpts
 
 		# 每sheet
 		for shnm, rows of source
@@ -127,8 +127,8 @@ class JSONSimple  # with no dependences to stormdb
 					#	console.log("清除废数据行", rowObj)
 
 					else
-						if refining?
-							mainKey = refining({mainKey})
+						if renaming?
+							mainKey = renaming({mainKey})
 							rowObj[mainKeyName] = mainKey
 						
 						switch #isnt "undefined"
@@ -227,6 +227,7 @@ class JSONSimple  # with no dependences to stormdb
 			settings.fileName = ff
 			xlsx(data, settings)
 			console.log path.basename(settings.fileName), "saved at #{new Date()}"
+			#console.log settings.fileName, "saved at #{new Date()}"
 
 
 

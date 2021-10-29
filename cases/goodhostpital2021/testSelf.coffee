@@ -41,6 +41,10 @@ class CaseSingleton extends AnyCaseSingleton
     path.join __dirname, "#{@name}.json"
 
   
+
+
+class FormatedCaseSingleton extends CaseSingleton
+
   @options: ->
     @_options ?= {
       dirname: __dirname
@@ -51,12 +55,12 @@ class CaseSingleton extends AnyCaseSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true 
-      refining: @normalKeyName
+      renaming: @normalKeyName
     }
 
 
 
-class 资料库 extends CaseSingleton
+class 资料库 extends FormatedCaseSingleton 
   @years: ->
     院内资料库.years()
 
@@ -100,7 +104,7 @@ class 对标资料库 extends 资料库
 
 
 
-class 分析报告 extends CaseSingleton
+class 分析报告 extends FormatedCaseSingleton
 
   @newReport: ->
     opts = @options()
@@ -557,6 +561,10 @@ class 院内专科BCG散点图 extends 散点图报告
 
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
+
+
+
+
 
 class 院内专科梯队表格 extends 院内分析报告
   

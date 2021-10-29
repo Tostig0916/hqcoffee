@@ -45,6 +45,7 @@ class AnySingleton extends JSONUtils
     
 
   @_addPairs: (funcOpts={}) ->
+    # keep 则保存json 文件
     {dict,keep=false} = funcOpts
     @fetchSingleJSON(funcOpts)
     for key, value of dict when key isnt value
@@ -90,6 +91,7 @@ class AnySingleton extends JSONUtils
 
 
   @normalKeyName: ({mainKey}) =>
+    # keep 则保存json文件
     newName = 别名库.ajustedName({name:mainKey,keep:true})
     #console.log({mainKey,newName}) if /包括药剂师和临床药师/i.test(mainKey)
     newName
@@ -128,7 +130,7 @@ class AnyGlobalSingleton extends AnySingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false 
-      refining: @normalKeyName
+      renaming: @normalKeyName
     }
 
 
@@ -159,7 +161,7 @@ class 别名库 extends AnyGlobalSingleton
           name
 
 
-
+  # 别名库自己无须改名
   @normalKeyName: ({mainKey}) =>
     return mainKey
 
@@ -176,7 +178,7 @@ class 别名库 extends AnyGlobalSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true #false 
-      refining: @normalKeyName
+      renaming: @normalKeyName
     }
     ###
     super().needToRewrite = false

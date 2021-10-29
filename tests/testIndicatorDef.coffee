@@ -17,7 +17,12 @@ arrayOfDefs = (funcOpts) ->
   }
   dictionary = IndicatorDef.fromMannualFile(funcOpts)
   arr = (v.description() for k, v of dictionary)
+  return {arr, dictionary}
 
+
+
+inspect = (funcOpts) ->
+  {arr} =  arrayOfDefs(funcOpts)
   vector = 0
   jc = 0
   for each in arr
@@ -25,14 +30,13 @@ arrayOfDefs = (funcOpts) ->
     jc++ if /监测:true/.test each
 
   console.log "共#{IndicatorDefInfoByVersion.versionCount()}个版本，#{arr.length}个指标，其中#{vector}个可评价指标, #{jc}个国家监测指标"
-  #return {arr, dictionary}
 
 
 module.exports = arrayOfDefs
 
 
 
-arrayOfDefs({year:2020})  
+inspect({year:2020})  
 
 
 
