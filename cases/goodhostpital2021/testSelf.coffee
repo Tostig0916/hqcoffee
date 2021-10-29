@@ -484,24 +484,28 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
     # step one: collect all indicators in a dimension
     # 注意: 这一步还可以根据设置好的指标权重进行预处理
     for indicator, arr of obj when dimensions[indicator]?
-      dmi = dimensions[indicator]
-      newObj[dmi] ?= {} 
+      dmName = dimensions[indicator]
+      newObj[dmName] ?= {} 
       for each in arr 
-        unit = (newObj[dmi][each.unitName] ?= {unitName:each.unitName,dmi:[]})
-        unit.dmi.push(each[indicator]) if each[indicator]
+        unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
+        w = switch indicator
+          when '医疗服务收入三年复合增长率' then 0.382 * 2
+          when '医疗服务收入占全院比重' then 0.618 * 2
+          else 1
+        unit.dmis.push(w * each[indicator]) if each[indicator]
         console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
     # step two: calculate dimension value
     
     for dmName, dmObj of newObj
       for unitName, unitObj of dmObj
-        {dmi} = unitObj
-        unitObj[dmName] 
+        {dmis} = unitObj
+        #unitObj[dmName] 
         v = 0
-        v += each for each in dmi
-        s = dmi.length
+        v += each for each in dmis
+        s = dmis.length
         if s > 0
           unitObj[dmName] = v / s
-        delete(unitObj.dmi)
+        delete(unitObj.dmis)
     
     # step three: turning into an ordered array
         selfObj[unitName] ?= []
