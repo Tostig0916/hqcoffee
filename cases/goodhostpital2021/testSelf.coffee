@@ -135,12 +135,17 @@ class 对标指标资料库 extends 资料库
     @dbClear().save()
     units = 对标资料库.dbDictKeys()
     指标维度 = 指标维度库.dbValue()
+    院内指标资料 = 院内指标资料库.dbValue()
+
     对标项 = ['均1','均2','某A','某B']
     
     informal = true
 
     for dataName, dimension of 指标维度 when dataName?     
       for entityName in units
+        for year, value of 院内指标资料[entityName][dataName]
+          @dbSet("#{entityName}.#{dataName}.#{year}", value)
+
         for item in 对标项
           key = item
           otherData = 对标资料库.getData({entityName, dataName, key, informal})
