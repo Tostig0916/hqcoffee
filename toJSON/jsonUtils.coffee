@@ -222,7 +222,7 @@ class JSONSimple  # with no dependences to stormdb
 		unless isReady
 			{data,settings} = funcOpts
 			funcOpts.basenameOnly = true
-			funcOpts.outfolder = "outputs"
+			funcOpts.outfolder ?= "outputs"
 			ff = @getExcelFilename(funcOpts)
 			settings.fileName = ff
 			xlsx(data, settings)

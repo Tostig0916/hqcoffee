@@ -1,6 +1,8 @@
 alasql = require 'alasql'
 # from json
 
+# this lib has too many issues
+
 alasql.promise([
     "select * from json('./SystemLog')"
 ]).then((results)->
