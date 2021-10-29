@@ -20,7 +20,7 @@ testLog = ->
 
 testLog()
 
-#指标维度库.fetchSingleJSON()
-#console.log 指标维度库.reversedJSON()
+指标维度库.fetchSingleJSON()
+console.log 指标维度库.reversedJSON()
 #console.log 别名库.fetchSingleJSON()
 

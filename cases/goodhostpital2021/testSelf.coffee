@@ -71,6 +71,9 @@ class 资料库 extends FormatedCaseSingleton
   @focusUnits: ->
     对标资料库.dbDictKeys()
 
+  @指标维度列表: ->
+    指标维度库.dbRevertedValue()
+
 
 class 院内资料库 extends 资料库
   @localUnits: ->
@@ -615,6 +618,7 @@ class 生成器 extends CaseSingleton
       .readExcel()
       #.showUnitNames()
       #._tryGetSomeData()
+      .showDimensions()
       .checkForAllIndicators()
       .showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
@@ -666,6 +670,10 @@ class 生成器 extends CaseSingleton
     return this
 
 
+
+  @showDimensions: ->
+    console.log 指标维度库.dbRevertedValue()
+    return this
 
 
   # 筛查数据
