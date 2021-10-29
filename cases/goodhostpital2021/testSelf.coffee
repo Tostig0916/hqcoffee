@@ -488,11 +488,11 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
       newObj[dmName] ?= {} 
       for each in arr 
         unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
-        w = switch indicator
+        weight = switch indicator
           when '医疗服务收入三年复合增长率' then 0.382 * 2
           when '医疗服务收入占全院比重' then 0.618 * 2
           else 1
-        unit.dmis.push(w * each[indicator]) if each[indicator]
+        unit.dmis.push(weight * each[indicator]) if each[indicator]
         console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
     # step two: calculate dimension value
     
