@@ -107,6 +107,55 @@ class 对标资料库 extends 资料库
 
 
 
+class 院内指标资料库 extends 资料库
+
+  @rawDataToIndicators: ->
+    @dbClear().save()
+    指标维度 = 指标维度库.dbValue()
+    years = 院内资料库.years()
+    units = 院内资料库.localUnits()
+    
+    informal = true
+
+    for dataName, dimension of 指标维度 when dataName?
+      for entityName in units 
+        for year in years
+          key = year
+          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
+    @dbSave()
+    console.log "院内指标资料库: 指标数据移动完毕"
+    return this
+
+
+
+class 对标指标资料库 extends 资料库
+
+  @rawDataToIndicators: ->
+    @dbClear().save()
+    units = 对标资料库.dbDictKeys()
+    指标维度 = 指标维度库.dbValue()
+    对标项 = ['均1','均2','某A','某B']
+    
+    informal = true
+
+    for dataName, dimension of 指标维度 when dataName?     
+      for entityName in units
+        for item in 对标项
+          key = item
+          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
+    
+    @dbSave()
+    console.log "对标指标资料库: 指标数据移动完毕"
+    return this    
+
+
+
+
+
+
+
 class 分析报告 extends FormatedCaseSingleton
 
   @newReport: ->
@@ -138,6 +187,45 @@ class 分析报告 extends FormatedCaseSingleton
 
 
 
+
+
+
+
+class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      院内专科BCG散点图
+      院内专科梯队表格
+      
+      #院内各科指标轮比雷达图
+      #院内单科多指标评分雷达图
+
+
+      院内各科维度轮比雷达图
+      院内单科多维度评分雷达图
+
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      院内各科维度轮比散点图
+   ]
+
+
+
+
+
+
+class 对标分析报告 extends 分析报告
+  @sections: ->
+    [
+      #院内各科指标简单排序
+      #院内各科指标评分排序
+
+      #院内各科维度轮比雷达图
+      #院内单科多维度评分雷达图
+
+      院内专科BCG散点图
+      院内专科梯队表格
+    ]
 
 
 
@@ -337,44 +425,6 @@ class 专科雷达图报告 extends 雷达图报告
 
 
 
-class 院内分析报告 extends 分析报告
-  @sections: ->
-    [
-      院内专科BCG散点图
-      院内专科梯队表格
-      
-      #院内各科指标轮比雷达图
-      #院内单科多指标评分雷达图
-
-
-      院内各科维度轮比雷达图
-      院内单科多维度评分雷达图
-
-      #院内各科指标简单排序
-      #院内各科指标评分排序 
-      院内各科维度轮比散点图
-   ]
-
-  @rawDataToIndicators: ->
-    @dbClear().save()
-    指标维度 = 指标维度库.dbValue()
-    years = 院内资料库.years()
-    units = 院内资料库.localUnits()
-    
-    informal = true
-
-    for dataName, dimension of 指标维度 when dataName?
-      for entityName in units 
-        for year in years
-          key = year
-          ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
-    @dbSave()
-    console.log "院内分析报告: 指标数据移动完毕"
-    return this
-
-
-
 
 class 院内各科指标简单排序 extends 排序报告
   @chartType: ->
@@ -389,7 +439,7 @@ class 院内各科指标简单排序 extends 排序报告
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
-      arr = 院内分析报告.dbAsArray({dataName,key:year})
+      arr = 院内指标资料库.dbAsArray({dataName,key:year})
       _arr = arr.sort (a,b)-> 
         try
           b[dataName] - a[dataName]
@@ -584,40 +634,6 @@ class 院内专科梯队表格 extends 院内分析报告
   
 
 
-class 对标分析报告 extends 分析报告
-  @sections: ->
-    [
-      #院内各科指标简单排序
-      #院内各科指标评分排序
-
-      #院内各科维度轮比雷达图
-      #院内单科多维度评分雷达图
-
-      院内专科BCG散点图
-      院内专科梯队表格
-    ]
-
-  @rawDataToIndicators: ->
-    @dbClear().save()
-    units = 对标资料库.dbDictKeys()
-    指标维度 = 指标维度库.dbValue()
-    对标项 = ['均1','均2','某A','某B']
-    
-    informal = true
-
-    for dataName, dimension of 指标维度 when dataName?     
-      for entityName in units
-        for item in 对标项
-          key = item
-          otherData = 对标资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
-    
-    @dbSave()
-    console.log "对标分析报告: 指标数据移动完毕"
-    return this    
-
-
-
 
 # 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
@@ -723,8 +739,8 @@ class 生成器 extends CaseSingleton
   # 研究 院内资料库
   # 先将指标计算结果存入报告db
   @exportRawDataToReportDB: ->
-    院内分析报告.rawDataToIndicators()
-    对标分析报告.rawDataToIndicators()
+    院内指标资料库.rawDataToIndicators()
+    对标指标资料库.rawDataToIndicators()
     return this
 
   
