@@ -343,14 +343,16 @@ class 院内分析报告 extends 分析报告
       院内专科BCG散点图
       院内专科梯队表格
       
-      院内专科指标对比雷达图
-      院内专科指标评分雷达图
+      #院内各科指标轮比雷达图
+      #院内单科多指标评分雷达图
 
-      #院内专科维度对比雷达图
-      #院内专科维度评分雷达图
 
-      #院内专科指标简单排序
-      #院内专科指标评分排序 
+      院内各科维度轮比雷达图
+      院内单科多维度评分雷达图
+
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      院内各科维度轮比散点图
    ]
 
   @rawDataToIndicators: ->
@@ -374,7 +376,7 @@ class 院内分析报告 extends 分析报告
 
 
 
-class 院内专科指标简单排序 extends 排序报告
+class 院内各科指标简单排序 extends 排序报告
   @chartType: ->
     'bar'
 
@@ -394,7 +396,7 @@ class 院内专科指标简单排序 extends 排序报告
         catch error
           -1
       @dbSet(dataName, _arr)
-
+    
     @dbSave()
 
 
@@ -406,7 +408,7 @@ class 院内专科指标简单排序 extends 排序报告
 
 
 
-class 院内专科指标评分排序 extends 排序报告
+class 院内各科指标评分排序 extends 排序报告
 
   @dataPrepare: ->
     @dbClear().save()
@@ -415,7 +417,7 @@ class 院内专科指标评分排序 extends 排序报告
     
     #return null unless direction.逐步提高?
     
-    obj = 院内专科指标简单排序.dbValue()
+    obj = 院内各科指标简单排序.dbValue()
     #@db().default(obj).save()
     for indicator, arr of obj
       switch 
@@ -446,24 +448,22 @@ class 院内专科指标评分排序 extends 排序报告
 
 
 
-class 院内专科指标对比雷达图 extends 对比雷达图报告
+class 院内各科指标轮比雷达图 extends 对比雷达图报告
   @dataPrepare: ->
-    院内专科指标简单排序.dataPrepare()
 
 
 
-class 院内专科指标评分雷达图 extends 专科雷达图报告
+class 院内单科多指标评分雷达图 extends 专科雷达图报告
   @dataPrepare: ->
-    院内专科指标评分排序.dataPrepare()
 
 
 
 
 
 # 以指标维度为主体,看相关指标趋势离散度
-class 院内专科维度对比雷达图 extends 对比雷达图报告
+class 院内各科维度轮比雷达图 extends 对比雷达图报告
   @dataPrepare: ->
-    console.log("use 院内专科维度评分雷达图 to prepare")
+    console.log("use 院内单科多维度评分雷达图 to prepare")
     return
 
 
@@ -475,14 +475,14 @@ class 院内专科维度对比雷达图 extends 对比雷达图报告
 
 
 # 以专科为单位,各维度雷达图
-class 院内专科维度评分雷达图 extends 专科雷达图报告
+class 院内单科多维度评分雷达图 extends 专科雷达图报告
   @dataPrepare: ->
-    院内专科维度对比散点图.dbClear().save() # 临时测试绘制散点图
-    院内专科维度对比雷达图.dbClear().save()
+    院内各科维度轮比散点图.dbClear().save() # 临时测试绘制散点图
+    院内各科维度轮比雷达图.dbClear().save()
     @dbClear().save()
     dimensions = 指标维度库.dbValue()
     focusUnits = 资料库.focusUnits()[1..]
-    obj = 院内专科指标评分排序.dbValue()
+    obj = 院内各科指标评分排序.dbValue()
 
     newObj = {}
     compareObj = {}
@@ -533,15 +533,15 @@ class 院内专科维度评分雷达图 extends 专科雷达图报告
       ### 
 
     @db().default(selfObj).save()
-    院内专科维度对比雷达图.db().default(compareObj).save()
-    院内专科维度对比散点图.db().default(compareObj).save() # 临时测试绘制散点图
+    院内各科维度轮比雷达图.db().default(compareObj).save()
+    院内各科维度轮比散点图.db().default(compareObj).save() # 临时测试绘制散点图
 
 
 
 
 
 
-class 院内专科维度对比散点图 extends 散点图报告
+class 院内各科维度轮比散点图 extends 散点图报告
   @dataPrepare: ->
 
 
@@ -558,7 +558,7 @@ class 院内专科BCG散点图 extends 散点图报告
   @dataPrepare: ->
     @dbClear().save()
     
-    obj = 院内专科指标简单排序.dbValue()
+    obj = 院内各科指标简单排序.dbValue()
     selfObj = {}
     #@db().default(obj).save()
     for indicator, arr of obj when indicator in [
@@ -587,11 +587,11 @@ class 院内专科梯队表格 extends 院内分析报告
 class 对标分析报告 extends 分析报告
   @sections: ->
     [
-      #院内专科指标简单排序
-      #院内专科指标评分排序
+      #院内各科指标简单排序
+      #院内各科指标评分排序
 
-      #院内专科维度对比雷达图
-      #院内专科维度评分雷达图
+      #院内各科维度轮比雷达图
+      #院内单科多维度评分雷达图
 
       院内专科BCG散点图
       院内专科梯队表格
@@ -730,20 +730,20 @@ class 生成器 extends CaseSingleton
   
   
 
-  # 院内专科指标简单排序存储备用
+  # 院内各科指标简单排序存储备用
   @simpleLocalIndicatorOrdering: ->
-    院内专科指标简单排序.dataPrepare()
+    院内各科指标简单排序.dataPrepare()
     return this
 
   
 
   @localIndicatorScoreSort: ->
-    院内专科指标评分排序.dataPrepare()
+    院内各科指标评分排序.dataPrepare()
     return this
 
 
   @localIndicatorRadarChart: ->
-    院内专科维度评分雷达图.dataPrepare()
+    院内单科多维度评分雷达图.dataPrepare()
     return this
 
 
@@ -812,11 +812,11 @@ class 生成器 extends CaseSingleton
 
 
 #
-#院内专科维度评分雷达图.dataPrepare()
+#院内单科多维度评分雷达图.dataPrepare()
 #console.log 资料库.focusUnits()[1..9]
 #院内分析报告.newReport()
 
-#console.log 院内专科指标简单排序.dataPrepare()
+#console.log 院内各科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
 
 
