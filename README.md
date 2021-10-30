@@ -46,5 +46,23 @@
 
 ### 其他
 
+#### tutorial
 <https://youtu.be/2LhoCfjm8R4>
+
+#### sql 99
 sql 99 tutorial <https://crate.io/docs/sql-99/en/latest/> 
+
+#### upstream
+
+how to fetch origin updates to a forked rep
+
+https://devopscube.com/set-git-upstream-respository-branch/
+
+in short:
+```
+   git add upstream https://github.com/emptist/hqcoffee/hqcoffee.git
+   git branch --remote
+   git fetch upstream
+   git merge upstream/main 
+   git merge upstream/dev
+```
