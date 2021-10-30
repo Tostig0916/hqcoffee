@@ -72,8 +72,10 @@ class 资料库 extends FormatedCaseSingleton
     对标资料库.dbDictKeys()
 
   @指标维度列表: ->
-    指标维度库.dbRevertedValue()
-
+    指标维度表 = 指标维度库.dbRevertedValue()
+    keys = (key for key, value of 指标维度表)
+    console.log keys
+    return keys
 
 class 院内资料库 extends 资料库
   @localUnits: ->
@@ -349,7 +351,7 @@ class 雷达图报告 extends 分析报告
     'radar'
 
 
-class 对比雷达图报告 extends 雷达图报告
+class 多科雷达图报告 extends 雷达图报告
 
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
@@ -392,7 +394,7 @@ class 对比雷达图报告 extends 雷达图报告
 
 
 
-class 专科雷达图报告 extends 雷达图报告
+class 单科雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
@@ -503,12 +505,12 @@ class 院内各科指标评分排序 extends 排序报告
 
 
 
-class 院内各科指标轮比雷达图 extends 对比雷达图报告
+class 院内各科指标轮比雷达图 extends 多科雷达图报告
   @dataPrepare: ->
 
 
 
-class 院内单科多指标评分雷达图 extends 专科雷达图报告
+class 院内单科多指标评分雷达图 extends 单科雷达图报告
   @dataPrepare: ->
 
 
@@ -516,7 +518,7 @@ class 院内单科多指标评分雷达图 extends 专科雷达图报告
 
 
 # 以指标维度为主体,看相关指标趋势离散度
-class 院内各科维度轮比雷达图 extends 对比雷达图报告
+class 院内各科维度轮比雷达图 extends 多科雷达图报告
   @dataPrepare: ->
     console.log("use 院内单科多维度评分雷达图 to prepare")
     return
@@ -530,7 +532,7 @@ class 院内各科维度轮比雷达图 extends 对比雷达图报告
 
 
 # 以专科为单位,各维度雷达图
-class 院内单科多维度评分雷达图 extends 专科雷达图报告
+class 院内单科多维度评分雷达图 extends 单科雷达图报告
   @dataPrepare: ->
     院内各科维度轮比散点图.dbClear().save() # 临时测试绘制散点图
     院内各科维度轮比雷达图.dbClear().save()
@@ -603,7 +605,7 @@ class 院内各科维度轮比散点图 extends 散点图报告
 
 
 
-class 院内专科维度评分散点图 extends 散点图报告
+class 院内单科多维评分散点图 extends 散点图报告
   @dataPrepare: ->
 
 
@@ -630,7 +632,8 @@ class 院内专科BCG散点图 extends 散点图报告
 
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
-
+  @dataPrepare: ->
+    指标维度列表 = 资料库.指标维度列表()
 
 
 
@@ -704,7 +707,7 @@ class 生成器 extends CaseSingleton
 
 
   @showDimensions: ->
-    console.log 指标维度库.dbRevertedValue()
+    资料库.指标维度列表()
     return this
 
 
