@@ -1,18 +1,1 @@
-{
-  "院内资料库": {
-    "求CMI当量DRGs组数": "@求CMI当量DRGs组数: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
-    "求SCI平均影响因子": "@求SCI平均影响因子: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
-    "求中医类别执业医师含执业助理医师占执业医师总数比例": "@求中医类别执业医师含执业助理医师占执业医师总数比例: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
-    "求病理医师占比": "@求病理医师占比: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
-    "求重点学科等级评分": "@求重点学科等级评分: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
-    "求非医嘱离院率": "@求非医嘱离院率: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020"
-  },
-  "对标资料库": {
-    "求CMI当量DRGs组数": "@求CMI当量DRGs组数: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
-    "求SCI平均影响因子": "@求SCI平均影响因子: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
-    "求中医类别执业医师含执业助理医师占执业医师总数比例": "@求中医类别执业医师含执业助理医师占执业医师总数比例: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
-    "求病理医师占比": "@求病理医师占比: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
-    "求重点学科等级评分": "@求重点学科等级评分: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
-    "求非医嘱离院率": "@求非医嘱离院率: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2"
-  }
-}
+{"院内资料库":{"求是否为国家卫健委临床重点专科":"@求是否为国家卫健委临床重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为国家中医药局重点专科":"@求是否为国家中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为教育部或科技部重点学科或重点实验室":"@求是否为教育部或科技部重点学科或重点实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为省卫健委重点专科":"@求是否为省卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为省中医药局重点专科":"@求是否为省中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为省教育厅或科技厅重点学科或重点实验室":"@求是否为省教育厅或科技厅重点学科或重点实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为地级卫健委重点专科":"@求是否为地级卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为地级中医药局重点专科":"@求是否为地级中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为地级市教育局或科技局重点学科或实验室":"@求是否为地级市教育局或科技局重点学科或实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为县级卫健委重点专科":"@求是否为县级卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为县级中医药局重点专科":"@求是否为县级中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求是否为县级市教育局或科技局重点学科或实验室":"@求是否为县级市教育局或科技局重点学科或实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020"},"对标资料库":{"求是否为国家卫健委临床重点专科":"@求是否为国家卫健委临床重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为国家中医药局重点专科":"@求是否为国家中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为教育部或科技部重点学科或重点实验室":"@求是否为教育部或科技部重点学科或重点实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为省卫健委重点专科":"@求是否为省卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为省中医药局重点专科":"@求是否为省中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为省教育厅或科技厅重点学科或重点实验室":"@求是否为省教育厅或科技厅重点学科或重点实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为地级卫健委重点专科":"@求是否为地级卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为地级中医药局重点专科":"@求是否为地级中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为地级市教育局或科技局重点学科或实验室":"@求是否为地级市教育局或科技局重点学科或实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为县级卫健委重点专科":"@求是否为县级卫健委重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为县级中医药局重点专科":"@求是否为县级中医药局重点专科: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求是否为县级市教育局或科技局重点学科或实验室":"@求是否为县级市教育局或科技局重点学科或实验室: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2"}}

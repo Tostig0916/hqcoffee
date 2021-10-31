@@ -20,7 +20,7 @@ path = require 'path'
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
 # 设置为true则容忍指标直接填报不完整,而通过原始数据推算
-informal = false
+informal = true #false
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
@@ -49,24 +49,25 @@ class AnyCaseSingleton extends StormDBSingleton
     DataManager.getData(funcOpts)
 
 
+
+
+
 class 维度权重 extends AnyCaseSingleton
-  @dataPrepare: ->
-    @dbClear().save()
-    weight = {
-      BCG矩阵: 40
-      医保价值: 10
-      质量安全: 10
-      地位影响: 10
-      学科建设: 0
-      人员结构: 0
-      功能定位: 0 
-      服务流程: 0
-      费用控制: 0 
-      合理用药: 0
-      收支结构: 0 
-      资源效率: 0
-      人才培养: 0
-    }
+  @dict: -> {
+    BCG矩阵: 2.5
+    医保价值: 0.5
+    质量安全: 1.5
+    地位影响: 0.5
+    学科建设: 0.1
+    人员结构: 0.1
+    功能定位: 0.1
+    服务流程: 0.1
+    费用控制: 0.1
+    合理用药: 0.1
+    收支结构: 0.1
+    资源效率: 0.1
+    人才培养: 0.1
+  }
   
 
 class CaseSingleton extends AnyCaseSingleton
@@ -726,13 +727,26 @@ class 院内专科BCG散点图 extends 散点图报告
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
   @dataPrepare: ->
-    维度列表 = @维度列表()
-
+    @dbClear().save()
+    weight = 维度权重.dict()
+    for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
+      @dbSet(unitName, {})
+      value = 0
+      for object in unitArray when v = object[object.dimension]
+        @db().get(unitName).set(object.dimension, v)
+        value += v * weight[object.dimension]
+      @db().get(unitName).set('综合评分',value).save()
 
 
 
 class 院内专科梯队表格 extends 院内分析报告
-  
+  @dataPrepare: ->
+    @dbClear().save()
+    @dbDefault('学科梯队':[])
+
+    topsis = 院内专科梯队Topsis评分.db()
+    @db().get('学科梯队')
+    @dbSave()  
 
 
 
@@ -757,7 +771,7 @@ class 生成器 extends CaseSingleton
       .localTeamsTable()
       .localReport()
       .compareReport()
-      .saveUtilExcel()
+      #.saveUtilExcel()
 
 
 
@@ -871,9 +885,12 @@ class 生成器 extends CaseSingleton
     院内专科BCG散点图.dataPrepare()
     return this
 
-
+  @localTopsis: ->
+    院内专科梯队Topsis评分.dataPrepare()
+    return this
 
   @localTeamsTable: ->
+    @localTopsis()
     院内专科梯队表格.dataPrepare()
     return this
 
