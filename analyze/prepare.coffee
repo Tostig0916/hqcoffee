@@ -65,7 +65,7 @@ class DataManagerBase
       @regMissing(funcOpts)
 
       unless log_db.get(funcName)?.value()?
-        log_db.set(funcName,"(funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+        log_db.set(funcName,"@#{funcName}: (funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
       NaN
 

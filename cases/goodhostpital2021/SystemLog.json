@@ -1,1 +1,18 @@
-{"院内资料库":{"求CMI当量DRGs组数":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求SCI平均影响因子":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求中医类别执业医师含执业助理医师占执业医师总数比例":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求病理医师占比":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求重点学科等级评分":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020","求非医嘱离院率":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020"},"对标资料库":{"求CMI当量DRGs组数":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求SCI平均影响因子":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求中医类别执业医师含执业助理医师占执业医师总数比例":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求病理医师占比":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求重点学科等级评分":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2","求非医嘱离院率":"(funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2"}}
+{
+  "院内资料库": {
+    "求CMI当量DRGs组数": "@求CMI当量DRGs组数: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
+    "求SCI平均影响因子": "@求SCI平均影响因子: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
+    "求中医类别执业医师含执业助理医师占执业医师总数比例": "@求中医类别执业医师含执业助理医师占执业医师总数比例: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
+    "求病理医师占比": "@求病理医师占比: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
+    "求重点学科等级评分": "@求重点学科等级评分: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020",
+    "求非医嘱离院率": "@求非医嘱离院率: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院Y2020"
+  },
+  "对标资料库": {
+    "求CMI当量DRGs组数": "@求CMI当量DRGs组数: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
+    "求SCI平均影响因子": "@求SCI平均影响因子: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
+    "求中医类别执业医师含执业助理医师占执业医师总数比例": "@求中医类别执业医师含执业助理医师占执业医师总数比例: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
+    "求病理医师占比": "@求病理医师占比: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
+    "求重点学科等级评分": "@求重点学科等级评分: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2",
+    "求非医嘱离院率": "@求非医嘱离院率: (funcOpts={})-> @toBeImplemented(funcOpts) # 医院均2"
+  }
+}
