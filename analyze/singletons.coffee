@@ -6,7 +6,7 @@ StormDB = require 'stormdb'
 
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
-class AnySingleton extends JSONUtils
+class StormDBSingleton extends JSONUtils
   @logdb: ->
     SystemLog.db().get(@name)
 
@@ -112,7 +112,7 @@ class AnySingleton extends JSONUtils
 
 
 
-class AnyGlobalSingleton extends AnySingleton
+class AnyGlobalSingleton extends StormDBSingleton
 
   @_dbPath: ->
     path.join __dirname, "..", "data","JSON" ,"#{@name}.json"
@@ -218,7 +218,7 @@ class SystemLog extends AnyGlobalSingleton
 
 
 # 咨询案例
-class AnyCaseSingleton extends AnySingleton
+class AnyCaseSingleton extends StormDBSingleton
   # @_dbPath 涉及到目录位置,似乎无法在此设置
 
   # 用于获取或计算指标数据
@@ -244,7 +244,7 @@ class AnyCaseSingleton extends AnySingleton
 
 
 module.exports = {
-  #AnySingleton
+  #StormDBSingleton
   AnyCaseSingleton
   #AnyGlobalSingleton
   
