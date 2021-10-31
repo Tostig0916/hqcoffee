@@ -1,1 +1,1 @@
-{"院内资料库":{},"对标资料库":{}}
+{"院内资料库":{"求非医嘱离院率":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020","求重点学科等级评分":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020","求中医类别执业医师含执业助理医师占执业医师总数比例":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院Y2020"},"对标资料库":{"求非医嘱离院率":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2","求重点学科等级评分":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2","求中医类别执业医师含执业助理医师占执业医师总数比例":"(funcOpts={})-> #Math.random();@toBeImplemented(funcOpts) # 医院均2"}}

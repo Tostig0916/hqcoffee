@@ -27,6 +27,7 @@ util = require 'util'
 
 
 
+# 此表为 singleton,只有一个instance,故可使用类侧定义
 
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
@@ -51,6 +52,25 @@ class AnyCaseSingleton extends StormDBSingleton
     DataManager.getData(funcOpts)
 
 
+class 维度权重 extends AnyCaseSingleton
+  @dataPrepare: ->
+    @dbClear().save()
+    weight = {
+      BCG矩阵: 40
+      医保价值: 10
+      质量安全: 10
+      地位影响: 10
+      学科建设: 0
+      人员结构: 0
+      功能定位: 0 
+      服务流程: 0
+      费用控制: 0 
+      合理用药: 0
+      收支结构: 0 
+      资源效率: 0
+      人才培养: 0
+    }
+  
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
@@ -61,7 +81,24 @@ class CaseSingleton extends AnyCaseSingleton
   @_dbPath: ->
     path.join __dirname, "#{@name}.json"
 
-  
+  @years: ->
+    院内资料库.years()
+
+
+  @localUnits: ->
+    院内资料库.localUnits()
+
+  @focusUnits: ->
+    对标资料库.dbDictKeys()
+
+  @维度列表: (funcOpts={})->
+    {full=false} = funcOpts
+    指标维度表 = 指标维度库.dbRevertedValue()
+    if full
+      指标维度表
+    else
+      (key for key, value of 指标维度表)
+
 
 
 class NormalCaseSingleton extends CaseSingleton
@@ -84,30 +121,59 @@ class 缺漏追踪库 extends NormalCaseSingleton
 
 class SystemLog extends NormalCaseSingleton
 
-# 此表为 singleton,只有一个instance,故可使用类侧定义
 class 指标维度库 extends NormalCaseSingleton
+  @saveExcel: (funcOpts={}) ->
+    opts = @options()
+    json= @dbValue()
+    arr = ({数据名:key, 维度:value} for key, value of json).sort(
+      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+    )
+    opts.data = [{
+      sheet:'指标维度'
+      columns:[
+        {label:'数据名',value:'数据名'}
+        {label:'二级维度',value:'维度'}
+      ]
+      content: arr
+    }]
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
 class 指标导向库 extends NormalCaseSingleton
+  @saveExcel: (funcOpts={}) ->
+    opts = @options()
+    json= @dbValue()
+    arr = ({数据名:key, 导向:value} for key, value of json).sort(
+      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+    )
+    opts.data = [{
+      sheet:'指标维度'
+      columns:[
+        {label:'数据名',value:'数据名'}
+        {label:'指标导向',value:'导向'}
+      ]
+      content: arr
+    }]
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
   @导向指标集: ->
     @dbRevertedValue()
 
 
 
 class 资料库 extends NormalCaseSingleton 
-  @years: ->
-    院内资料库.years()
-
-
-  @localUnits: ->
-    院内资料库.localUnits()
-
-  @focusUnits: ->
-    对标资料库.dbDictKeys()
-
-  @指标维度列表: ->
-    指标维度表 = 指标维度库.dbRevertedValue()
-    keys = (key for key, value of 指标维度表)
-    console.log keys
-    return keys
 
 class 院内资料库 extends 资料库
   @localUnits: ->
@@ -570,7 +636,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
     院内各科维度轮比雷达图.dbClear().save()
     @dbClear().save()
     dimensions = 指标维度库.dbValue()
-    focusUnits = 资料库.focusUnits()[1..]
+    focusUnits = @focusUnits()[1..]
     obj = 院内各科指标评分排序.dbValue()
 
     newObj = {}
@@ -665,7 +731,7 @@ class 院内专科BCG散点图 extends 散点图报告
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
   @dataPrepare: ->
-    指标维度列表 = 资料库.指标维度列表()
+    维度列表 = @维度列表()
 
 
 
@@ -697,6 +763,8 @@ class 生成器 extends CaseSingleton
       .localTeamsTable()
       .localReport()
       .compareReport()
+      .saveUtilExcel()
+
 
 
 
@@ -739,7 +807,7 @@ class 生成器 extends CaseSingleton
 
 
   @showDimensions: ->
-    资料库.指标维度列表()
+    console.log @维度列表({full: true})
     return this
 
 
@@ -827,7 +895,9 @@ class 生成器 extends CaseSingleton
   # 院内专科指标按照评分简单排序
 
 
-
+  @saveUtilExcel: ->
+    指标维度库.saveExcel()
+    指标导向库.saveExcel()
 
 
 
@@ -844,7 +914,6 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 生成器.run()
-
 生成器
   #.showDBs()
   #.readExcel()
@@ -869,12 +938,21 @@ class 生成器 extends CaseSingleton
 
 #
 #院内单科多维度评分雷达图.dataPrepare()
-#console.log 资料库.focusUnits()[1..9]
+#console.log @focusUnits()[1..9]
 #院内分析报告.newReport()
 
 #console.log 院内各科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
 
+###
+dx = (key for key, value of 指标导向库.dbValue())
+wd = (key for key, value of 指标维度库.dbValue())
+console.log {
+  dx_wd: dx.length - wd.length
+  dx: (each for each in dx when not (each in wd))
+  wd: (each for each in wd when not (each in dx))
+}
+###
 
 
 # 先rename keys
