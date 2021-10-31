@@ -60,7 +60,7 @@ https://devopscube.com/set-git-upstream-respository-branch/
 
 in short:
 ```
-   git add upstream https://github.com/emptist/hqcoffee/hqcoffee.git
+   git add upstream https://github.com/emptist/hqcoffee.git
    git branch --remote
    git fetch upstream
    git merge upstream/main 

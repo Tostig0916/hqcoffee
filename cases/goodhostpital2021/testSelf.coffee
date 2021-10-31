@@ -152,7 +152,7 @@ class 指标导向库 extends NormalCaseSingleton
       (a,b)-> if a.数据名 < b.数据名 then -1 else 1
     )
     opts.data = [{
-      sheet:'指标维度'
+      sheet:'指标导向'
       columns:[
         {label:'数据名',value:'数据名'}
         {label:'指标导向',value:'导向'}
