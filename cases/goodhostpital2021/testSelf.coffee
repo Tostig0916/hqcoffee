@@ -54,21 +54,22 @@ class AnyCaseSingleton extends StormDBSingleton
 
 
 class 维度权重 extends AnyCaseSingleton
-  @dict: -> {
-    服务收入: 2.5
-    医保价值: 0.5
-    质量安全: 1.5
-    地位影响: 0.5
-    学科建设: 0.1
-    人员结构: 0.1
-    功能定位: 0.1
-    服务流程: 0.1
-    费用控制: 0.1
-    合理用药: 0.1
-    收支结构: 0.1
-    资源效率: 0.1
-    人才培养: 0.1
-  }
+  @dict: -> 
+    {
+      服务收入: 2.5
+      医保价值: 0.5
+      质量安全: 1.5
+      地位影响: 0.5
+      学科建设: 0.1
+      人员结构: 0.1
+      功能定位: 0.1
+      服务流程: 0.1
+      费用控制: 0.1
+      合理用药: 0.1
+      收支结构: 0.1
+      资源效率: 0.1
+      人才培养: 0.1
+    }
   
 
 class CaseSingleton extends AnyCaseSingleton
@@ -347,7 +348,7 @@ class 表格报告 extends 分析报告
     slide = pres.addSlide({sectionTitle})
     #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
 
-    console.log {rows}
+    #console.log {rows}
     slide.addTable(rows, {
       x: 0.5, y: 0.5, w: 9, h: 1 
       border: {color: "CFCFCF"} 
@@ -785,24 +786,11 @@ class 院内专科梯队表格 extends 表格报告
 
 
   @titles: ->
-    [
-      "科室名称"
-      "服务收入"
-      "医保价值"
-      "质量安全"
-      "地位影响"
-      "学科建设"
-      "人员结构"
-      "功能定位"
-      "服务流程"
-      "费用控制"
-      "合理用药"
-      "收支结构"
-      "资源效率"
-      "人才培养"
-      "综合评分"
-    ]
-
+    dict = 维度权重.dict()
+    arr = (key for key, value of dict)
+    arr.unshift("科室名称")
+    #console.log {arr,dict}
+    arr
 
 
 
