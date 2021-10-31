@@ -12,20 +12,15 @@
     若不分开,每次需要剔除医院
 ###
 
+util = require 'util'
 path = require 'path'
+
 {DataManager} = require path.join __dirname, '..', '..', 'analyze', './prepare'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
-util = require 'util'
+{StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
-
-{
-  StormDBSingleton
-  别名库
-  名字ID库
-} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
-
-
-
+# 设置为true则容忍指标直接填报不完整,而通过原始数据推算
+informal = false
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
@@ -215,7 +210,6 @@ class 院内指标资料库 extends 资料库
     years = 院内资料库.years()
     units = 院内资料库.localUnits()
     
-    informal = true
 
     for dataName, dimension of 指标维度 when dataName?
       for entityName in units 
@@ -239,7 +233,6 @@ class 对标指标资料库 extends 资料库
 
     对标项 = ['均1','均2','某A','某B']
     
-    informal = true
 
     for dataName, dimension of 指标维度 when dataName?     
       for entityName in units
@@ -751,9 +744,9 @@ class 生成器 extends CaseSingleton
       .readExcel()
       #.showUnitNames()
       #._tryGetSomeData()
-      .showDimensions()
-      .checkForAllIndicators()
-      .showMissingIndicatorsOrDataProblems()
+      #.showDimensions()
+      #.checkForAllIndicators()
+      #.showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
       
       .simpleLocalIndicatorOrdering()
