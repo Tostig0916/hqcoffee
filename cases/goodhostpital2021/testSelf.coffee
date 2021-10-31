@@ -16,6 +16,7 @@ util = require 'util'
 path = require 'path'
 
 {DataManager} = require path.join __dirname, '..', '..', 'analyze', './prepare'
+{fix} = require path.join __dirname, '..', '..', 'analyze', './fix'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
@@ -54,7 +55,7 @@ class AnyCaseSingleton extends StormDBSingleton
 
 class 维度权重 extends AnyCaseSingleton
   @dict: -> {
-    BCG矩阵: 2.5
+    服务收入: 2.5
     医保价值: 0.5
     质量安全: 1.5
     地位影响: 0.5
@@ -341,13 +342,20 @@ class 表格报告 extends 分析报告
     titles = @titles() 
     rows.push(titles)
     for each in data
-      rows.push (each[t] for t in titles)
+      rows.push ((if t is '科室名称' then each[t] else fix(each[t])) for t in titles)
 
     slide = pres.addSlide({sectionTitle})
     #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
 
     console.log {rows}
-    slide.addTable([["titles","hello"]], {x: 0.5, y: 3.5, w: 9, h: 1})
+    slide.addTable(rows, {
+      x: 0.5, y: 0.5, w: 9, h: 1 
+      border: {color: "CFCFCF"} 
+      autoPageRepeatHeader: true
+      verbose: false
+      #autoPage: true
+      #autoPageLineWeight: -0.5
+    })
 
 
 
@@ -779,17 +787,19 @@ class 院内专科梯队表格 extends 表格报告
   @titles: ->
     [
       "科室名称"
+      "服务收入"
+      "医保价值"
       "质量安全"
-      "学科建设"
-      "收支结构"
-      "功能定位"
-      "人员结构"
-      "合理用药"
-      "费用控制"
-      "BCG矩阵"
-      "人才培养"
       "地位影响"
+      "学科建设"
+      "人员结构"
+      "功能定位"
       "服务流程"
+      "费用控制"
+      "合理用药"
+      "收支结构"
+      "资源效率"
+      "人才培养"
       "综合评分"
     ]
 
