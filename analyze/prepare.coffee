@@ -1,4 +1,5 @@
-
+# 设置无数据回复,尝试过用NaN似乎不对
+nil = null # NaN
 
 class DataManagerBase
   @ratio: (startV, endV, n) ->
@@ -55,7 +56,7 @@ class DataManagerBase
   @tryCalculating: (funcOpts) ->
     {entityName, dataName, key, log_db, regest_db, informal=false} = funcOpts
     
-    return NaN unless informal
+    return nil unless informal
 
     try
       funcName = @_funcName(funcOpts)
@@ -67,7 +68,7 @@ class DataManagerBase
       unless log_db.get(funcName)?.value()?
         log_db.set(funcName,"@#{funcName}: (funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
-      NaN
+      nil
 
 
 
@@ -123,7 +124,7 @@ class DataManagerBase
     if informal 
        Math.random() * 2
     else
-      return NaN
+      return nil
 
 
 
