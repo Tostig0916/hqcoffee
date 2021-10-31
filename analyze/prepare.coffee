@@ -151,11 +151,14 @@ class DataManagerBase
 
 
 class DataManager extends DataManagerBase
-  @求CMI当量DRGs组数: (funcOpts={}) -> @toBeImplemented(funcOpts)
-  ###
+  @求CMI当量DRGs组数: (funcOpts={}) -> #@toBeImplemented(funcOpts)
+    funcOpts.dataName = "CMI值"
+    CMI = @getData(funcOpts)
+    funcOpts.dataName = "DRGs组数"
+    DRGs = @getData(funcOpts)
 
+    return CMI * DRGs 
 
-  ###
     
   @求重点学科等级评分: (funcOpts={}) -> #@toBeImplemented(funcOpts)
     funcOpts.dataName = "是否为国家卫健委临床重点专科"

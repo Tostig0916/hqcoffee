@@ -789,6 +789,7 @@ class 院内专科梯队表格 extends 表格报告
     dict = 维度权重.dict()
     arr = (key for key, value of dict)
     arr.unshift("科室名称")
+    arr.push('综合评分')
     #console.log {arr,dict}
     arr
 
