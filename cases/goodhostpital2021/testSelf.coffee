@@ -42,8 +42,10 @@ class AnyCaseSingleton extends StormDBSingleton
     {entityName} = funcOpts
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
+
     funcOpts.regest_db = 缺漏追踪库.db()
     funcOpts.log_db = @logdb()
+
     DataManager.getData(funcOpts)
 
 
@@ -745,8 +747,7 @@ class 生成器 extends CaseSingleton
       #.showUnitNames()
       #._tryGetSomeData()
       #.showDimensions()
-      #.checkForAllIndicators()
-      #.showMissingIndicatorsOrDataProblems()
+      .showMissingIndicatorsOrDataProblems()
       .exportRawDataToReportDB()
       
       .simpleLocalIndicatorOrdering()
@@ -828,6 +829,8 @@ class 生成器 extends CaseSingleton
 
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->
+    @checkForAllIndicators()
+    
     console.log { 
       院内资料: 院内资料库.logdb().value()
       对标资料: 对标资料库.logdb().value()
@@ -913,7 +916,6 @@ class 生成器 extends CaseSingleton
   #.showUnitNames()
   #._tryGetSomeData()
   
-  #.checkForAllIndicators()
   #.showMissingIndicatorsOrDataProblems()
   
   #.exportRawDataToReportDB()
@@ -957,58 +959,4 @@ for uname, idx in 院内分析报告.dbDictKeys()
   console.log {uname, 平均住院日:院内分析报告.dbValue(key)}
 
 院内分析报告.dbSave()
-###
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###
-testDB = ->
-  院内资料库.fetchSingleJSON() #
-
-testMore = ->
-  for each in [对标资料库, 院内资料库,院内分析报告,对标分析报告]
-    # be careful! [].push(each.name) will return 1 other than [each.name]
-    #  .get('list')
-    #  .push(each.name)
-    obj = {"key","value"}
-    console.log { 
-      #obj: each.fetchSingleJSON() 
-      dbp: each._dbPath(),
-      d: each.db() 
-    }
-    #console.log each.name
-
-  console.log {
-    data: 院内资料库.db()
-  }
-
-testDataManager = ->
-  dbItem = 院内资料库.db().get("医院")
-  console.log {出院患者手术占比: DataManager.getData({dataName:"出院患者手术占比", dbItem, key:"2018年" })}
-  console.log {出院患者手术占比:院内资料库.getData({entityName:"胸外科", dataName:"出院患者四级手术占比", key:"2019年"})}
-
-#testDB()
-#testMore()
-testDataManager()
-###
-
-###
-
 ###
