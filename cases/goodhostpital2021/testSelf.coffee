@@ -350,12 +350,26 @@ class 表格报告 extends 分析报告
 
     #console.log {rows}
     slide.addTable(rows, {
-      x: 0.5, y: 0.5, w: 9, h: 1 
+      #x: 0.5, y: 0.5 
+      #w: 9, h: 1 
+      colW: [
+        1.2,0.55,0.55,0.55,0.55
+        0.55,0.55,0.55,0.55,0.55
+        0.55,0.55,0.55,0.55,0.55
+      ]
       border: {color: "CFCFCF"} 
+      margin: 0.05
+      align: "left"
+      valign: "middle"
+      fontFace: "Segoe UI"
+      fontSize: 7 #10
+      autoPage: true
       autoPageRepeatHeader: true
+      autoPageCharWeight: -0.5
+      autoPageLineWeight: -0.5
+      autoPageHeaderRows: 1
+      autoPageSlideStartY: 0.2
       verbose: false
-      #autoPage: true
-      #autoPageLineWeight: -0.5
     })
 
 
