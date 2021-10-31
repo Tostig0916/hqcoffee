@@ -12,7 +12,6 @@
     若不分开,每次需要剔除医院
 ###
 
-alasql = require 'alasql'
 util = require 'util'
 path = require 'path'
 

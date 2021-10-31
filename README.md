@@ -20,7 +20,7 @@
 1. Excel-JSON 互相转化，读入输出Excel文件：
    1. convert-excel-to-json
    2. json-as-xlsx
-   3. alasql <https://github.com/agershun/alasql> in memory database, using SQL
+   3. alasql <https://github.com/agershun/alasql> in memory database, using SQL, too many issues to use
 2. PPT程序化制作
    1. pptxgenjs 排版需要探索功能究竟有多强，图形较全
    2. officegen 存在bug故暂时不好用
