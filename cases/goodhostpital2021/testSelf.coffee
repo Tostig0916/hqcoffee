@@ -295,19 +295,19 @@ class 分析报告 extends NormalCaseSingleton
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内专科BCG散点图
       院内专科梯队表格
+      院内专科BCG散点图
       
       #院内各科指标轮比雷达图
       #院内单科多指标评分雷达图
 
 
-      院内各科维度轮比雷达图
-      院内单科多维度评分雷达图
+      #院内各科维度轮比雷达图
+      #院内单科多维度评分雷达图
 
       #院内各科指标简单排序
       #院内各科指标评分排序 
-      院内各科维度轮比散点图
+      #院内各科维度轮比散点图
    ]
 
 
@@ -328,6 +328,26 @@ class 对标分析报告 extends 分析报告
       院内专科梯队表格
     ]
 
+
+
+class 表格报告 extends 分析报告
+  @arrayName: ->
+  @titles: ->
+
+  @slides: (funcOpts) ->
+    {pres, sectionTitle} = funcOpts
+    data = @db().get(@arrayName()).value()
+    rows = []
+    titles = @titles() 
+    rows.push(titles)
+    for each in data
+      rows.push (each[t] for t in titles)
+
+    slide = pres.addSlide({sectionTitle})
+    #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
+
+    console.log {rows}
+    slide.addTable([["titles","hello"]], {x: 0.5, y: 3.5, w: 9, h: 1})
 
 
 
@@ -739,14 +759,41 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
 
 
 
-class 院内专科梯队表格 extends 院内分析报告
+class 院内专科梯队表格 extends 表格报告
   @dataPrepare: ->
     @dbClear().save()
+    arrayName = @arrayName()
     @dbDefault('学科梯队':[])
-
-    topsis = 院内专科梯队Topsis评分.db()
-    @db().get('学科梯队')
+    topsis = 院内专科梯队Topsis评分.dbValue()
+    for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
+      unitObj.科室名称 = unitName
+      @db().get('学科梯队').push(unitObj)
+    @db().get('学科梯队').sort((a,b)-> b.综合评分 - a.综合评分) 
     @dbSave()  
+
+
+  @arrayName: ->
+    '学科梯队'
+
+
+  @titles: ->
+    [
+      "科室名称"
+      "质量安全"
+      "学科建设"
+      "收支结构"
+      "功能定位"
+      "人员结构"
+      "合理用药"
+      "费用控制"
+      "BCG矩阵"
+      "人才培养"
+      "地位影响"
+      "服务流程"
+      "综合评分"
+    ]
+
+
 
 
 
