@@ -331,7 +331,7 @@ class 对标分析报告 extends 分析报告
     ]
 
 
-
+# https://github.com/gitbrent/PptxGenJS/blob/master/demos/modules/demo_table.mjs
 class 表格报告 extends 分析报告
   @arrayName: ->
   @titles: ->
@@ -358,15 +358,15 @@ class 表格报告 extends 分析报告
         0.55,0.55,0.55,0.55,0.55
       ]
       border: {color: "CFCFCF"} 
-      margin: 0.04
+      margin: 0.05
       align: "left"
       valign: "middle"
       fontFace: "Segoe UI"
-      fontSize: 7 #10
+      fontSize: 8 #10
       autoPage: true
       autoPageRepeatHeader: true
-      autoPageCharWeight: -0.55
-      autoPageLineWeight: -0.55
+      autoPageCharWeight: -0.5
+      autoPageLineWeight: -0.5
       autoPageHeaderRows: 1
       autoPageSlideStartY: 0.2
       verbose: false
