@@ -343,7 +343,7 @@ class 表格报告 extends 分析报告
     titles = @titles() 
     rows.push(titles)
     for each in data
-      rows.push ((if t is '科室名称' then each[t] else fix(each[t])) for t in titles)
+      rows.push (each[t] for t in titles)
 
     slide = pres.addSlide({sectionTitle})
     #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
@@ -776,9 +776,9 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
       @dbSet(unitName, {})
       value = 0
       for object in unitArray when v = object[object.dimension]
-        @db().get(unitName).set(object.dimension, v)
+        @db().get(unitName).set(object.dimension, v) #fix(v))
         value += v * weight[object.dimension]
-      @db().get(unitName).set('综合评分',value).save()
+      @db().get(unitName).set('综合评分', value).save() #fix(value)
 
 
 
