@@ -12,21 +12,45 @@
     若不分开,每次需要剔除医院
 ###
 
-util = require 'util'
 path = require 'path'
-
-
+{DataManager} = require path.join __dirname, '..', '..', 'analyze', './prepare'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
+util = require 'util'
+
 
 {
-  AnyCaseSingleton
-  SystemLog
-  缺漏追踪库
+  StormDBSingleton
   别名库
-  指标维度库
-  指标导向库
+  #指标维度库
+  #指标导向库
   名字ID库
 } = require path.join __dirname, '..', '..', 'analyze', 'singletons'
+
+
+
+
+
+# 咨询案例
+class AnyCaseSingleton extends StormDBSingleton
+  @logdb: ->
+    SystemLog.db().get(@name)
+
+
+  @logdbClear: ->
+    @logdb().set({})
+    return SystemLog.db()
+
+  # @_dbPath 涉及到目录位置,似乎无法在此设置
+
+  # 用于获取或计算指标数据
+  @getData: (funcOpts) ->
+    # 分别为单位(医院,某科),数据名,以及年度
+    {entityName} = funcOpts
+    funcOpts.storm_db = @db()
+    funcOpts.dbItem = @db().get(entityName)
+    funcOpts.regest_db = 缺漏追踪库.db()
+    funcOpts.log_db = @logdb()
+    DataManager.getData(funcOpts)
 
 
 
@@ -42,7 +66,7 @@ class CaseSingleton extends AnyCaseSingleton
   
 
 
-class FormatedCaseSingleton extends CaseSingleton
+class NormalCaseSingleton extends CaseSingleton
 
   @options: ->
     @_options ?= {
@@ -58,8 +82,19 @@ class FormatedCaseSingleton extends CaseSingleton
     }
 
 
+class 缺漏追踪库 extends NormalCaseSingleton
 
-class 资料库 extends FormatedCaseSingleton 
+class SystemLog extends NormalCaseSingleton
+
+# 此表为 singleton,只有一个instance,故可使用类侧定义
+class 指标维度库 extends NormalCaseSingleton
+class 指标导向库 extends NormalCaseSingleton
+  @导向指标集: ->
+    @dbRevertedValue()
+
+
+
+class 资料库 extends NormalCaseSingleton 
   @years: ->
     院内资料库.years()
 
@@ -162,7 +197,7 @@ class 对标指标资料库 extends 资料库
 
 
 
-class 分析报告 extends FormatedCaseSingleton
+class 分析报告 extends NormalCaseSingleton
 
   @newReport: ->
     opts = @options()

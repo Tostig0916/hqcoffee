@@ -1,5 +1,4 @@
 path = require 'path'
-{DataManager} = require './prepare'
 {JSONUtils} = require './jsonUtils'
 StormDB = require 'stormdb'
 
@@ -7,14 +6,6 @@ StormDB = require 'stormdb'
 # 抽象class 将共性放在此处
 # 所有从Excel转换而来的JSON辅助文件,均为一对一关系,故均使用class一侧编程
 class StormDBSingleton extends JSONUtils
-  @logdb: ->
-    SystemLog.db().get(@name)
-
-
-  @logdbClear: ->
-    @logdb().set({})
-    return SystemLog.db()
-
 
   # 只有从Excel转换来的JSON才可以将参数 rebuild 设置为 true
   @fetchSingleJSON: (funcOpts={}) ->
@@ -167,28 +158,16 @@ class 别名库 extends AnyGlobalSingleton
 
 
   @options: ->
-    ###
-    #此处不可以记入变量,是否影响子法随宜重新定义?
-    @_options ?= {
-      folder: 'data'
-      basename: @name
-      header: {rows: 1}
-      mainKeyName: "数据名"
-      columnToKey: {'*':'{{columnHeader}}'}
-      sheetStubs: true
-      needToRewrite: true
-      unwrap: true #false 
-      renaming: @normalKeyName
-    }
-    ###
     super().needToRewrite = false
-    @_options
+    return @_options
+
 
 
 
 
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
+###
 # 指标维度表
 class 指标维度库 extends AnyGlobalSingleton
     
@@ -196,11 +175,7 @@ class 指标维度库 extends AnyGlobalSingleton
 class 指标导向库 extends AnyGlobalSingleton
   @导向指标集: ->
     @dbRevertedValue()
-
-
-class 缺漏追踪库 extends AnyGlobalSingleton
-
-
+###
 
 class 名字ID库 extends AnyGlobalSingleton
 
@@ -212,24 +187,9 @@ class 简称库 extends AnyGlobalSingleton
 
 
 
-class SystemLog extends AnyGlobalSingleton
+#class 缺漏追踪库 extends AnyGlobalSingleton
 
 
-
-
-# 咨询案例
-class AnyCaseSingleton extends StormDBSingleton
-  # @_dbPath 涉及到目录位置,似乎无法在此设置
-
-  # 用于获取或计算指标数据
-  @getData: (funcOpts) ->
-    # 分别为单位(医院,某科),数据名,以及年度
-    {entityName} = funcOpts
-    funcOpts.storm_db = @db()
-    funcOpts.dbItem = @db().get(entityName)
-    funcOpts.regest_db = 缺漏追踪库.db()
-    funcOpts.log_db = @logdb() #SystemLog.db().get(@name)
-    DataManager.getData(funcOpts)
 
 
 
@@ -244,15 +204,14 @@ class AnyCaseSingleton extends StormDBSingleton
 
 
 module.exports = {
-  #StormDBSingleton
-  AnyCaseSingleton
+  StormDBSingleton
+  #AnyCaseSingleton
   #AnyGlobalSingleton
   
-  SystemLog
-  缺漏追踪库
+  #SystemLog
   别名库
-  指标维度库
-  指标导向库
+  #指标维度库
+  #指标导向库
   名字ID库
 }
 
