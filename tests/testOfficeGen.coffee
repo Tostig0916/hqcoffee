@@ -3,7 +3,7 @@ path = require 'path'
 
 # there's some bug in this package, give up
 OfficeGenUtils = require path.join __dirname, '..', 'useofficegen', 'officegenUtils'
-{JSONUtils}  = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils}  = require path.join __dirname, '..', 'analyze', 'jsonUtils'
 
 
 funcOpts = {

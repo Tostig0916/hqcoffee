@@ -1,7 +1,7 @@
 path = require 'path'
-{Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
+{SimpleIndicator} = require path.join __dirname,  '..', 'analyze', 'indicator'
 
-console.log Indicator.fromJSONData  {
+console.log SimpleIndicator.fromJSONData  {
         basename: "二级国考指标填报表"
         headerRows: 3
         sheetStubs: false
@@ -33,7 +33,7 @@ getHistdata = (selection) ->
         needToRewrite: false #true
       }
   
-  histdata = Indicator.fromJSONData(funcOpts)
+  histdata = SimpleIndicator.fromJSONData(funcOpts)
   return {funcOpts, histdata}
 
 

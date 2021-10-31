@@ -9,7 +9,7 @@
 ###
 path = require 'path'
 
-{AnyCaseSingleton} = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
+{AnyCaseSingleton} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->

@@ -1,7 +1,7 @@
 path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..','usepptxgen', 'pptxgenUtils'
-{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
-{别名库} = require path.join __dirname, '..', 'toJSON', 'singletons'
+{JSONUtils} = require path.join __dirname, '..', 'analyze', 'jsonUtils'
+{别名库} = require path.join __dirname, '..', 'analyze', 'singletons'
 
 dbpath = (basename) -> 
   path.join __dirname, '..', 'data', 'JSON', "#{basename}.json"

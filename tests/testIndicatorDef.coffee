@@ -4,8 +4,8 @@ path = require 'path'
 
 
 # use __dirname and __filename to create correct full path filename
-{IndicatorDef, IndicatorDefInfoByVersion} = require path.join __dirname, '..','toJSON', 'indicatorDef'
-{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{IndicatorDef, IndicatorDefInfoByVersion} = require path.join __dirname, '..','analyze', 'indicatorDef'
+{JSONUtils} = require path.join __dirname, '..', 'analyze', 'jsonUtils'
 
 
 arrayOfDefs = (funcOpts) ->

@@ -27,7 +27,7 @@ path = require 'path'
   指标维度库
   指标导向库
   名字ID库
-} = require path.join __dirname, '..', '..', 'toJSON', 'singletons'
+} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
 
 

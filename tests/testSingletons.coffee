@@ -4,7 +4,7 @@ path = require 'path'
   别名库
   指标维度库
   名字ID库
-} = require path.join __dirname, '..', 'toJSON', 'singletons'
+} = require path.join __dirname, '..', 'analyze', 'singletons'
 
 
 testLog = ->

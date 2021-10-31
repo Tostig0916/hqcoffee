@@ -1,5 +1,5 @@
 path = require 'path'
-{DataManager} = require path.join __dirname,'..', 'analyze','prepare'
+{DataManager} = require './prepare'
 {JSONUtils} = require './jsonUtils'
 StormDB = require 'stormdb'
 

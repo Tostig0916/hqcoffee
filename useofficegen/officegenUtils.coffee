@@ -4,7 +4,7 @@ fs = require 'fs'
 path = require 'path' 
 officegen = require 'officegen'
 
-{JSONUtils} = require path.join __dirname, '..', 'toJSON', 'jsonUtils'
+{JSONUtils} = require path.join __dirname, '..', 'analyze', 'jsonUtils'
 
 
 # there's some bug in this package, give up

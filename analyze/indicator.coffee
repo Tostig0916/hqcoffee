@@ -1,7 +1,7 @@
 {JSONUtils} = require './jsonUtils'
 
-
-class Indicator
+# 仅用于建水县人民医院国考填报数据表测试,通用的class 见 dimension.coffee
+class SimpleIndicator
   # 一个指标object仅含一年的一个数值,符合一物一用原则
   @fromJSONData: (funcOpts={}) ->
     jsonizedData = JSONUtils.getJSON(funcOpts)
@@ -93,5 +93,5 @@ class HistoricData
 
 
 module.exports = {
-  Indicator
+  SimpleIndicator
 }

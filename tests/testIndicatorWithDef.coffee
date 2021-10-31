@@ -1,5 +1,5 @@
 path = require 'path'
-{Indicator} = require path.join __dirname,  '..', 'toJSON', 'indicator'
+{SimpleIndicator} = require path.join __dirname,  '..', 'analyze', 'indicator'
 getHistdata = require './testIndicator'
 arrayOfDefs = require './testIndicatorDef'
 
@@ -28,7 +28,7 @@ getHistdata = (selection) ->
         needToRewrite: false #true
       }
   
-  histdata = Indicator.fromJSONData(funcOpts)
+  histdata = SimpleIndicator.fromJSONData(funcOpts)
   return {funcOpts, histdata}
 
 
