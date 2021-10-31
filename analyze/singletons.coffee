@@ -158,9 +158,22 @@ class 别名库 extends AnyGlobalSingleton
 
 
   @options: ->
-    super().needToRewrite = false
+    super()
+    @_options.needToRewrite = false
+    @_options.rebuild = false
     return @_options
 
+
+
+  @fetchSingleJSON: (funcOpts={}) ->
+    {rebuild=false} = funcOpts    
+    opts = @options()
+    opts.needToRewrite = false
+
+    if rebuild
+      @_json = @getJSON(opts)
+    else
+      @_json ?= @getJSON(opts)
 
 
 
@@ -205,13 +218,8 @@ class 简称库 extends AnyGlobalSingleton
 
 module.exports = {
   StormDBSingleton
-  #AnyCaseSingleton
-  #AnyGlobalSingleton
-  
-  #SystemLog
+  #AnyGlobalSingleton  
   别名库
-  #指标维度库
-  #指标导向库
   名字ID库
 }
 

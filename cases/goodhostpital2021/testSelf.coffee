@@ -21,8 +21,6 @@ util = require 'util'
 {
   StormDBSingleton
   别名库
-  #指标维度库
-  #指标导向库
   名字ID库
 } = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
