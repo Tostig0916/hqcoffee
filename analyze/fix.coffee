@@ -1,6 +1,6 @@
 # js 小數點後面數字不可靠,故會丟失賣出點
 # 欲比較數字,先用此法轉換成文字,再作比較
-fixTo = 2
+fixTo = 1
 
 fixAll = (obj,n=fixTo)->
   for k, each of obj
