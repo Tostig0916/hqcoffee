@@ -358,15 +358,15 @@ class 表格报告 extends 分析报告
         0.55,0.55,0.55,0.55,0.55
       ]
       border: {color: "CFCFCF"} 
-      margin: 0.05
+      margin: 0.04
       align: "left"
       valign: "middle"
       fontFace: "Segoe UI"
       fontSize: 7 #10
       autoPage: true
       autoPageRepeatHeader: true
-      autoPageCharWeight: -0.5
-      autoPageLineWeight: -0.5
+      autoPageCharWeight: -0.55
+      autoPageLineWeight: -0.55
       autoPageHeaderRows: 1
       autoPageSlideStartY: 0.2
       verbose: false
