@@ -212,8 +212,8 @@ class 院内指标资料库 extends 资料库
   @rawDataToIndicators: ->
     @dbClear().save()
     指标维度 = 指标维度库.dbValue()
-    years = 院内资料库.years()
-    units = 院内资料库.localUnits()
+    years = @years()
+    units = @localUnits()
     
 
     for dataName, dimension of 指标维度 when dataName?
@@ -232,7 +232,7 @@ class 对标指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear().save()
-    units = 对标资料库.dbDictKeys()
+    units = @focusUnits() # 对标资料库.dbDictKeys()
     指标维度 = 指标维度库.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
 
@@ -320,14 +320,15 @@ class 院内分析报告 extends 分析报告
 class 对标分析报告 extends 分析报告
   @sections: ->
     [
-      #院内各科指标简单排序
-      #院内各科指标评分排序
+      #对标各科指标评分轮比雷达图
+      #对标单科多指标评分雷达图
 
-      #院内各科维度轮比雷达图
-      #院内单科多维度评分雷达图
+      #对标各科维度轮比雷达图
+      #对标单科多维度评分雷达图
 
-      院内专科BCG散点图
-      院内专科梯队表
+      对标单科指标简单排序
+      #对标单科指标评分排序 
+      #对标各科维度轮比散点图
     ]
 
 
@@ -343,33 +344,33 @@ class 表格报告 extends 分析报告
     titles = @titles() 
     rows.push(titles)
     for each in data
-      #rows.push (each[t] for t in titles)
       rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
     slide = pres.addSlide({sectionTitle})
-    #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
 
     #console.log {rows}
     slide.addTable(rows, {
-      #x: 0.5, y: 0.5 
-      #w: 9, h: 1 
+      #x: 0.5
+      #y: 0.3 
+      #w: "90%" 
+      #h: 1   
       colW: [
         1.2,0.55,0.55,0.55,0.55
         0.55,0.55,0.55,0.55,0.55
         0.55,0.55,0.55,0.55,0.55
       ]
       border: {color: "CFCFCF"} 
-      margin: 0.05
+      #margin: 0.05
       align: "left"
       valign: "middle"
       fontFace: "Segoe UI"
-      fontSize: 8 #10
+      fontSize: 9
       autoPage: true
       autoPageRepeatHeader: true
       autoPageCharWeight: -0.5
       autoPageLineWeight: -0.5
       autoPageHeaderRows: 1
-      autoPageSlideStartY: 0.2
+      #autoPageSlideStartY: 0.2
       verbose: false
     })
 
@@ -444,7 +445,7 @@ class 散点图报告 extends 分析报告
 
 class 排序报告 extends 分析报告
   @chartType: ->
-    'bar3d'
+    'bar'
 
 
 
@@ -569,18 +570,25 @@ class 单科雷达图报告 extends 雷达图报告
 
 
 
+class 对标单科指标简单排序 extends 排序报告
+  @dataPrepare: ->
+    @dbClear().save()
+    focusUnits = @focusUnits()
+    for unit in focusUnits
+      for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
+        indicatorName = "#{unit}: #{indicator}"
+        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when value))
+        @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
+    @dbSave()
+
+
 
 
 class 院内各科指标简单排序 extends 排序报告
-  @chartType: ->
-    'bar'
-
-
-
   @dataPrepare: ->
     @dbClear().save()
-    year = 院内资料库.years()[0]
-    localUnits = 院内资料库.localUnits()
+    year = @years()[0]
+    localUnits = @localUnits()
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
@@ -593,6 +601,11 @@ class 院内各科指标简单排序 extends 排序报告
       @dbSet(dataName, _arr)
     
     @dbSave()
+
+  @chartType: ->
+    'bar3d'
+
+
 
 
 
@@ -831,6 +844,8 @@ class 生成器 extends CaseSingleton
       .localIndicatorBCGChart()
       .localTeamsTable()
       .localReport()
+
+      .simpleCompareIndicatorOrdering()
       .compareReport()
       #.saveUtilExcel()
 
@@ -855,10 +870,10 @@ class 生成器 extends CaseSingleton
 
   # 看看有多少科室数据
   @showUnitNames: ->
-    localUnits = 院内资料库.localUnits()
-    compareUnits = 对标资料库.dbDictKeys()
-    years = 院内资料库.years()
-    console.log {localUnits, compareUnits, years}
+    years = @years()
+    localUnits = @localUnits()
+    focusUnits = @focusUnits()
+    console.log {localUnits, focusUnits, years}
     return this
   
   
@@ -930,7 +945,9 @@ class 生成器 extends CaseSingleton
     院内各科指标简单排序.dataPrepare()
     return this
 
-  
+  @simpleCompareIndicatorOrdering: ->
+    对标单科指标简单排序.dataPrepare()
+    return this
 
   @localIndicatorScoreSort: ->
     院内各科指标评分排序.dataPrepare()
