@@ -108,6 +108,6 @@ dist
 
 # my works
 *~lock*.pptx*
-cases/*.json
 cases/*/*.pg.pptx
-cases/*/*.json
+cases/20*/*.json
+#cases/20*/*.xlsx
