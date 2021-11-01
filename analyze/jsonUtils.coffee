@@ -299,7 +299,7 @@ class JSONDatabase extends JSONSimple
 				obj.unitName = k
 			
 			arr.push(obj)
-			console.log {k, except}
+			#console.log {k, except}
 		return arr
 
 

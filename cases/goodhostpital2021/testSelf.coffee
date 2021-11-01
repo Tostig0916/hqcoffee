@@ -297,7 +297,7 @@ class 分析报告 extends NormalCaseSingleton
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内专科梯队表格
+      院内专科梯队表
       院内专科BCG散点图
       
       #院内各科指标轮比雷达图
@@ -327,7 +327,7 @@ class 对标分析报告 extends 分析报告
       #院内单科多维度评分雷达图
 
       院内专科BCG散点图
-      院内专科梯队表格
+      院内专科梯队表
     ]
 
 
@@ -343,7 +343,8 @@ class 表格报告 extends 分析报告
     titles = @titles() 
     rows.push(titles)
     for each in data
-      rows.push ((if t is '科室名称' then each[t] else fix(each[t])) for t in titles)
+      #rows.push (each[t] for t in titles)
+      rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
     slide = pres.addSlide({sectionTitle})
     #slide.addTable([titles],{x: 0.5, y: 3.5, w: 9, h: 1, autoPage:true})
@@ -782,7 +783,7 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
 
 
 
-class 院内专科梯队表格 extends 表格报告
+class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear().save()
     arrayName = @arrayName()
@@ -951,7 +952,7 @@ class 生成器 extends CaseSingleton
 
   @localTeamsTable: ->
     @localTopsis()
-    院内专科梯队表格.dataPrepare()
+    院内专科梯队表.dataPrepare()
     return this
 
 
