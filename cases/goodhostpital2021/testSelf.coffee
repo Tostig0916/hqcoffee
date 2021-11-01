@@ -583,7 +583,7 @@ class 院内各科指标简单排序 extends 排序报告
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
-      arr = 院内指标资料库.dbAsArray({dataName,key:year})
+      arr = 院内指标资料库.dbAsArray({dataName,key:year,except:'医院'})
       _arr = arr.sort (a,b)-> 
         try
           b[dataName] - a[dataName]
