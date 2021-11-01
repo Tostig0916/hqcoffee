@@ -326,8 +326,8 @@ class 对标分析报告 extends 分析报告
       #对标各科维度轮比雷达图
       #对标单科多维度评分雷达图
 
-      对标单科指标简单排序
-      #对标单科指标评分排序 
+      #对标单科指标简单排序
+      对标单科指标评分排序 
       #对标各科维度轮比散点图
     ]
 
@@ -582,8 +582,6 @@ class 对标单科指标简单排序 extends 排序报告
     @dbSave()
 
 
-
-
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
     @dbClear().save()
@@ -612,6 +610,38 @@ class 院内各科指标简单排序 extends 排序报告
 
 
 
+class 对标单科指标评分排序 extends 排序报告
+  @dataPrepare: ->
+    @dbClear().save()
+    direction = 指标导向库.dbRevertedValue()
+    obj = 对标单科指标简单排序.dbValue()
+    for indicator, arr of obj #when arr[0] # 有些项目可能是空的,予以排除
+      realIndicatorName = indicator.split(': ')[1]
+      switch 
+        when not arr[0]? 
+          @dbSet(indicator, arr)
+        when realIndicatorName in direction.逐步提高
+          first = arr[0][indicator]
+          @dbSet(indicator, arr.map (unit, idx)-> 
+            value = 100 * unit[indicator] / first
+            console.log {bug:"> 100" ,value, first} if value > 101
+            unit[indicator] = value
+            unit
+          )
+        when realIndicatorName in direction.逐步降低
+          arr.reverse()
+          first = arr[0][indicator]
+          @dbSet(indicator, arr.map (unit, idx)-> 
+            value = 100 * first / unit[indicator]
+            console.log {bug:"> 100" ,value, first} if value > 101
+            unit[indicator] = value
+            unit
+          )
+
+    @dbSave()
+
+
+
     
 
 
@@ -628,7 +658,9 @@ class 院内各科指标评分排序 extends 排序报告
     obj = 院内各科指标简单排序.dbValue()
     #@db().default(obj).save()
     for indicator, arr of obj
-      switch 
+      switch
+        when not arr[0]?
+          @dbSet(indicator, arr) 
         when indicator in direction.逐步提高
           #console.log({indicator, arr})
           first = arr[0][indicator]
@@ -846,6 +878,7 @@ class 生成器 extends CaseSingleton
       .localReport()
 
       .simpleCompareIndicatorOrdering()
+      .compareIndicatorScoreSort()
       .compareReport()
       #.saveUtilExcel()
 
@@ -949,10 +982,14 @@ class 生成器 extends CaseSingleton
     对标单科指标简单排序.dataPrepare()
     return this
 
+
   @localIndicatorScoreSort: ->
     院内各科指标评分排序.dataPrepare()
     return this
 
+  @compareIndicatorScoreSort: ->
+    对标单科指标评分排序.dataPrepare()
+    return this 
 
   @localIndicatorRadarChart: ->
     院内单科多维度评分雷达图.dataPrepare()
