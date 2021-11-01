@@ -109,5 +109,5 @@ dist
 # my works
 *~lock*.pptx*
 cases/*.json
-cases/goodhostpital2021/*.pg.pptx
-cases/goodhostpital2021/*.json
+cases/*/*.pg.pptx
+cases/*/*.json
