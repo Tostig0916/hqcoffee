@@ -1,5 +1,5 @@
 # my works
-~*.ppt*
+*~lock*.pptx*
 cases/*/*.json
 
 # Logs
