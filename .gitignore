@@ -1,6 +1,8 @@
 # my works
+*.pptx
 *~lock*.pptx*
-cases/*/*.json
+cases/*.json
+
 
 # Logs
 logs
@@ -108,3 +110,5 @@ dist
 # TernJS port file
 .tern-port
 .DS_Store
+cases/goodhostpital2021/*.pg.pptx
+cases/goodhostpital2021/*.json
