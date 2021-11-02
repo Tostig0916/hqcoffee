@@ -566,6 +566,14 @@ class 单科雷达图报告 extends 雷达图报告
 
 
 
+# 同一个科室或医院,跟同类外部科室或本身不同年份的多维度对比
+class 单科对比雷达图报告 extends 雷达图报告
+  @slides: (funcOpts) ->
+    {pres, sectionTitle} = funcOpts
+    chartType = @chartType()
+
+
+
 
 
 
@@ -580,6 +588,8 @@ class 对标单科指标简单排序 extends 排序报告
         @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when value))
         @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
     @dbSave()
+
+
 
 
 class 院内各科指标简单排序 extends 排序报告
