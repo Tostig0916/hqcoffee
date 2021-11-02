@@ -1072,6 +1072,14 @@ class 生成器 extends CaseSingleton
   #.compareReport()
 
 
+###
+# 对比雷达图设计
+db = 对标单科指标评分排序.db()
+db.filter()
+
+###
+
+
 
 #
 #院内单科多维度评分雷达图.dataPrepare()
