@@ -633,7 +633,7 @@ class 对标单科指标评分排序 extends 排序报告
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * unit[indicator] / first
-            console.log {bug:"> 100" ,value, first} if value > 101
+            console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
             unit[indicator] = value
             unit
           )
@@ -642,7 +642,7 @@ class 对标单科指标评分排序 extends 排序报告
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * first / unit[indicator]
-            console.log {bug:"> 100" ,value, first} if value > 101
+            console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
             unit[indicator] = value
             unit
           )
@@ -672,7 +672,7 @@ class 院内各科指标评分排序 extends 排序报告
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * unit[indicator] / first
-            console.log {bug:"> 100" ,value, first} if value > 101
+            console.log {bug:"> 100",indicator,value, first} if value > 101
             unit[indicator] = value
             unit
           )
@@ -681,7 +681,7 @@ class 院内各科指标评分排序 extends 排序报告
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * first / unit[indicator]
-            console.log {bug:"> 100" ,value, first} if value > 101
+            console.log {bug:"> 100",indicator,value, first} if value > 101
             unit[indicator] = value
             unit
           )
