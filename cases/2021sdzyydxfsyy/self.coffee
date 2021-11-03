@@ -625,11 +625,10 @@ class 对标单科指标评分排序 extends 排序报告
     @dbClear().save()
     direction = 指标导向库.dbRevertedValue()
     obj = 对标单科指标简单排序.dbValue()
-    for indicator, arr of obj #when arr[0] # 有些项目可能是空的,予以排除
+    for indicator, arr of obj when arr[0] and not indicator in ['CMI值'] # 有些项目可能是空的,予以排除
+      
       realIndicatorName = indicator.split(': ')[1]
       switch 
-        when not arr[0]? 
-          @dbSet(indicator, arr)
         when realIndicatorName in direction.逐步提高
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
@@ -667,12 +666,11 @@ class 院内各科指标评分排序 extends 排序报告
     
     obj = 院内各科指标简单排序.dbValue()
     #@db().default(obj).save()
-    for indicator, arr of obj
+    for indicator, arr of obj when arr[0] and not indicator in ['CMI值']
+      console.log({indicator, arr})
+
       switch
-        when not arr[0]?
-          @dbSet(indicator, arr) 
         when indicator in direction.逐步提高
-          #console.log({indicator, arr})
           first = arr[0][indicator]
           @dbSet(indicator, arr.map (unit, idx)-> 
             value = 100 * unit[indicator] / first
