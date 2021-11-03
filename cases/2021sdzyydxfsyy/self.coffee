@@ -240,7 +240,7 @@ class 对标指标资料库 extends 资料库
     
 
     for dataName, dimension of 指标维度 when dataName?     
-      for entityName in units
+      for entityName in units when 院内指标资料[entityName]?
         for year, value of 院内指标资料[entityName][dataName]
           @dbSet("#{entityName}.#{dataName}.#{year}", value)
 
