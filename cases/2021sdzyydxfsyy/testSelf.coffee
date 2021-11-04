@@ -221,7 +221,7 @@ class 院内指标资料库 extends 资料库
         for year in years
           key = year
           ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if ownData
     @dbSave()
     console.log "院内指标资料库: 指标数据移动完毕"
     return this
@@ -660,7 +660,7 @@ class 院内各科指标评分排序 extends 排序报告
     obj = 院内各科指标简单排序.dbValue()
     #@db().default(obj).save()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
-    for indicator, arr of obj when arr[0] and indicator in directions
+    for indicator, arr of obj when arr[0] and (indicator in directions)
       first = arr[0][indicator]
       distance = arr[arr.length - 1][indicator] - first
       @dbSet(indicator, arr.map (unit, idx)-> 
