@@ -294,11 +294,12 @@ class JSONDatabase extends JSONSimple
 					obj[dataName] = v[dataName]?[key]
 				else
 					obj[dataName] = v[dataName]
+				arr.push(obj) if obj[dataName] # 若无数据则不纳入
 			else
 				obj = v
 				obj.unitName = k
-			
-			arr.push(obj)
+				arr.push(obj)
+
 			#console.log {k, except}
 		return arr
 
