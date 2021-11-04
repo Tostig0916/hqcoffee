@@ -596,7 +596,6 @@ class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
     @dbClear().save()
     year = @years()[0]
-    localUnits = @localUnits()
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
@@ -628,7 +627,8 @@ class 对标单科指标评分排序 extends 排序报告
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     for indicator, arr of obj when arr[0] and (realIndicatorName = indicator.split(': ')[1]) in directions
       first = arr[0][indicator]
-      distance = arr[arr.length - 1][indicator] - first
+      last = arr[arr.length - 1][indicator]
+      distance = last - first
       @dbSet(indicator, arr.map (unit, idx)-> 
         value = 100 * (unit[indicator] - first) / distance
         console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
@@ -652,20 +652,21 @@ class 院内各科指标评分排序 extends 排序报告
 
   @dataPrepare: ->
     @dbClear().save()
-    direction = 指标导向库.dbRevertedValue()
-    # console.log {direction}
-    
+    direction = 指标导向库.dbRevertedValue()    
     #return null unless direction.逐步提高?
     
     obj = 院内各科指标简单排序.dbValue()
     #@db().default(obj).save()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    #console.log {directions}
+
     for indicator, arr of obj when arr[0] and (indicator in directions)
       first = arr[0][indicator]
-      distance = arr[arr.length - 1][indicator] - first
+      last = arr[arr.length - 1][indicator]
+      distance = last - first
       @dbSet(indicator, arr.map (unit, idx)-> 
         value = 100 * (unit[indicator] - first) / distance
-        console.log {bug:"> 100",indicator,value, first} if value > 101
+        console.log({bug:"> 100",indicator,distance,value, last, first, unit}) if (value > 101) or (value is null)
         switch
           when indicator in direction.逐步提高
             unit[indicator] = value
@@ -732,6 +733,8 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         weight = switch indicator
           when '医疗服务收入三年复合增长率' then 0.382 * 2
           when '医疗服务收入占全院比重' then 0.618 * 2
+          when 'CMI当量DRGs组数' then 0.382 * 2
+          when 'CMI值' then 0.618 * 2
           else 1
         unit.dmis.push(weight * each[indicator]) if each[indicator]
         console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
