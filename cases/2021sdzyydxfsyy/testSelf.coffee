@@ -366,6 +366,8 @@ class 表格报告 extends 分析报告
     rows = []
     titles = @titles() 
     rows.push(titles)
+
+    console.log {data}
     for each in data
       rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
@@ -886,7 +888,7 @@ class 院内专科梯队表 extends 表格报告
 
 class 生成器 extends CaseSingleton
   @run: ->
-    #@buildDB()
+    @buildDB()
     @generateReports()
 
 

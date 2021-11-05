@@ -314,7 +314,7 @@ class JSONDatabase extends JSONSimple
 
 
 	@dbDelete: (key) ->
-		@db().get(key).delete()
+		@db().get(key).delete(true)
 		@db()
 
 
@@ -343,10 +343,12 @@ class JSONDatabase extends JSONSimple
 
 	@dbSave: ->
 		@db().save()
+		#@dbClear()
 
 
 	@dbSet: (key, value) ->
 		@db().set(key, value)
+		@db()
 
 
 	# it turns out the this will behave the same as dbSet
