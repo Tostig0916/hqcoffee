@@ -266,12 +266,12 @@ class JSONSimple  # with no dependences to stormdb
 
 # use stormdb
 class JSONDatabase extends JSONSimple
-	
+
 	# 以下db工具均return db,用于链锁指令save()
 	@db: ->
 		unless @_dbPath()? 
 			return null
-
+		
 		switch
 			when @_db?
 				@_db
@@ -307,9 +307,10 @@ class JSONDatabase extends JSONSimple
 
 
 	@dbClear: ->
-		db = @db()
-		@dbDelete(k) for k, v of @dbValue()
-		return db
+		#db = @db()
+		#@dbDelete(k) for k, v of @dbValue()
+		delete(@_db)
+		return @db()
 
 
 
@@ -343,7 +344,6 @@ class JSONDatabase extends JSONSimple
 
 	@dbSave: ->
 		@db().save()
-		#@dbClear()
 
 
 	@dbSet: (key, value) ->
