@@ -73,11 +73,17 @@ class DataManagerBase
 
 
   @regMissing: (funcOpts) ->
-    {entityName, dataName, key, regest_db} = funcOpts
-    regarr = regest_db.get(dataName)
-    regest_db.set(dataName,[]) unless regarr.value()?.length? 
-    unless entityName in regarr.value()
-      regarr.push(entityName).save() 
+    {entityName, dataName, hostname, key, regest_db} = funcOpts
+    regarr = regest_db.get(hostname)?.get(dataName)
+    
+    unless regest_db.get(hostname).value()?
+      regest_db.set(hostname,{}).save()
+    
+    unless regest_db.get(hostname).get(dataName).value()?
+      regest_db.get(hostname).set(dataName,[]).save() 
+    
+    unless entityName in regest_db.get(hostname).get(dataName).value()
+      regest_db.get(hostname).get(dataName).push(entityName).save() 
     
 
 
@@ -118,7 +124,7 @@ class DataManagerBase
 
   @toBeImplemented: (funcOpts={}) ->
     {informal=false} = funcOpts
-    #console.log {function: "#{@_funcName(funcOpts)}", needs: "implementing!"}
+    console.log {informal, function: "#{@_funcName(funcOpts)}", needs: "implementing!"}
     @regMissing(funcOpts)
 
     if informal 
@@ -322,7 +328,7 @@ class DataManager extends DataManagerBase
       前医疗服务收入 = @getData(funcOpts)
 
     unless 前医疗服务收入?
-      return null
+      return nil
 
     return @ratio(前医疗服务收入, 今医疗服务收入, n)
   
