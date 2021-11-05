@@ -48,6 +48,7 @@ class AnyCaseSingleton extends StormDBSingleton
 
     funcOpts.regest_db = 缺漏追踪库.db()
     funcOpts.log_db = @logdb()
+    funcOpts.hostname = @name
 
     DataManager.getData(funcOpts)
 
@@ -58,11 +59,11 @@ class AnyCaseSingleton extends StormDBSingleton
 class 维度权重 extends AnyCaseSingleton
   @dict: -> 
     {
-      服务收入: 0.4
-      医保价值: 0.1
+      服务收入: 0.5
+      医保价值: 0.2
       质量安全: 0.5
-      地位影响: 0.6
-      学科建设: 0.2
+      地位影响: 0.5
+      学科建设: 0.1
       人员结构: 0.2
       功能定位: 0.3
       服务流程: 0.3
@@ -95,6 +96,9 @@ class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
     "Good Hospital"
 
+
+  @createMissingData: -> 
+    false
 
   # 必须置于此处,以便随客户文件夹而建立数据库文件
   @_dbPath: ->
@@ -233,7 +237,7 @@ class 院内指标资料库 extends 资料库
     指标维度 = 指标维度库.dbValue()
     years = @years()
     units = @localUnits()
-    
+    informal = @createMissingData()
 
     for dataName, dimension of 指标维度 when dataName?
       for entityName in units 
@@ -256,7 +260,7 @@ class 对标指标资料库 extends 资料库
     院内指标资料 = 院内指标资料库.dbValue()
 
     对标项 = ['均1','均2','某A','某B']
-    
+    informal = @createMissingData()  
 
     for dataName, dimension of 指标维度 when dataName?     
       for entityName in units when 院内指标资料[entityName]?
@@ -406,7 +410,7 @@ class 散点图报告 extends 分析报告
     #@dataPrepare()
     data = if sectionTitle is '院内专科BCG散点图' then 院内专科BCG散点图.dbValue() else @dbValue()
     
-    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(0).value()}) if /BCG/i.test(sectionTitle)
+    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
 
     for indicator, arr of data
       for _indicator, _arr of data when _indicator isnt indicator
@@ -477,7 +481,7 @@ class 排序报告 extends 分析报告
     
     #@dataPrepare()
     data = @dbValue()
-    for indicator, arr of data
+    for indicator, arr of data when arr.length > 0
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -828,7 +832,7 @@ class 院内专科BCG散点图 extends 散点图报告
       '医疗服务收入占全院比重'
     ]
       selfObj[indicator] = arr
-      console.log({arr})
+      #console.log({arr})
     @db().default(selfObj).save()
 
 
@@ -881,15 +885,23 @@ class 院内专科梯队表 extends 表格报告
 # 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
 class 生成器 extends CaseSingleton
-
   @run: ->
+    #@buildDB()
+    @generateReports()
+
+
+  @buildDB: ->
     this
       #.showDBs()
       .readExcel()
+      .showMissingIndicatorsOrDataProblems()
+
+      #.saveUtilExcel()
+
       #.showUnitNames()
       #._tryGetSomeData()
       #.showDimensions()
-      .showMissingIndicatorsOrDataProblems()
+      
       .exportRawDataToReportDB()
       
       .simpleLocalIndicatorOrdering()
@@ -897,12 +909,16 @@ class 生成器 extends CaseSingleton
       .localIndicatorScoreSort()
       .localIndicatorRadarChart()
       .localTeamsTable()
-      .localReport()
 
       .simpleCompareIndicatorOrdering()
       .compareIndicatorScoreSort()
+  
+  
+  
+  @generateReports: ->
+    this
+      .localReport()
       .compareReport()
-      #.saveUtilExcel()
 
 
 
@@ -957,16 +973,14 @@ class 生成器 extends CaseSingleton
     缺漏追踪库.dbClear().save()
 
     指标维度 = 指标维度库.dbValue()
-
-    informal = true
     
     k1 = 'Y2020'
     k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        院内资料库.getData({entityName, dataName, key:k1, informal})
+        院内资料库.getData({entityName, dataName, key:k1, informal:true})
       for entityName in 对标资料库.dbDictKeys()
-        对标资料库.getData({entityName, dataName, key:k2, informal})
+        对标资料库.getData({entityName, dataName, key:k2, informal:true})
     console.log "指标数据筛查完毕"
     return this
 
@@ -979,7 +993,7 @@ class 生成器 extends CaseSingleton
     console.log { 
       院内资料: 院内资料库.logdb().value()
       对标资料: 对标资料库.logdb().value()
-      缺漏追踪: 缺漏追踪库.dbDictKeys()
+      缺漏追踪: (key for key, value of 缺漏追踪库.db().get('院内资料库').value() when value.length > 1)
     }
     return this
 
@@ -1092,6 +1106,9 @@ db.filter()
 ###
 
 
+
+
+#console.log db: 缺漏追踪库.db().get('院内资料库').value()?
 
 #
 #院内单科多维度评分雷达图.dataPrepare()
