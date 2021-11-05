@@ -233,7 +233,7 @@ class 对标资料库 extends 资料库
 class 院内指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
-    @dbClear().save()
+    @dbClear()
     指标维度 = 指标维度库.dbValue()
     years = @years()
     units = @localUnits()
@@ -254,7 +254,7 @@ class 院内指标资料库 extends 资料库
 class 对标指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
-    @dbClear().save()
+    @dbClear()
     units = @focusUnits() # 对标资料库.dbDictKeys()
     指标维度 = 指标维度库.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
@@ -608,7 +608,7 @@ class 单科对比雷达图报告 extends 雷达图报告
 
 class 对标单科指标简单排序 extends 排序报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     focusUnits = @focusUnits()
     for unit in focusUnits
       for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
@@ -622,7 +622,7 @@ class 对标单科指标简单排序 extends 排序报告
 
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     year = @years()[0]
     指标维度 = 指标维度库.dbValue()
 
@@ -646,7 +646,7 @@ class 院内各科指标简单排序 extends 排序报告
 
 class 对标单科指标评分排序 extends 排序报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     direction = 指标导向库.dbRevertedValue()
     obj = 对标单科指标简单排序.dbValue()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
@@ -676,7 +676,7 @@ class 对标单科指标评分排序 extends 排序报告
 class 院内各科指标评分排序 extends 排序报告
 
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     direction = 指标导向库.dbRevertedValue()    
     #return null unless direction.逐步提高?
     
@@ -737,9 +737,9 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 # 以专科为单位,各维度雷达图
 class 院内单科多维度评分雷达图 extends 单科雷达图报告
   @dataPrepare: ->
-    院内各科维度轮比散点图.dbClear().save() # 临时测试绘制散点图
-    院内各科维度轮比雷达图.dbClear().save()
-    @dbClear().save()
+    院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
+    院内各科维度轮比雷达图.dbClear()
+    @dbClear()
     dimensions = 指标维度库.dbValue()
     focusUnits = @focusUnits()[1..]
     obj = 院内各科指标评分排序.dbValue()
@@ -824,7 +824,7 @@ class 院内单科多维评分散点图 extends 散点图报告
 
 class 院内专科BCG散点图 extends 散点图报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     
     obj = 院内各科指标简单排序.dbValue()
     selfObj = {}
@@ -844,7 +844,7 @@ class 院内专科BCG散点图 extends 散点图报告
 
 class 院内专科梯队Topsis评分 extends 院内分析报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear()
     weight = 维度权重.dict()
     for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
       @dbSet(unitName, {})
@@ -858,9 +858,11 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
 
 class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
-    @dbClear().save()
+    @dbClear() #({save:true})
     arrayName = @arrayName()
-    @dbDefault('学科梯队':[])
+    #@dbDefault('学科梯队':[]) # 这个不能用,用了就出错
+    @db().set('学科梯队',[])
+
     topsis = 院内专科梯队Topsis评分.dbValue()
     for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
       unitObj.科室名称 = unitName
@@ -972,7 +974,7 @@ class 生成器 extends CaseSingleton
   @checkForAllIndicators: ->
     院内资料库.logdbClear().save()
     对标资料库.logdbClear().save()
-    缺漏追踪库.dbClear().save()
+    缺漏追踪库.dbClear()
 
     指标维度 = 指标维度库.dbValue()
     

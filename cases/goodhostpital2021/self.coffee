@@ -142,7 +142,7 @@ ynbg.dbSave()
 ###
 arr = ynbg.dbAsArray()
 console.log arr
-ynbg.dbClear().save()
+ynbg.dbClear()
 ynbg.dbDefault({data:arr}).save()
 ###
 

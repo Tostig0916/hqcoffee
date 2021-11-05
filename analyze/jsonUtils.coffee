@@ -306,11 +306,13 @@ class JSONDatabase extends JSONSimple
 		return arr
 
 
-	@dbClear: ->
+	@dbClear: (funcOpts={}) ->
+		{save=false} = funcOpts
 		#db = @db()
-		#@dbDelete(k) for k, v of @dbValue()
+		@dbDelete(k) for k, v of @dbValue()
+		@dbSave() if save
 		delete(@_db)
-		return @db()
+		@db()
 
 
 
@@ -321,7 +323,8 @@ class JSONDatabase extends JSONSimple
 
 
 	@dbDefault: (obj) ->
-		@db().default(obj)
+		console.log "never use this or db().default(obj)"
+		#@db().default(obj)
 
 
 	# must be dictionary
