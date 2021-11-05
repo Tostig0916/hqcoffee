@@ -20,6 +20,8 @@ path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
+existNumber = (x) -> x? and not isNaN(x)
+
 # 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 informal = not true #false
 
@@ -221,7 +223,7 @@ class 院内指标资料库 extends 资料库
         for year in years
           key = year
           ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if ownData
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
     @dbSave()
     console.log "院内指标资料库: 指标数据移动完毕"
     return this
@@ -242,12 +244,12 @@ class 对标指标资料库 extends 资料库
     for dataName, dimension of 指标维度 when dataName?     
       for entityName in units when 院内指标资料[entityName]?
         for year, value of 院内指标资料[entityName][dataName]
-          @dbSet("#{entityName}.#{dataName}.#{year}", value)
+          @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
 
         for item in 对标项
           key = item
           otherData = 对标资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
+          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
     
     @dbSave()
     console.log "对标指标资料库: 指标数据移动完毕"
@@ -585,7 +587,8 @@ class 对标单科指标简单排序 extends 排序报告
     for unit in focusUnits
       for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
         indicatorName = "#{unit}: #{indicator}"
-        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when value))
+        #console.log({debug:'重点学科等级评分', value,indicatorName,name,valueGroup})
+        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)
         @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
     @dbSave()
 
@@ -600,6 +603,8 @@ class 院内各科指标简单排序 extends 排序报告
 
     for dataName, dimension of 指标维度 when dataName?
       arr = 院内指标资料库.dbAsArray({dataName,key:year,except:'医院'})
+      console.log({debug:'重点学科等级评分', dimension,dataName,arr}) if dataName is '重点学科等级评分'
+
       _arr = arr.sort (a,b)-> 
         try
           b[dataName] - a[dataName]
@@ -625,7 +630,7 @@ class 对标单科指标评分排序 extends 排序报告
     direction = 指标导向库.dbRevertedValue()
     obj = 对标单科指标简单排序.dbValue()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
-    for indicator, arr of obj when arr[0] and (realIndicatorName = indicator.split(': ')[1]) in directions
+    for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
       distance = last - first
@@ -660,7 +665,7 @@ class 院内各科指标评分排序 extends 排序报告
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     #console.log {directions}
 
-    for indicator, arr of obj when arr[0] and (indicator in directions)
+    for indicator, arr of obj when arr[0]? and (indicator in directions)
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
       distance = last - first
@@ -736,8 +741,9 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
           when 'CMI当量DRGs组数' then 0.382 * 2
           when 'CMI值' then 0.618 * 2
           else 1
-        unit.dmis.push(weight * each[indicator]) if each[indicator]
+        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
         console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
+    
     # step two: calculate dimension value
     
     for dmName, dmObj of newObj
@@ -749,6 +755,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         s = dmis.length
         if s > 0
           unitObj[dmName] = v / s
+          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if s < 2 or unitObj[dmName] > 101
         delete(unitObj.dmis)
     
     # step three: turning into an ordered array
@@ -818,7 +825,7 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
     for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
       @dbSet(unitName, {})
       value = 0
-      for object in unitArray when v = object[object.dimension]
+      for object in unitArray when existNumber(v = object[object.dimension])
         @db().get(unitName).set(object.dimension, v)
         value += v * weight[object.dimension]
       @db().get(unitName).set('综合评分',value).save()
