@@ -285,10 +285,10 @@ class JSONDatabase extends JSONSimple
 
 	# 用于将字典转换成[],以便排序计算等等
 	@dbAsArray: (funcOpts={}) ->
-		{dataName,key, except='noExcepts'} = funcOpts
+		{dataName,key, except} = funcOpts
 		#({"#{k}": v} for k,v of @dbValue())
 		arr = []
-		for k,v of @dbValue() when except isnt k  # 医院, 用 not /医院/i.test(k) 过滤不掉,不知何故
+		for k,v of @dbValue() when not except?.test(k)  # 医院, 用 not /医院/i.test(k) 过滤不掉,不知何故
 			if dataName?
 				obj = {}
 				obj.unitName = k
@@ -296,7 +296,7 @@ class JSONDatabase extends JSONSimple
 					obj[dataName] = v[dataName]?[key]
 				else
 					obj[dataName] = v[dataName]
-				arr.push(obj) if obj[dataName]? and obj[dataName] isnt NaN # 若无数据则不纳入
+				if existNumber(obj[dataName]) then arr.push(obj) # 若无数据则不纳入
 			else
 				obj = v
 				obj.unitName = k

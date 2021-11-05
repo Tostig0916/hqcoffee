@@ -58,6 +58,23 @@ class AnyCaseSingleton extends StormDBSingleton
 class 维度权重 extends AnyCaseSingleton
   @dict: -> 
     {
+      服务收入: 0.4
+      医保价值: 0.1
+      质量安全: 0.5
+      地位影响: 0.6
+      学科建设: 0.2
+      人员结构: 0.2
+      功能定位: 0.3
+      服务流程: 0.3
+      费用控制: 0.3
+      合理用药: 0.3
+      收支结构: 0.3
+      资源效率: 0.3
+      人才培养: 0.2
+    }
+
+  @dictWithPerfectData: -> 
+    {
       服务收入: 2.5
       医保价值: 0.5
       质量安全: 1.5
@@ -388,6 +405,9 @@ class 散点图报告 extends 分析报告
     
     #@dataPrepare()
     data = @dbValue()
+    
+    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(0).value()}) if /BCG/i.test(sectionTitle)
+
     for indicator, arr of data
       for _indicator, _arr of data when _indicator isnt indicator
         nar = []
@@ -403,16 +423,16 @@ class 散点图报告 extends 分析报告
         chartData = [
           {
             name: _indicator
-            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
-            #labels: arr[0..19].map (each,idx)-> each.unitName
+            values: nar.map (each,idx)-> each[_indicator]
+            #labels: arr.map (each,idx)-> each.unitName
           }
           {
             name: indicator
-            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
-            labels: arr[0..19].map (each,idx)-> each.unitName
+            values: arr.map (each,idx)-> each[indicator]
+            labels: arr.map (each,idx)-> each.unitName
           }
         ]
-        
+
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1 
           y: 0.1 
@@ -587,8 +607,7 @@ class 对标单科指标简单排序 extends 排序报告
     for unit in focusUnits
       for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
         indicatorName = "#{unit}: #{indicator}"
-        #console.log({debug:'重点学科等级评分', value,indicatorName,name,valueGroup})
-        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)
+        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)))
         @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
     @dbSave()
 
@@ -602,20 +621,15 @@ class 院内各科指标简单排序 extends 排序报告
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
-      arr = 院内指标资料库.dbAsArray({dataName,key:year,except:'医院'})
-      console.log({debug:'重点学科等级评分', dimension,dataName,arr}) if dataName is '重点学科等级评分'
+      except = /^医院$/  #/(^医院$|^大|合并)/
+      arr = 院内指标资料库.dbAsArray({dataName,key:year,except})
+      @dbSet(dataName, arr)
+      @db().get(dataName).sort((a,b)-> b[dataName] - a[dataName])
 
-      _arr = arr.sort (a,b)-> 
-        try
-          b[dataName] - a[dataName]
-        catch error
-          -1
-      @dbSet(dataName, _arr)
-    
     @dbSave()
 
-  @chartType: ->
-    'bar3d'
+  #@chartType: ->
+  #  'bar3d'
 
 
 
@@ -742,7 +756,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
           when 'CMI值' then 0.618 * 2
           else 1
         unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
-        console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
+        console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
     
     # step two: calculate dimension value
     
@@ -752,10 +766,14 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         #unitObj[dmName] 
         v = 0
         v += each for each in dmis
-        s = dmis.length
+        
+        # 代码存在bug导致服务价值和医保收入等仅留下一个指标数值,原因待查,先予以越过
+        #s = dmis.length
+        s = if dmName in ['医保价值','服务收入'] then 2 else dmis.length  # 临时!!!
+
         if s > 0
           unitObj[dmName] = v / s
-          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if s < 2 or unitObj[dmName] > 101
+          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if s < 2 
         delete(unitObj.dmis)
     
     # step three: turning into an ordered array
@@ -810,7 +828,7 @@ class 院内专科BCG散点图 extends 散点图报告
       '医疗服务收入占全院比重'
     ]
       selfObj[indicator] = arr
-
+      console.log({arr})
     @db().default(selfObj).save()
 
 
@@ -875,9 +893,9 @@ class 生成器 extends CaseSingleton
       .exportRawDataToReportDB()
       
       .simpleLocalIndicatorOrdering()
+      .localIndicatorBCGChart()
       .localIndicatorScoreSort()
       .localIndicatorRadarChart()
-      .localIndicatorBCGChart()
       .localTeamsTable()
       .localReport()
 
