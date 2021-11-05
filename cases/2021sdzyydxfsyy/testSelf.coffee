@@ -404,7 +404,7 @@ class 散点图报告 extends 分析报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = if sectionTitle is '院内专科BCG散点图' then 院内专科BCG散点图.dbValue() else @dbValue()
     
     console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(0).value()}) if /BCG/i.test(sectionTitle)
 
