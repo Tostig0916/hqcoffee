@@ -110,6 +110,13 @@ class 缺漏追踪库 extends NormalCaseSingleton
 class SystemLog extends NormalCaseSingleton
 
 class 指标维度库 extends NormalCaseSingleton
+  @withDirection: ->
+    obj = {}
+    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
+      (obj[v] ?= []).push(k)
+    obj
+
+
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
@@ -194,29 +201,7 @@ class 对标资料库 extends 资料库
 
 
 
-
-class 院内指标资料库 extends 资料库
-
-  @rawDataToIndicators: ->
-    @dbClear()
-    指标维度 = 指标维度库.dbValue()
-    years = @years()
-    units = @localUnits()
-    informal = @createMissingData()
-
-    for dataName, dimension of 指标维度 when dataName?
-      for entityName in units 
-        for year in years
-          key = year
-          ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
-    @dbSave()
-    console.log "院内指标资料库: 指标数据移动完毕"
-    return this
-
-
-
-class 对标指标资料库 extends 资料库
+class 对标指标资料库 extends 对标资料库
 
   @rawDataToIndicators: ->
     @dbClear()
@@ -243,6 +228,26 @@ class 对标指标资料库 extends 资料库
 
 
 
+
+
+class 院内指标资料库 extends 院内资料库
+
+  @rawDataToIndicators: ->
+    @dbClear()
+    指标维度 = 指标维度库.dbValue()
+    years = @years()
+    units = @localUnits()
+    informal = @createMissingData()
+
+    for dataName, dimension of 指标维度 when dataName?
+      for entityName in units 
+        for year in years
+          key = year
+          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
+    @dbSave()
+    console.log "院内指标资料库: 指标数据移动完毕"
+    return this
 
 
 
@@ -771,19 +776,21 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 
 
 
-
-
+class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
+  @dataPrepare: ->
+    @dbClear()
 
 
 
 # 以专科为单位,各维度雷达图
 class 院内单科多维度评分雷达图 extends 单科雷达图报告
   @dataPrepare: ->
+    @dbClear()
     院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
     院内各科维度轮比雷达图.dbClear()
-    @dbClear()
+
     dimensions = 指标维度库.dbValue()
-    focusUnits = @focusUnits()[1..]
+    focusUnits = @focusUnits()[1..] # 0 为医院
     obj = 院内各科指标评分排序.dbValue()
 
     newObj = {}
@@ -1238,7 +1245,7 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 #生成器.buildDB()
-生成器.generateReports()
+#生成器.generateReports()
 
 #生成器.run()
 #生成器
@@ -1260,6 +1267,7 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
+console.log {di:指标维度库.withDirection()}
 
 ###
 # 对比雷达图设计
