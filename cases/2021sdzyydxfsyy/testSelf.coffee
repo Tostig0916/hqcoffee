@@ -337,18 +337,19 @@ class 表格报告 extends 分析报告
       rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
     slide = pres.addSlide({sectionTitle})
-
-    #console.log {rows}
+    width = [1.2]
+    n = titles.length
+    
+    while --n > 0
+      width.push(0.55)
+      
+    console.log {width}
     slide.addTable(rows, {
       #x: 0.5
       #y: 0.3 
       #w: "90%" 
       #h: 1   
-      colW: [
-        1.2,0.55,0.55,0.55,0.55
-        0.55,0.55,0.55,0.55,0.55
-        0.55,0.55,0.55,0.55,0.55
-      ]
+      colW: width
       border: {color: "CFCFCF"} 
       #margin: 0.05
       align: "left"
@@ -962,16 +963,16 @@ class 维度权重 extends 院内分析报告
         weight: 0.2
         indicators: {
           人员结构:{
-            weight: 0.25
+            weight: 0.4 #0.3
           }
           人才培养:{
-            weight: 0.3
+            weight: 0 #0.3
           }
           学科建设:{
-            weight: 0.3
+            weight: 0.6 #0.4
           }
           信用建设:{
-            weight: 0.15
+            weight: 0 #0.15
           }
         }
       }
@@ -1028,7 +1029,7 @@ class 院内专科梯队表 extends 表格报告
 
   @titles: ->
     dict = 维度权重.dbValue()
-    arr = (key for key, value of dict)
+    arr = (key for key, value of dict when value > 0)
     arr.unshift("科室名称")
     arr.push('综合评分')
     #console.log {arr,dict}
