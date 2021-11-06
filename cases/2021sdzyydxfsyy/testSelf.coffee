@@ -56,41 +56,6 @@ class AnyCaseSingleton extends StormDBSingleton
 
 
 
-class 维度权重 extends AnyCaseSingleton
-  @dict: -> 
-    {
-      服务收入: 0.5
-      医保价值: 0.2
-      质量安全: 0.5
-      地位影响: 0.5
-      学科建设: 0.1
-      人员结构: 0.2
-      功能定位: 0.3
-      服务流程: 0.3
-      费用控制: 0.3
-      合理用药: 0.3
-      收支结构: 0.3
-      资源效率: 0.3
-      人才培养: 0.2
-    }
-
-  @dictWithPerfectData: -> 
-    {
-      服务收入: 2.5
-      医保价值: 0.5
-      质量安全: 1.5
-      地位影响: 0.5
-      学科建设: 0.1
-      人员结构: 0.1
-      功能定位: 0.1
-      服务流程: 0.1
-      费用控制: 0.1
-      合理用药: 0.1
-      收支结构: 0.1
-      资源效率: 0.1
-      人才培养: 0.1
-    }
-  
 
 class CaseSingleton extends AnyCaseSingleton
   @customerName: ->
@@ -327,12 +292,12 @@ class 院内分析报告 extends 分析报告
       #院内单科多指标评分雷达图
 
 
-      院内各科维度轮比雷达图
-      院内单科多维度评分雷达图
+      #院内各科维度轮比雷达图
+      #院内单科多维度评分雷达图
 
-      院内各科指标简单排序
-      院内各科指标评分排序 
-      院内各科维度轮比散点图
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      #院内各科维度轮比散点图
    ]
 
 
@@ -407,18 +372,16 @@ class 散点图报告 extends 分析报告
 
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
-    chartType = @chartType()
-    
-    #@dataPrepare()
-    data = if sectionTitle is '院内专科BCG散点图' then 院内专科BCG散点图.dbValue() else @dbValue()
-    
-    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
-
+    chartType = @chartType()    
+    data = @dbValue()
+        
     for indicator, arr of data
-      for _indicator, _arr of data when _indicator isnt indicator
+      delete(data[indicator])
+      for _indicator, _arr of data
         nar = []
         arr.map (each, idx) -> 
-          nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
+          nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
+
         slide = pres.addSlide({sectionTitle})
         #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
         #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -426,13 +389,14 @@ class 散点图报告 extends 分析报告
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
         slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+
         chartData = [
-          {
+          { # x
             name: _indicator
             values: nar.map (each,idx)-> each[_indicator]
             #labels: arr.map (each,idx)-> each.unitName
           }
-          {
+          { # y
             name: indicator
             values: arr.map (each,idx)-> each[indicator]
             labels: arr.map (each,idx)-> each.unitName
@@ -449,23 +413,98 @@ class 散点图报告 extends 分析报告
           
           showTitle: true, 
           title: "#{indicator} vs #{_indicator}"
-          
-          valAxisTitle: indicator,
-          valAxisTitleColor: "428442",
-          valAxisTitleFontSize: 10,
-          showValAxisTitle: true,
-          lineSize: 0,
-          
+
+          # x
           catAxisTitle: _indicator,
           catAxisTitleColor: "428442",
           catAxisTitleFontSize: 10,
           showCatAxisTitle: true,
+
+          # y
+          valAxisTitle: indicator,
+          valAxisTitleColor: "428442",
+          valAxisTitleFontSize: 10,
+          showValAxisTitle: true,
+
+          lineSize: 0,
           
           showLabel: true, #// Must be set to true or labels will not be shown
           dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
           #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
         })
 
+
+
+class BCG矩阵报告 extends 散点图报告
+
+  @slides: (funcOpts) ->
+    {pres, sectionTitle} = funcOpts
+    chartType = @chartType()
+    
+    #@dataPrepare()
+    data = @dbValue()
+    
+    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
+    
+    [indicator, _indicator] = [
+      '医疗服务收入三年复合增长率'   # x
+      '医疗服务收入占全院比重'      # y
+    ]
+    arr = data[indicator]
+    _arr = data[_indicator]
+    nar = []
+    arr.map (each, idx) -> 
+      nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
+
+    slide = pres.addSlide({sectionTitle})
+    #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+    #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+    #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+    #slide.color = "696969"  # Set slide default font color
+    # EX: Styled Slide Numbers
+    slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+    chartData = [
+      { # x
+        name: indicator
+        values: arr.map (each,idx)-> each[indicator]
+        #labels: arr.map (each,idx)-> each.unitName
+      }
+      { # y
+        name: _indicator
+        values: nar.map (each,idx)-> each[_indicator]
+        labels: nar.map (each,idx)-> each.unitName
+      }
+    ]
+
+    slide.addChart(pres.ChartType[chartType], chartData, { 
+      x: 0.1 
+      y: 0.1 
+      w: "95%"
+      h: "95%"
+      showLegend: false, 
+      #legendPos: 'b'
+      
+      showTitle: true, 
+      title: "#{indicator} vs #{_indicator}"
+      
+      # x
+      catAxisTitle: indicator,
+      catAxisTitleColor: "428442",
+      catAxisTitleFontSize: 10,
+      showCatAxisTitle: true,
+      lineSize: 0,
+
+      # y
+      valAxisTitle: _indicator,
+      valAxisTitleColor: "428442",
+      valAxisTitleFontSize: 10,
+      showValAxisTitle: true,
+      lineSize: 0,
+            
+      showLabel: true, #// Must be set to true or labels will not be shown
+      dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
+      #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
+    })
 
 
 
@@ -528,8 +567,10 @@ class 多科雷达图报告 extends 雷达图报告
     
     #@dataPrepare()
     data = @dbValue()
+
     for indicator, arr of data
-      for _indicator, _arr of data when _indicator isnt indicator
+      delete(data[indicator])
+      for _indicator, _arr of data
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
@@ -775,7 +816,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         
         # 代码存在bug导致服务价值和医保收入等仅留下一个指标数值,原因待查,先予以越过
         #s = dmis.length
-        s = if dmName in ['医保价值','服务收入'] then 2 else dmis.length  # 临时!!!
+        s = if dmName in ['医保价值','医服收入'] then 2 else dmis.length  # 临时!!!
 
         if s > 0
           unitObj[dmName] = v / s
@@ -822,18 +863,24 @@ class 院内单科多维评分散点图 extends 散点图报告
 
 
 
-class 院内专科BCG散点图 extends 散点图报告
+class 院内专科BCG散点图 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
     
     obj = 院内各科指标简单排序.dbValue()
     selfObj = {}
-    for indicator, arr of obj when indicator in [
-      '医疗服务收入三年复合增长率'
+    indicators = [
       '医疗服务收入占全院比重'
+      '医疗服务收入三年复合增长率'
     ]
-      selfObj[indicator] = arr
-      #console.log({arr})
+    
+    for indicator in indicators
+      selfObj[indicator] = obj[indicator]
+
+    #for indicator, arr of obj when indicator in indicators
+    #  selfObj[indicator] = arr
+    
+    
     @dbDefault(selfObj).save()
 
 
@@ -841,10 +888,116 @@ class 院内专科BCG散点图 extends 散点图报告
 
 
 
+class 维度权重 extends 院内分析报告
+
+  @dataPrepare: ->
+    @dbClear()
+    #@dbSet('data',[])
+    for cat, category of @struct()
+      for dim, dimension of category.indicators
+        @db().get(dim).set(category.weight * dimension.weight) 
+    @dbSave()
+    
+
+  @dictWithPerfectData: -> 
+    {
+      医服收入: 2.5
+      医保价值: 0.5
+      质量安全: 1.5
+      地位影响: 0.5
+      学科建设: 0.1
+      人员结构: 0.1
+      功能定位: 0.1
+      服务流程: 0.1
+      费用控制: 0.1
+      合理用药: 0.1
+      收支结构: 0.1
+      资源效率: 0.1
+      人才培养: 0.1
+    }
+
+  @struct: ->
+    {
+      医疗质量:{
+        weight: 0.4
+        indicators: {
+          质量安全:{
+            weight:0.25
+          }
+          功能定位: {
+            weight:0.25
+          }
+          合理用药: {
+            weight: 0.15
+          }
+          服务流程: {
+            weight: 0.15
+          }
+          医保价值: {
+            weight: 0.2
+          }
+        }
+      }
+      运营效率:{
+        weight: 0.3
+        indicators: {
+          收支结构:{
+            weight: 0.3
+          }
+          费用控制:{
+            weight: 0.3
+          }
+          医服收入:{
+            weight: 0.2
+          }
+          经济管理:{
+            weight: 0
+          }
+          资源效率:{
+            weight: 0.2
+          }
+        }
+      }
+      持续发展: {
+        weight: 0.2
+        indicators: {
+          人员结构:{
+            weight: 0.25
+          }
+          人才培养:{
+            weight: 0.3
+          }
+          学科建设:{
+            weight: 0.3
+          }
+          信用建设:{
+            weight: 0.15
+          }
+        }
+      }
+      满意度评价: {
+        weight: 0.1
+        indicators: {
+          地位影响: {
+            weight: 1
+          }
+          医务人员满意度:{
+            weight: 0
+          }
+          患者满意度:{
+            weight: 0
+          }
+        }
+      }
+    }
+
+
+
+
 class 院内专科梯队Topsis评分 extends 院内分析报告
   @dataPrepare: ->
     @dbClear()
-    weight = 维度权重.dict()
+    weight = 维度权重.dbValue()
     for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
       @dbSet(unitName, {})
       value = 0
@@ -857,7 +1010,7 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
 
 class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
-    @dbClear() #({save:true})
+    @dbClear() #()
     arrayName = @arrayName()
     @db().set('学科梯队',[])
 
@@ -874,7 +1027,7 @@ class 院内专科梯队表 extends 表格报告
 
 
   @titles: ->
-    dict = 维度权重.dict()
+    dict = 维度权重.dbValue()
     arr = (key for key, value of dict)
     arr.unshift("科室名称")
     arr.push('综合评分')
@@ -887,6 +1040,9 @@ class 院内专科梯队表 extends 表格报告
 # 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
 class 生成器 extends CaseSingleton
+  
+  # 不知原因,不能连续运行这两步,内存中的各class数据会出现"串台"现象,
+  # 需要分步做,第二步是从数据库读取,结果正确
   @run: ->
     @buildDB()
     @generateReports()
@@ -1039,6 +1195,7 @@ class 生成器 extends CaseSingleton
     return this
 
   @localTopsis: ->
+    维度权重.dataPrepare()
     院内专科梯队Topsis评分.dataPrepare()
     return this
 
@@ -1082,6 +1239,7 @@ class 生成器 extends CaseSingleton
 #生成器.buildDB()
 生成器.generateReports()
 
+#生成器.run()
 #生成器
   #.showDBs()
   #.readExcel()

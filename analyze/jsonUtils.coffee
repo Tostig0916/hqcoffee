@@ -309,10 +309,10 @@ class JSONDatabase extends JSONSimple
 
 
 	@dbClear: (funcOpts={}) ->
-		{save=false} = funcOpts
+		#{save=false} = funcOpts
 		obj = @dbValue()
 		@db().get(k).delete(true) for k, v of obj
-		@dbSave() if save
+		@dbSave() #if save
 		delete(@_db)
 		@db()
 
