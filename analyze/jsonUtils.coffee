@@ -306,10 +306,12 @@ class JSONDatabase extends JSONSimple
 		return arr
 
 
+
+
 	@dbClear: (funcOpts={}) ->
 		{save=false} = funcOpts
-		#db = @db()
-		@dbDelete(k) for k, v of @dbValue()
+		obj = @dbValue()
+		@db().get(k).delete(true) for k, v of obj
 		@dbSave() if save
 		delete(@_db)
 		@db()
@@ -323,8 +325,18 @@ class JSONDatabase extends JSONSimple
 
 
 	@dbDefault: (obj) ->
-		console.log "never use this or db().default(obj)"
-		#@db().default(obj)
+		console.log "Must generate ppt separately if this or db().default(obj) is used."
+		###
+		# 无论怎么做,都会有数据库漂移的怪事,必须将计算和制作PPT分成两步来做.
+		# 已经尝试使用instance一侧的stormdb数据库,也一样不行.
+		@dbClear()#.save()
+		for key, value of obj
+			@db().set(key,value).save()
+		###
+		@db().default(obj)
+		@db()
+
+
 
 
 	# must be dictionary
@@ -357,6 +369,7 @@ class JSONDatabase extends JSONSimple
 	# it turns out the this will behave the same as dbSet
 	@dbUpdate: (key, value) ->
 		@db().get(key).set(value)
+		@db()
 
 
 	@dbValue:(key) ->
