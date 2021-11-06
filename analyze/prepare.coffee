@@ -124,7 +124,7 @@ class DataManagerBase
 
   @toBeImplemented: (funcOpts={}) ->
     {informal=false} = funcOpts
-    console.log {informal, function: "#{@_funcName(funcOpts)}", needs: "implementing!"}
+    console.log {function: "#{@_funcName(funcOpts)}", needs: "implementing!"} unless informal
     @regMissing(funcOpts)
 
     if informal 
