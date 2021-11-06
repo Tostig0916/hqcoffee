@@ -367,7 +367,7 @@ class 表格报告 extends 分析报告
     titles = @titles() 
     rows.push(titles)
 
-    console.log {data}
+    #console.log {data}
     for each in data
       rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
@@ -510,7 +510,9 @@ class 排序报告 extends 分析报告
 
 
 
-
+class 评分排序报告 extends 排序报告
+  @chartType: ->
+    'bar3d'
 
 
 class 雷达图报告 extends 分析报告
@@ -634,8 +636,6 @@ class 院内各科指标简单排序 extends 排序报告
 
     @dbSave()
 
-  #@chartType: ->
-  #  'bar3d'
 
 
 
@@ -644,7 +644,8 @@ class 院内各科指标简单排序 extends 排序报告
 
 
 
-class 对标单科指标评分排序 extends 排序报告
+class 对标单科指标评分排序 extends 评分排序报告
+
   @dataPrepare: ->
     @dbClear()
     direction = 指标导向库.dbRevertedValue()
@@ -673,7 +674,7 @@ class 对标单科指标评分排序 extends 排序报告
 
 
 
-class 院内各科指标评分排序 extends 排序报告
+class 院内各科指标评分排序 extends 评分排序报告
 
   @dataPrepare: ->
     @dbClear()
@@ -681,7 +682,6 @@ class 院内各科指标评分排序 extends 排序报告
     #return null unless direction.逐步提高?
     
     obj = 院内各科指标简单排序.dbValue()
-    #@db().default(obj).save()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     #console.log {directions}
 
@@ -800,9 +800,9 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         each
       ### 
 
-    @db().default(selfObj).save()
-    院内各科维度轮比雷达图.db().default(compareObj).save()
-    院内各科维度轮比散点图.db().default(compareObj).save() # 临时测试绘制散点图
+    @dbDefault(selfObj).save()
+    院内各科维度轮比雷达图.dbDefault(compareObj).save()
+    院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
 
 
 
@@ -828,14 +828,13 @@ class 院内专科BCG散点图 extends 散点图报告
     
     obj = 院内各科指标简单排序.dbValue()
     selfObj = {}
-    #@db().default(obj).save()
     for indicator, arr of obj when indicator in [
       '医疗服务收入三年复合增长率'
       '医疗服务收入占全院比重'
     ]
       selfObj[indicator] = arr
       #console.log({arr})
-    @db().default(selfObj).save()
+    @dbDefault(selfObj).save()
 
 
 
@@ -860,7 +859,6 @@ class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear() #({save:true})
     arrayName = @arrayName()
-    #@dbDefault('学科梯队':[]) # 这个不能用,用了就出错
     @db().set('学科梯队',[])
 
     topsis = 院内专科梯队Topsis评分.dbValue()
@@ -1081,8 +1079,10 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-生成器.run()
-生成器
+#生成器.buildDB()
+生成器.generateReports()
+
+#生成器
   #.showDBs()
   #.readExcel()
   #.showUnitNames()

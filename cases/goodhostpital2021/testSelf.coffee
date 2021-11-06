@@ -842,7 +842,7 @@ class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear()
     arrayName = @arrayName()
-    @dbDefault('学科梯队':[])
+    @dbDefault({'学科梯队':[]})
     topsis = 院内专科梯队Topsis评分.dbValue()
     for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
       unitObj.科室名称 = unitName
