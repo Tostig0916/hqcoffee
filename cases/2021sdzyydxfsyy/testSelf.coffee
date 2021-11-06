@@ -201,7 +201,7 @@ class 对标资料库 extends 资料库
 
 
 
-class 对标指标资料库 extends 对标资料库
+class 对标指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
@@ -784,21 +784,31 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     getUnits = (scores)->    
       for unitInName, arr of scores when arr.length is largest
         return (each.unitName for each in arr)
-    units = getUnits(dbscores).sort()
+    units = getUnits(dbscores)
+    units.sort()
     for unitInName, arr of dbscores
-      sp = unitName.split(': ')
+      sp = unitInName.split(': ')
       [un, indn] = [sp[0], sp[1]]
       for line in units
+
         try
-          @db().get(un).get(line).value()
+          unless @db().get(un).get(line).value()
+            @db().get(un).get(line).set([]) #.save()
+            console.log({un,line, try: true})
+
         catch error
-          @db().get(un).get(line).set([])
+          @db().get(un).get(line).set([]) #.save()
+          console.log({un,line})
 
       for each in arr
         @db().get(un).get(each.unitName).push({
           key: indn
-          value: each.indn
+          value: each[unitInName]
         })
+
+    @dbSave()
+
+
 
 
 
@@ -1099,7 +1109,7 @@ class 生成器 extends CaseSingleton
 
       .simpleCompareIndicatorOrdering()
       .compareIndicatorScoreSort()
-      #.compareIndicatorScoreRadarChart()
+      .compareIndicatorScoreRadarChart()
   
   
   
