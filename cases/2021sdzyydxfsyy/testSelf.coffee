@@ -230,7 +230,7 @@ class 对标指标资料库 extends 对标资料库
 
 
 
-class 院内指标资料库 extends 院内资料库
+class 院内指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
@@ -778,7 +778,28 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 
 class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare: ->
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
+    dbscores = 对标单科指标评分排序.dbValue()
+    getUnits = (scores)->    
+      for unitInName, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    units = getUnits(dbscores).sort()
+    for unitInName, arr of dbscores
+      sp = unitName.split(': ')
+      [un, indn] = [sp[0], sp[1]]
+      for line in units
+        try
+          @db().get(un).get(line).value()
+        catch error
+          @db().get(un).get(line).set([])
+
+      for each in arr
+        @db().get(un).get(each.unitName).push({
+          key: indn
+          value: each.indn
+        })
+
 
 
 
@@ -1078,6 +1099,7 @@ class 生成器 extends CaseSingleton
 
       .simpleCompareIndicatorOrdering()
       .compareIndicatorScoreSort()
+      #.compareIndicatorScoreRadarChart()
   
   
   
@@ -1193,6 +1215,14 @@ class 生成器 extends CaseSingleton
     对标单科指标评分排序.dataPrepare()
     return this 
 
+  @compareDimensionScoreRadarChart: ->
+    对标单科多维度评分雷达图.dataPrepare()
+    return this
+
+  @compareIndicatorScoreRadarChart: ->
+    对标单科多指标评分雷达图.dataPrepare()
+    return this
+
   @localIndicatorRadarChart: ->
     院内单科多维度评分雷达图.dataPrepare()
     return this
@@ -1244,7 +1274,7 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-#生成器.buildDB()
+生成器.buildDB()
 #生成器.generateReports()
 
 #生成器.run()
@@ -1267,7 +1297,7 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
-console.log {di:指标维度库.withDirection()}
+#console.log {di:指标维度库.withDirection()}
 
 ###
 # 对比雷达图设计
