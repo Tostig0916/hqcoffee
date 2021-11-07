@@ -547,9 +547,13 @@ class 排序报告 extends 分析报告
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
         w: "95%", h: "90%"
-        showLegend: true, legendPos: 'b'
+        showLegend: true, 
+        legendPos: 'b'
         showTitle: true, 
-        title: indicator 
+        title: indicator
+        #chartColors: ['0088CC','FFCC00']
+        showDataTableKeys: true 
+        showValue: true # 只有整数?怎么设置小数点保留位数?
       })
 
 
@@ -1007,7 +1011,7 @@ class 院内专科BCG散点图 extends BCG矩阵报告
 
 
 
-class 维度权重 extends 院内分析报告
+class 维度权重 extends 分析报告
 
   @dataPrepare: ->
     @dbClear()
