@@ -649,17 +649,18 @@ class 单科对比雷达图报告 extends 雷达图报告
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     data = @dbValue()
-    for unitName, unitObj of data
-      for group, groupObj of unitObj
+    
+    for departName, departObj of data
+      for dimensionName, dimensionArray of departObj
         # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
         chartData = []
-        for line, indicators of groupObj when line in ['Y2020','均1','均2']
+        for line in ['均2','Y2020','均1']
           chartData.push {
             name: line
-            labels: indicators.map (each, idx) -> each.key
-            values: indicators.map (each, idx) -> each.value
+            labels: dimensionArray.map (each, idx) -> each.key
+            values: dimensionArray.map (each, idx) -> each[line]
           }
 
         slide.addChart(pres.ChartType[chartType], chartData, { 
@@ -667,7 +668,7 @@ class 单科对比雷达图报告 extends 雷达图报告
           w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
-          title: unitName 
+          title: "#{departName}: #{if dimensionName is '满意度评价' then '地位影响' else dimensionName}" 
         })
 
 
@@ -684,25 +685,6 @@ class 对标单科指标简单排序 extends 排序报告
         @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)))
         @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
     @dbSave()
-
-
-
-
-class 院内各科指标简单排序 extends 排序报告
-  @dataPrepare: ->
-    @dbClear()
-    year = @years()[0]
-    指标维度 = 指标维度库.dbValue()
-
-    for dataName, dimension of 指标维度 when dataName?
-      except = /^医院$/  #/(^医院$|^大|合并)/
-      arr = 院内指标资料库.dbAsArray({dataName,key:year,except})
-      @dbSet(dataName, arr)
-      @db().get(dataName).sort((a,b)-> b[dataName] - a[dataName])
-
-    @dbSave()
-
-
 
 
 
@@ -737,6 +719,122 @@ class 对标单科指标评分排序 extends 评分排序报告
 
 
     
+
+
+class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
+  @dataPrepare: ->
+    @dbClear()
+    sortKey = 'Y2020'
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    
+    groups = 维度权重.groups()
+    dict = 维度权重.indicatorGroup()
+
+    dbscores = 对标单科指标评分排序.dbValue()
+    
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      # 单位名和指标名
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      for each in arr when existNumber(each[deptIndicator])
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db()
+            .get('data')
+            .get(departName)
+            .get(dimensionName)
+            .get(indicatorName)
+            .get(each.unitName)
+            .set(each[deptIndicator])
+
+      inObj = @db().get('data').value() #get(departName).get(dimensionName).value()
+
+      transform = (name, obj) ->
+        obj.key = name
+        return obj
+
+      # 各部门
+      for departName, departObj of inObj
+        # 各维度
+        for dimensionName, dimensionObj of departObj
+          dimensionArray = (transform(indicatorName, indicatorObj) for indicatorName, indicatorObj of dimensionObj)
+          @db().get(departName).get(dimensionName).set(dimensionArray)
+          @db().get(departName).get(dimensionName).sort((a,b)-> b[sortKey] - a[sortKey])
+
+    @dbDelete('data').save()
+
+
+
+
+
+
+  @dataPrepare_array: ->
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    @dbClear()
+    groups = 维度权重.groups()
+    dict = 维度权重.indicatorGroup()
+    dbscores = 对标单科指标评分排序.dbValue()
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    units = getUnits(dbscores)
+    units.sort()
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      # 为当前个体(名 departName)中的每一个对象设置array
+      for line in units
+        for dimensionName in groups
+          try
+            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
+            unless @db().get(departName).get(dimensionName).get(line).value()
+              @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+              #console.log({departName,line, try: true})
+
+          catch error
+            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
+            @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+            #console.log({departName,line})
+
+      for each in arr
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db().get(departName).get(dimensionName).get(each.unitName).push({
+            key: indicatorName
+            value: each[deptIndicator] ? 0
+          })
+      ###
+      for line in units
+        for dimensionName in groups
+          @db().get(departName).get(dimensionName).get(line).sort((a, b) -> a.value - b.value)
+      ###
+    @dbSave()
+
+
+
+
+
+class 院内各科指标简单排序 extends 排序报告
+  @dataPrepare: ->
+    @dbClear()
+    year = @years()[0]
+    指标维度 = 指标维度库.dbValue()
+
+    for dataName, dimension of 指标维度 when dataName?
+      except = /^医院$/  #/(^医院$|^大|合并)/
+      arr = 院内指标资料库.dbAsArray({dataName,key:year,except})
+      @dbSet(dataName, arr)
+      @db().get(dataName).sort((a,b)-> b[dataName] - a[dataName])
+
+    @dbSave()
+
+
+
+
 
 
 
@@ -791,53 +889,6 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
   @dataPrepare: ->
     console.log("use 院内单科多维度评分雷达图 to prepare")
     return
-
-
-
-
-class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
-  @dataPrepare: ->
-    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
-    @dbClear()
-    groups = 维度权重.groups()
-    dict = 维度权重.indicatorGroup()
-    dbscores = 对标单科指标评分排序.dbValue()
-    getUnits = (scores)->    
-      for unitInName, arr of scores when arr.length is largest
-        return (each.unitName for each in arr)
-    units = getUnits(dbscores)
-    units.sort()
-    for unitInName, arr of dbscores
-      sp = unitInName.split(': ')
-      [un, indn] = [sp[0], sp[1]]
-
-      # 为当前个体(名 un)中的每一个对象设置array
-      for line in units
-        for group in groups
-          try
-            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
-            unless @db().get(un).get(group).get(line).value()
-              @db().get(un).get(group).get(line).set([]) #.save()
-              #console.log({un,line, try: true})
-
-          catch error
-            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
-            @db().get(un).get(group).get(line).set([]) #.save()
-            #console.log({un,line})
-
-      for each in arr
-        for group in groups when indn in dict[group]
-          @db().get(un).get(group).get(each.unitName).push({
-            key: indn
-            value: each[unitInName] ? 0
-          })
-
-      for line in units
-        for group in groups
-          @db().get(un).get(group).get(line).sort((a, b) -> a.value - b.value)
-    @dbSave()
-
-
 
 
 
