@@ -22,13 +22,16 @@ path = require 'path'
 
 existNumber = (x) -> x? and not isNaN(x)
 
-# 设置为true则容忍指标直接填报不完整,而通过原始数据推算
-informal = not true #false
+# informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
+  @customerName: ->
+    "Good Hospital"
+
+
   @logdb: ->
     SystemLog.db().get(@name)
 
@@ -58,10 +61,6 @@ class AnyCaseSingleton extends StormDBSingleton
 
 
 class CaseSingleton extends AnyCaseSingleton
-  @customerName: ->
-    "Good Hospital"
-
-
   @createMissingData: -> 
     false
 
@@ -260,7 +259,7 @@ class 分析报告 extends NormalCaseSingleton
       {pres} = funcOpts
       # title slide
       slide = pres.addSlide("TITLE_SLIDE")
-      slide.addText("数智报告", {x: '50%', y: '50%',color: "0000FF", fontSize: 64} )
+      slide.addText("数智分析报告", {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
       slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
       # slides in sections
       for section in @sections()
