@@ -287,44 +287,6 @@ class 分析报告 extends NormalCaseSingleton
 
 
 
-class 院内分析报告 extends 分析报告
-  @sections: ->
-    [
-      院内专科梯队表
-      院内专科BCG散点图
-      
-      #院内各科指标轮比雷达图
-      #院内单科多指标评分雷达图
-
-
-      #院内各科维度轮比雷达图
-      #院内单科多维度评分雷达图
-
-      #院内各科指标简单排序
-      #院内各科指标评分排序 
-      #院内各科维度轮比散点图
-   ]
-
-
-
-
-
-
-class 对标分析报告 extends 分析报告
-  @sections: ->
-    [
-      #对标各科指标评分轮比雷达图
-      对标单科多指标评分雷达图
-
-      #对标各科维度轮比雷达图
-      #对标单科多维度评分雷达图
-
-      对标单科指标简单排序
-      #对标单科指标评分排序 
-      #对标各科维度轮比散点图
-    ]
-
-
 # https://github.com/gitbrent/PptxGenJS/blob/master/demos/modules/demo_table.mjs
 class 表格报告 extends 分析报告
   @arrayName: ->
@@ -1136,7 +1098,7 @@ class 维度权重 extends 分析报告
 
 
 
-class 院内专科梯队Topsis评分 extends 院内分析报告
+class 院内专科梯队Topsis评分 extends 分析报告
   @dataPrepare: ->
     @dbClear()
     weight = 维度权重.dbValue()
@@ -1175,6 +1137,45 @@ class 院内专科梯队表 extends 表格报告
     arr.push('综合评分')
     #console.log {arr,dict}
     arr
+
+
+
+
+class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      #院内各科指标轮比雷达图
+      #院内各科维度轮比散点图
+      #院内单科多指标评分雷达图
+
+      院内专科BCG散点图
+      院内专科梯队表
+
+      # 尚未制作
+      #院内各科维度轮比雷达图
+      #院内单科多维度评分雷达图
+   ]
+
+
+
+
+
+
+class 对标分析报告 extends 分析报告
+  @sections: ->
+    [
+      #对标各科指标评分轮比雷达图
+      对标单科多指标评分雷达图
+
+      #对标各科维度轮比雷达图
+      #对标单科多维度评分雷达图
+
+      对标单科指标简单排序
+      #对标单科指标评分排序 
+      #对标各科维度轮比散点图
+    ]
 
 
 
