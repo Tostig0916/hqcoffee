@@ -260,7 +260,8 @@ class 分析报告 extends NormalCaseSingleton
       {pres} = funcOpts
       # title slide
       slide = pres.addSlide("TITLE_SLIDE")
-      slide.addText("量化报告")
+      slide.addText("数智报告", {x: '50%', y: '50%',color: "0000FF", fontSize: 64} )
+      slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
       # slides in sections
       for section in @sections()
         # slide section could be added from key
