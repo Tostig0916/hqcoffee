@@ -314,13 +314,13 @@ class 对标分析报告 extends 分析报告
   @sections: ->
     [
       #对标各科指标评分轮比雷达图
-      #对标单科多指标评分雷达图
+      对标单科多指标评分雷达图
 
       #对标各科维度轮比雷达图
       #对标单科多维度评分雷达图
 
       对标单科指标简单排序
-      对标单科指标评分排序 
+      #对标单科指标评分排序 
       #对标各科维度轮比散点图
     ]
 
@@ -648,8 +648,27 @@ class 单科对比雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
+    data = @dbValue()
+    for unitName, unitObj of data
+      for group, groupObj of unitObj
+        # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
+        slide = pres.addSlide({sectionTitle})
+        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        chartData = []
+        for line, indicators of groupObj when line in ['Y2020','均1','均2']
+          chartData.push {
+            name: line
+            labels: indicators.map (each, idx) -> each.key
+            values: indicators.map (each, idx) -> each.value
+          }
 
-
+        slide.addChart(pres.ChartType[chartType], chartData, { 
+          x: 0.1, y: 0.1, 
+          w: "95%", h: "90%"
+          showLegend: true, legendPos: 'b'
+          showTitle: true, 
+          title: unitName 
+        })
 
 
 
@@ -780,6 +799,8 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare: ->
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
+    groups = 维度权重.groups()
+    dict = 维度权重.indicatorGroup()
     dbscores = 对标单科指标评分排序.dbValue()
     getUnits = (scores)->    
       for unitInName, arr of scores when arr.length is largest
@@ -789,23 +810,31 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     for unitInName, arr of dbscores
       sp = unitInName.split(': ')
       [un, indn] = [sp[0], sp[1]]
+
+      # 为当前个体(名 un)中的每一个对象设置array
       for line in units
+        for group in groups
+          try
+            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
+            unless @db().get(un).get(group).get(line).value()
+              @db().get(un).get(group).get(line).set([]) #.save()
+              #console.log({un,line, try: true})
 
-        try
-          unless @db().get(un).get(line).value()
-            @db().get(un).get(line).set([]) #.save()
-            console.log({un,line, try: true})
-
-        catch error
-          @db().get(un).get(line).set([]) #.save()
-          console.log({un,line})
+          catch error
+            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
+            @db().get(un).get(group).get(line).set([]) #.save()
+            #console.log({un,line})
 
       for each in arr
-        @db().get(un).get(each.unitName).push({
-          key: indn
-          value: each[unitInName]
-        })
+        for group in groups when indn in dict[group]
+          @db().get(un).get(group).get(each.unitName).push({
+            key: indn
+            value: each[unitInName] ? 0
+          })
 
+      for line in units
+        for group in groups
+          @db().get(un).get(group).get(line).sort((a, b) -> a.value - b.value)
     @dbSave()
 
 
@@ -938,23 +967,6 @@ class 维度权重 extends 院内分析报告
     @dbSave()
     
 
-  @dictWithPerfectData: -> 
-    {
-      医服收入: 2.5
-      医保价值: 0.5
-      质量安全: 1.5
-      地位影响: 0.5
-      学科建设: 0.1
-      人员结构: 0.1
-      功能定位: 0.1
-      服务流程: 0.1
-      费用控制: 0.1
-      合理用药: 0.1
-      收支结构: 0.1
-      资源效率: 0.1
-      人才培养: 0.1
-    }
-
   @struct: ->
     {
       医疗质量:{
@@ -1029,6 +1041,42 @@ class 维度权重 extends 院内分析报告
         }
       }
     }
+
+  @indicatorGroup: ->
+    dm = 指标维度库.dbRevertedValue()
+    struct = @struct()
+    dict = {}
+    for group, groupObj of struct
+      dict[group] = []
+      for dimension, obj of groupObj.indicators
+        dict[group] = dict[group].concat(dm[dimension]) if dm[dimension]?
+    return dict
+
+
+
+  @groups: ->
+    (group for group, obj of @struct())
+
+
+
+  @dictWithPerfectData: -> 
+    {
+      医服收入: 2.5
+      医保价值: 0.5
+      质量安全: 1.5
+      地位影响: 0.5
+      学科建设: 0.1
+      人员结构: 0.1
+      功能定位: 0.1
+      服务流程: 0.1
+      费用控制: 0.1
+      合理用药: 0.1
+      收支结构: 0.1
+      资源效率: 0.1
+      人才培养: 0.1
+    }
+
+      
 
 
 
@@ -1284,8 +1332,8 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-生成器.buildDB()
-#生成器.generateReports()
+#生成器.buildDB()
+生成器.generateReports()
 
 #生成器.run()
 #生成器
@@ -1307,7 +1355,7 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
-#console.log {di:指标维度库.withDirection()}
+#console.log {di: 维度权重.indicatorGroup()}
 
 ###
 # 对比雷达图设计
