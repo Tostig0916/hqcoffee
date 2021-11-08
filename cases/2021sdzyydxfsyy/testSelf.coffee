@@ -122,9 +122,9 @@ class 维度导向库 extends NormalCaseSingleton
     opts.data = [{
       sheet:'维度导向'
       columns:[
-        {label:'数据名',value:'数据名'}
-        {label:'指标导向',value:'指标导向'}
         {label:'二级维度',value:'二级维度'}
+        {label:'指标导向',value:'指标导向'}
+        {label:'数据名',value:'数据名'}
       ]
       content: arr
     }]
@@ -1439,7 +1439,7 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 #生成器.buildDB()
-生成器.generateReports()
+#生成器.generateReports()
 
 #生成器.run()
 生成器
@@ -1504,7 +1504,5 @@ for uname, idx in 院内分析报告.dbDictKeys()
 
 院内分析报告.dbSave()
 ###
-###
-#维度导向库.combineTwo()
 
-###
+维度导向库.combineTwo()
