@@ -89,7 +89,6 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 class NormalCaseSingleton extends CaseSingleton
-
   @options: ->
     @_options ?= {
       dirname: __dirname
@@ -106,9 +105,49 @@ class NormalCaseSingleton extends CaseSingleton
 
 class 缺漏追踪库 extends NormalCaseSingleton
 
+
 class SystemLog extends NormalCaseSingleton
 
+
+class 维度导向库 extends NormalCaseSingleton
+
+  @combineTwo: ->
+    导向 = 指标导向库.dbValue()
+    维度 = 指标维度库.db()
+    
+    arr = ({数据名, 指标导向, 二级维度: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
+      if a.数据名 < b.数据名 then -1 else 1
+
+    opts = @options()
+    opts.data = [{
+      sheet:'维度导向'
+      columns:[
+        {label:'数据名',value:'数据名'}
+        {label:'指标导向',value:'指标导向'}
+        {label:'二级维度',value:'二级维度'}
+      ]
+      content: arr
+    }]
+
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
+
 class 指标维度库 extends NormalCaseSingleton
+  @dataPrepare: ->
+    @dbClear()
+    for key, obj of 维度导向库.dbValue()
+      @dbSet(key, obj.二级维度)
+    @dbSave()
+
+
+
   @withDirection: ->
     obj = {}
     for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
@@ -138,7 +177,17 @@ class 指标维度库 extends NormalCaseSingleton
     @write2Excel(opts)
 
 
+
+
 class 指标导向库 extends NormalCaseSingleton
+  @dataPrepare: ->
+    @dbClear()
+    for key, obj of 维度导向库.dbValue()
+      @dbSet(key, obj.指标导向)
+    @dbSave()
+
+    
+
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
@@ -1227,7 +1276,9 @@ class 生成器 extends CaseSingleton
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
     #console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #指标维度库,指标导向库,
+    指标维度库.dataPrepare()
+    指标导向库.dataPrepare()
     return this
 
 
@@ -1391,7 +1442,7 @@ class 生成器 extends CaseSingleton
 生成器.generateReports()
 
 #生成器.run()
-#生成器
+生成器
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
@@ -1452,4 +1503,8 @@ for uname, idx in 院内分析报告.dbDictKeys()
   console.log {uname, 平均住院日:院内分析报告.dbValue(key)}
 
 院内分析报告.dbSave()
+###
+###
+#维度导向库.combineTwo()
+
 ###
