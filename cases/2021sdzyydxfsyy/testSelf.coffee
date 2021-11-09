@@ -465,10 +465,14 @@ class 散点图报告 extends 分析报告
 
           lineSize: 0,
           
-          showLabel: true, #// Must be set to true or labels will not be shown
+          showLabel: @showLabel(), #// Must be set to true or labels will not be shown
           dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
-          #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
+          dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
         })
+
+  @showLabel: ->
+    true
+
 
 
 
@@ -588,7 +592,7 @@ class 排序报告 extends 分析报告
         title: indicator
         #chartColors: ['0088CC','FFCC00']
         showDataTableKeys: true 
-        showValue: true # 只有整数?怎么设置小数点保留位数?
+        #showValue: true # 只有整数?怎么设置小数点保留位数?
       })
 
 
@@ -1011,6 +1015,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
 class 院内各科维度轮比散点图 extends 散点图报告
   @dataPrepare: ->
 
+  @showLabel: -> true
 
 
 
@@ -1268,20 +1273,22 @@ class 院内专科梯队表 extends 表格报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      #院内各科指标简单排序
-      #院内各科指标评分排序 
-      #院内各科指标轮比雷达图
-      #院内各科维度轮比散点图
-      
-      #院内单科多指标评分雷达图
+      院内各科指标简单排序
+      院内各科指标评分排序 
+      院内各科维度轮比雷达图
+      院内单科多维度评分雷达图
+
       院内专科BCG矩阵分析
       院内二级专科BCG矩阵分析
       院内二级权重专科BCG矩阵分析
       院内专科梯队表
 
+      院内各科维度轮比散点图
+      
       # 尚未制作
-      #院内各科维度轮比雷达图
-      #院内单科多维度评分雷达图
+      # 院内各科指标轮比雷达图
+      # 院内单科多指标评分雷达图
+      
    ]
 
 
@@ -1293,8 +1300,9 @@ class 对标分析报告 extends 分析报告
   @sections: ->
     [
       对标单科指标简单排序
-      #对标单科指标评分排序 
+      对标单科指标评分排序 
       对标单科多指标评分雷达图
+      
       #对标单科多维度评分雷达图
 
       #对标各科指标评分轮比雷达图
