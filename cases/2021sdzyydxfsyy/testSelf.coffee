@@ -344,42 +344,55 @@ class 表格报告 extends 分析报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     data = @db().get(@arrayName()).value()
-    rows = []
+    size = data.length
     titles = @titles() 
-    rows.push(titles)
 
-    #console.log {data}
-    for each in data
-      rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
+    # 自动切分页面未掌握技巧,姑且在此切分,待掌握技巧后代码无须变动
+    newPage = (data) ->
+      rows = []
+      rows.push(titles)
 
-    slide = pres.addSlide({sectionTitle})
-    width = [1.2]
-    n = titles.length
+      #console.log {data}
+      for each in data
+        rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
+
+      slide = pres.addSlide({sectionTitle})
+      width = [1.2]
+      n = titles.length    
+      while --n > 0
+        width.push(0.55) 
+      #console.log {width}
+
+      slide.addTable(rows, {
+        #x: 0.5
+        #y: 0.3 
+        #w: "90%" 
+        #h: 1   
+        colW: width
+        border: {color: "CFCFCF"} 
+        #margin: 0.05
+        align: "left"
+        valign: "middle"
+        fontFace: "Segoe UI"
+        fontSize: 9
+        autoPage: false #true
+        autoPageRepeatHeader: true
+        autoPageCharWeight: -0.5
+        autoPageLineWeight: -0.5
+        autoPageHeaderRows: 1
+        #autoPageSlideStartY: 0.2
+        verbose: false
+      })
     
-    while --n > 0
-      width.push(0.55)
-      
-    console.log {width}
-    slide.addTable(rows, {
-      #x: 0.5
-      #y: 0.3 
-      #w: "90%" 
-      #h: 1   
-      colW: width
-      border: {color: "CFCFCF"} 
-      #margin: 0.05
-      align: "left"
-      valign: "middle"
-      fontFace: "Segoe UI"
-      fontSize: 9
-      autoPage: true
-      autoPageRepeatHeader: true
-      autoPageCharWeight: -0.5
-      autoPageLineWeight: -0.5
-      autoPageHeaderRows: 1
-      #autoPageSlideStartY: 0.2
-      verbose: false
-    })
+    lines = 17
+    ps = 0 
+    pe = lines
+    while size >= ps
+      newPage(data[ps...Math.min(pe, size)])
+      #console.log({size, ps, pe})
+      ps = pe
+      pe += lines
+
 
 
 
@@ -467,8 +480,12 @@ class BCG矩阵报告 extends 散点图报告
       '医疗服务收入三年复合增长率'   # x
       '医疗服务收入占全院比重'      # y
     ]
+
+    # 为了使用 .filter((obj) -> (not obj.医疗服务收入占全院比重?) or (obj.医疗服务收入占全院比重 > 百分之零点一))
+    # 以下代码须调整
     arr = data[indicator]
     _arr = data[_indicator]
+
     nar = []
     arr.map (each, idx) -> 
       nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
@@ -502,7 +519,7 @@ class BCG矩阵报告 extends 散点图报告
       #legendPos: 'b'
       
       showTitle: true, 
-      title: "#{indicator} vs #{_indicator}"
+      title: sectionTitle #"#{indicator} vs #{_indicator}"
       
       # x
       catAxisTitle: indicator,
@@ -997,7 +1014,7 @@ class 院内单科多维评分散点图 extends 散点图报告
 
 
 
-class 院内专科BCG散点图 extends BCG矩阵报告
+class 院内专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
     
@@ -1020,6 +1037,34 @@ class 院内专科BCG散点图 extends BCG矩阵报告
 
 
 
+class 院内二级专科BCG矩阵分析 extends BCG矩阵报告
+  @dataPrepare: ->
+    @dbClear()
+    百分之零点一 = 0.001 # 应为 0.1  目前是用梁竞涛错误数据
+    keys = (k for k, v of 院内专科BCG矩阵分析.dbValue())
+    
+    # 由于绘制时以一个arr为主,另一个根据科室名称配对,故此处可以仅过滤其中一个,並以此为配对基础即可
+    ###
+    @db().set(key, 
+      院内专科BCG矩阵分析.db()
+        .get(key)
+        #.get(医疗服务收入占全院比重)
+        #.filter((obj) -> (not obj.医疗服务收入占全院比重?) or (obj.医疗服务收入占全院比重 > 百分之零点一))
+        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
+        .value())
+    ###
+    for key in keys
+      @db().set(key, 
+      院内专科BCG矩阵分析.db()
+        .get(key)
+        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
+        .value())
+    
+    @dbSave()
+    
+
+
+
 
 
 class 维度权重 extends 分析报告
@@ -1036,36 +1081,33 @@ class 维度权重 extends 分析报告
   @struct: ->
     {
       医疗质量:{
-        weight: 0.4
+        weight: 0.3
         indicators: {
           质量安全:{
-            weight:0.25
+            weight:0.3
           }
           功能定位: {
-            weight:0.25
+            weight:0.2
           }
           合理用药: {
             weight: 0.15
           }
           服务流程: {
-            weight: 0.15
+            weight: 0.2
           }
           医保价值: {
-            weight: 0.2
+            weight: 0.1
           }
         }
       }
       运营效率:{
-        weight: 0.3
+        weight: 0.2
         indicators: {
           收支结构:{
             weight: 0.3
           }
           费用控制:{
-            weight: 0.3
-          }
-          医服收入:{
-            weight: 0.2
+            weight: 0.5
           }
           经济管理:{
             weight: 0
@@ -1093,10 +1135,13 @@ class 维度权重 extends 分析报告
         }
       }
       满意度评价: {
-        weight: 0.1
+        weight: 0.3
         indicators: {
+          医服收入:{
+            weight: 0.8
+          }
           地位影响: {
-            weight: 1
+            weight: 0.2
           }
           医务人员满意度:{
             weight: 0
@@ -1199,7 +1244,8 @@ class 院内分析报告 extends 分析报告
       #院内各科维度轮比散点图
       
       #院内单科多指标评分雷达图
-      院内专科BCG散点图
+      院内专科BCG矩阵分析
+      院内二级专科BCG矩阵分析
       院内专科梯队表
 
       # 尚未制作
@@ -1393,7 +1439,8 @@ class 生成器 extends CaseSingleton
 
 
   @localIndicatorBCGChart: ->
-    院内专科BCG散点图.dataPrepare()
+    院内专科BCG矩阵分析.dataPrepare()
+    院内二级专科BCG矩阵分析.dataPrepare()
     return this
 
   @localTopsis: ->
@@ -1438,8 +1485,9 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
+
 #生成器.buildDB()
-#生成器.generateReports()
+生成器.generateReports()
 
 #生成器.run()
 生成器
@@ -1505,4 +1553,4 @@ for uname, idx in 院内分析报告.dbDictKeys()
 院内分析报告.dbSave()
 ###
 
-维度导向库.combineTwo()
+#维度导向库.combineTwo()
