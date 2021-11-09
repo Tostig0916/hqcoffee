@@ -1075,7 +1075,7 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
     key = '医疗服务收入占全院比重'
-    百分之零点一 = 0.001 # 应为 0.1  目前是用梁竞涛错误数据
+    百分之零点一 = 0.005 # 应为 0.1  目前是用梁竞涛错误数据
     @db().set(key, 
       院内二级专科BCG矩阵分析.db()
         .get(key)
@@ -1085,13 +1085,14 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
 
     names = (obj.unitName for obj in @db().get(key).value())
     key = '医疗服务收入三年复合增长率'
-    for unitName in names
-      @db().set(key, 
-        院内二级专科BCG矩阵分析.db()
-          .get(key)
-          .filter((obj) -> (obj.unitName is unitName))
-          .value()[0]
-      )
+    all =  院内二级专科BCG矩阵分析.db().get(key).value()
+    console.log({all})
+    @db().set(key, [])
+    for unitName in names # 以此顺序收集
+      for each in all when each.unitName is unitName
+        @db().get(key).push(each)
+        #all.shift() # 递减循环次数,但出错,仍使用笨办法
+
     @dbSave()
 
 
@@ -1517,8 +1518,8 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 
-生成器.buildDB()
-#生成器.generateReports()
+#生成器.buildDB()
+生成器.generateReports()
 
 #生成器.run()
 生成器
