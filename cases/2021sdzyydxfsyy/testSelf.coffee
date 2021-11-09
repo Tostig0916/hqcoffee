@@ -362,10 +362,15 @@ class 表格报告 extends 分析报告
       while --n > 0
         width.push(0.55) 
       #console.log {width}
-
+      slide.addText(sectionTitle, {
+        x: '35%', 
+        y: '10%',
+        #color: "DDDD00", 
+        fontSize: 18
+      })
       slide.addTable(rows, {
         #x: 0.5
-        #y: 0.3 
+        y: "20%" 
         #w: "90%" 
         #h: 1   
         colW: width
@@ -382,9 +387,11 @@ class 表格报告 extends 分析报告
         autoPageHeaderRows: 1
         #autoPageSlideStartY: 0.2
         verbose: false
+        #showTitle:true
+        #title: sectionTitle
       })
     
-    lines = 17
+    lines = 15
     ps = 0 
     pe = lines
     while size >= ps
