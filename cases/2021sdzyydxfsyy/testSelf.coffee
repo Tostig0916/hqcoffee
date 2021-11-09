@@ -492,8 +492,6 @@ class BCG矩阵报告 extends 散点图报告
       '医疗服务收入占全院比重'      # y
     ]
 
-    # 为了使用 .filter((obj) -> (not obj.医疗服务收入占全院比重?) or (obj.医疗服务收入占全院比重 > 百分之零点一))
-    # 以下代码须调整
     arr = data[indicator]
     _arr = data[_indicator]
 
@@ -1052,19 +1050,8 @@ class 院内专科BCG矩阵分析 extends BCG矩阵报告
 class 院内二级专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
-    百分之零点一 = 0.001 # 应为 0.1  目前是用梁竞涛错误数据
     keys = (k for k, v of 院内专科BCG矩阵分析.dbValue())
     
-    # 由于绘制时以一个arr为主,另一个根据科室名称配对,故此处可以仅过滤其中一个,並以此为配对基础即可
-    ###
-    @db().set(key, 
-      院内专科BCG矩阵分析.db()
-        .get(key)
-        #.get(医疗服务收入占全院比重)
-        #.filter((obj) -> (not obj.医疗服务收入占全院比重?) or (obj.医疗服务收入占全院比重 > 百分之零点一))
-        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
-        .value())
-    ###
     for key in keys
       @db().set(key, 
       院内专科BCG矩阵分析.db()
@@ -1080,7 +1067,7 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
     key = '医疗服务收入占全院比重'
-    百分之零点一 = 0.005 # 应为 0.1  目前是用梁竞涛错误数据
+    百分之零点一 = 1.5
     @db().set(key, 
       院内二级专科BCG矩阵分析.db()
         .get(key)
