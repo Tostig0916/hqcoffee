@@ -1514,7 +1514,7 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 
-#生成器.buildDB()
+生成器.buildDB()
 生成器.generateReports()
 
 #生成器.run()
