@@ -307,8 +307,9 @@ class 分析报告 extends NormalCaseSingleton
     opts.generate = (funcOpts) => 
       {pres} = funcOpts
       # title slide
+      title = "数智分析报告"
       slide = pres.addSlide("TITLE_SLIDE")
-      slide.addText("数智分析报告", {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
+      slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
       slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
       # slides in sections
       for section in @sections()
