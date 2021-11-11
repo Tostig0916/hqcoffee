@@ -935,22 +935,18 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 
 
 
-
-# 以专科为单位,各维度雷达图
-class 院内单科多维度评分雷达图 extends 单科雷达图报告
+# 修正单科多维度问题, 尚未改写
+class 院内单科多维度指标汇集 extends 分析报告
   @dataPrepare: ->
     @dbClear()
-    院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
-    院内各科维度轮比雷达图.dbClear()
-
     dimensions = 指标维度库.dbValue()
-    focusUnits = @focusUnits()[1..] # 0 为医院
     obj = 院内各科指标评分排序.dbValue()
 
     newObj = {}
     compareObj = {}
     selfObj = {}
     #self
+    
     # step one: collect all indicators in a dimension
     # 注意: 这一步还可以根据设置好的指标权重进行预处理
     for indicator, arr of obj when dimensions[indicator]?
@@ -964,9 +960,43 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
           when 'CMI当量DRGs组数' then 0.382 * 2
           when 'CMI值' then 0.618 * 2
           else 1
-        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
-        console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
+        unit.dmis.push(weight * each[indicator]) #if existNumber(each[indicator])
+        #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
+
+
+
+
+# 以专科为单位,各维度雷达图
+class 院内单科多维度评分雷达图 extends 单科雷达图报告
+  @dataPrepare: ->
+    @dbClear()
+    院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
+    院内各科维度轮比雷达图.dbClear()
+
+    dimensions = 指标维度库.dbValue()
+    obj = 院内各科指标评分排序.dbValue()
+
+    newObj = {}
+    compareObj = {}
+    selfObj = {}
+    #self
     
+    # step one: collect all indicators in a dimension
+    # 注意: 这一步还可以根据设置好的指标权重进行预处理
+    for indicator, arr of obj when dimensions[indicator]?
+      dmName = dimensions[indicator]
+      newObj[dmName] ?= {} 
+      for each in arr 
+        unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
+        weight = switch indicator
+          when '医疗服务收入三年复合增长率' then 0.382 * 2
+          when '医疗服务收入占全院比重' then 0.618 * 2
+          when 'CMI当量DRGs组数' then 0.382 * 2
+          when 'CMI值' then 0.618 * 2
+          else 1
+        unit.dmis.push(weight * each[indicator]) #if existNumber(each[indicator])
+        #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
+
     # step two: calculate dimension value
     
     for dmName, dmObj of newObj
@@ -977,13 +1007,14 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
         v += each for each in dmis
         
         # 代码存在bug导致服务价值和医保收入等仅留下一个指标数值,原因待查,先予以越过
-        #s = dmis.length
-        s = if dmName in ['医保价值','医服收入'] then 2 else dmis.length  # 临时!!!
+        s = dmis.length
+        #s = if dmName in ['医保价值','医服收入'] then 2 else dmis.length  # 临时!!!
 
         if s > 0
           unitObj[dmName] = v / s
           #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if s < 2 
-        delete(unitObj.dmis)
+          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if unitName is "男科"
+        #delete(unitObj.dmis)
     
     # step three: turning into an ordered array
         selfObj[unitName] ?= []
@@ -1515,7 +1546,7 @@ class 生成器 extends CaseSingleton
 
 
 生成器.buildDB()
-生成器.generateReports()
+#生成器.generateReports()
 
 #生成器.run()
 生成器
