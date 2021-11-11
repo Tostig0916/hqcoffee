@@ -887,6 +887,7 @@ class 院内各科指标评分排序 extends 评分排序报告
     direction = 指标导向库.dbRevertedValue()    
     #return null unless direction.逐步提高?
     
+    # 均为由高到低排序
     obj = 院内各科指标简单排序.dbValue()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     #console.log {directions}
@@ -899,9 +900,9 @@ class 院内各科指标评分排序 extends 评分排序报告
         value = 100 * (unit[indicator] - first) / distance
         console.log({bug:"> 100",indicator,distance,value, last, first, unit}) if (value > 101) or (value is null)
         switch
-          when indicator in direction.逐步提高
-            unit[indicator] = value
           when indicator in direction.逐步降低
+            unit[indicator] = value
+          when indicator in direction.逐步提高
             unit[indicator] = 100 - value
         unit
       )
