@@ -902,21 +902,21 @@ class 院内各科指标评分排序 extends 评分排序报告
     #return null unless direction.逐步提高?
     
     # 均为由高到低排序
-    obj = 院内各科指标简单排序.dbValue()
+    obj = @sortedIndicators()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     #console.log {directions}
 
     for indicator, arr of obj when arr[0]? and (indicator in directions)
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
-      distance = last - first
+      distance = first - last
       @dbSet(indicator, arr.map (unit, idx)-> 
-        value = 100 * (unit[indicator] - first) / distance
-        console.log({bug:"> 100",indicator,distance,value, last, first, unit}) if (value > 101) or (value is null)
+        value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / distance
+        console.log({bug:"> 100", indicator, distance, value, last, first, unit}) if (value > 101) or (value is null)
         switch
-          when indicator in direction.逐步降低
-            unit[indicator] = value
           when indicator in direction.逐步提高
+            unit[indicator] = value
+          when indicator in direction.逐步降低
             unit[indicator] = 100 - value
         unit
       )
@@ -925,7 +925,10 @@ class 院内各科指标评分排序 extends 评分排序报告
 
     #console.log direction
 
-
+  @sortedIndicators: ->
+    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
+    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
+    院内各科指标简单排序.dbValue()
 
 
 
