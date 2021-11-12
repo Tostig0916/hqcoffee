@@ -868,11 +868,6 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
             key: indicatorName
             value: each[deptIndicator] ? 0
           })
-      ###
-      for line in units
-        for dimensionName in groups
-          @db().get(departName).get(dimensionName).get(line).sort((a, b) -> a.value - b.value)
-      ###
     @dbSave()
 
 
