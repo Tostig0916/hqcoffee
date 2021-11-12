@@ -749,14 +749,16 @@ class 对标单科指标评分排序 extends 评分排序报告
   @dataPrepare: ->
     @dbClear()
     direction = 指标导向库.dbRevertedValue()
-    obj = 对标单科指标简单排序.dbValue()
+
+    # 从高到低排序
+    obj = @sortedIndicators()
     directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
     for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
-      distance = last - first
+      distance = first - last
       @dbSet(indicator, arr.map (unit, idx)-> 
-        value = 100 * (unit[indicator] - first) / distance
+        value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / distance
         console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
         switch 
           when realIndicatorName in direction.逐步提高
@@ -771,6 +773,13 @@ class 对标单科指标评分排序 extends 评分排序报告
 
 
     
+  @sortedIndicators: ->
+    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
+    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
+    对标单科指标简单排序.dbValue()
+
+
+
 
 
 class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
