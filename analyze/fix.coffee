@@ -38,7 +38,7 @@ goldenPoint = (left, right, heavyRight=false)->
     fix(left*0.618 + right*0.382)
 
 existNumber = (x) -> 
-  x? and (not isNaN(x)) and not ""
+  x? and (not isNaN(x)) and 'string' isnt (typeof x)
 
 ### 用法
 x = (aLineName,pre) ->
