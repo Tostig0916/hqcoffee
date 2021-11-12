@@ -132,7 +132,7 @@ class 指标维度库 extends NormalCaseSingleton
       sheet:'指标维度'
       columns:[
         {label:'数据名',value:'数据名'}
-        {label:'二级维度',value:'维度'}
+        {label:'二级指标',value:'维度'}
       ]
       content: arr
     }]

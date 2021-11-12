@@ -114,14 +114,14 @@ class 维度导向库 extends NormalCaseSingleton
     导向 = 指标导向库.dbValue()
     维度 = 指标维度库.db()
     
-    arr = ({数据名, 指标导向, 二级维度: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
+    arr = ({数据名, 指标导向, 二级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
       if a.数据名 < b.数据名 then -1 else 1
 
     opts = @options()
     opts.data = [{
       sheet:'维度导向'
       columns:[
-        {label:'二级维度',value:'二级维度'}
+        {label:'二级指标',value:'二级指标'}
         {label:'指标导向',value:'指标导向'}
         {label:'数据名',value:'数据名'}
       ]
@@ -142,7 +142,7 @@ class 指标维度库 extends NormalCaseSingleton
   @dataPrepare: ->
     @dbClear()
     for key, obj of 维度导向库.dbValue()
-      @dbSet(key, obj.二级维度)
+      @dbSet(key, obj.二级指标)
     @dbSave()
 
 
@@ -164,7 +164,7 @@ class 指标维度库 extends NormalCaseSingleton
       sheet:'指标维度'
       columns:[
         {label:'数据名',value:'数据名'}
-        {label:'二级维度',value:'维度'}
+        {label:'二级指标',value:'维度'}
       ]
       content: arr
     }]
@@ -768,8 +768,8 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     sortKey = 'Y2020'
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     
-    groups = 维度权重.groups()
-    dict = 维度权重.indicatorGroup()
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
 
     dbscores = 对标单科指标评分排序.dbValue()
     
@@ -816,8 +816,8 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare_array: ->
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
-    groups = 维度权重.groups()
-    dict = 维度权重.indicatorGroup()
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
     dbscores = 对标单科指标评分排序.dbValue()
     getUnits = (scores)->    
       for deptIndicator, arr of scores when arr.length is largest
@@ -1124,7 +1124,7 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
 
 
 
-class 维度权重 extends 分析报告
+class 二级指标权重 extends 分析报告
 
   @dataPrepare: ->
     @dbClear()
@@ -1252,7 +1252,7 @@ class 维度权重 extends 分析报告
 class 院内专科梯队Topsis评分 extends 分析报告
   @dataPrepare: ->
     @dbClear()
-    weight = 维度权重.dbValue()
+    weight = 二级指标权重.dbValue()
     for unitName, unitArray of 院内单科多维度评分集中分析.dbValue()
       @dbSet(unitName, {})
       value = 0
@@ -1282,7 +1282,7 @@ class 院内专科梯队表 extends 表格报告
 
 
   @titles: ->
-    dict = 维度权重.dbValue()
+    dict = 二级指标权重.dbValue()
     arr = (key for key, value of dict when value > 0)
     arr.unshift("科室名称")
     arr.push('综合评分')
@@ -1506,7 +1506,7 @@ class 生成器 extends CaseSingleton
     return this
 
   @localTopsis: ->
-    维度权重.dataPrepare()
+    二级指标权重.dataPrepare()
     院内专科梯队Topsis评分.dataPrepare()
     return this
 
@@ -1571,7 +1571,7 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
-#console.log {di: 维度权重.indicatorGroup()}
+#console.log {di: 二级指标权重.indicatorGroup()}
 
 ###
 # 对比雷达图设计
