@@ -4,9 +4,9 @@ path = require 'path'
 StormDB = require 'stormdb'
 xlsx = require 'json-as-xlsx'
 
+{existNumber} = require './fix'
 dataKeyNames = ["项目", "指标名","指标名称","指标正名","数据名称"]
 
-existNumber = (x) -> x? and not isNaN(x)
 class JSONSimple  # with no dependences to stormdb
 	
 	# 给定文件名,其数据源Excel和转换成的JSON文件同名,故不存在歧义,可以此法一以蔽之

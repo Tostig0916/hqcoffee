@@ -16,11 +16,10 @@ util = require 'util'
 path = require 'path'
 
 {DataManager} = require path.join __dirname, '..', '..', 'analyze', './prepare'
-{fix} = require path.join __dirname, '..', '..', 'analyze', './fix'
+{fix, existNumber} = require path.join __dirname, '..', '..', 'analyze', './fix'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
-existNumber = (x) -> x? and not isNaN(x)
 
 # informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
@@ -1545,7 +1544,7 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 
-#生成器.buildDB()
+生成器.buildDB()
 生成器.generateReports()
 
 #生成器.run()

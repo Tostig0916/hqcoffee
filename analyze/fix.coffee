@@ -37,6 +37,9 @@ goldenPoint = (left, right, heavyRight=false)->
   else
     fix(left*0.618 + right*0.382)
 
+existNumber = (x) -> 
+  x? and (not isNaN(x)) and not ""
+
 ### 用法
 x = (aLineName,pre) ->
   {high,low,open,close} = this
@@ -45,4 +48,4 @@ x = (aLineName,pre) ->
   {high,low,open,close,line} = fixAll({high,low,open,close,line})
 ###
 
-module.exports = {fix,fixAll,fixString,goldenPoint}
+module.exports = {fix,fixAll,fixString,goldenPoint,existNumber}
