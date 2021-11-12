@@ -119,8 +119,8 @@ class SystemLog extends NormalCaseSingleton
 
 
 class 维度导向库 extends NormalCaseSingleton
-
-  @combineTwo: ->
+  # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量本位权重
+  @combine2Excel: ->
     导向 = 指标导向库.dbValue()
     维度 = 指标维度库.db()
     
@@ -158,7 +158,8 @@ class 指标维度库 extends NormalCaseSingleton
 
 
 
-  @withDirection: ->
+  # 矢量指标,即有明确方向的指标
+  @vectors: ->
     obj = {}
     for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
       (obj[v] ?= []).push(k)
@@ -251,38 +252,6 @@ class 院内资料库 extends 资料库
       funcOpts.mainKey = newName  
     super(funcOpts)
 
-
-
-
-
-class 对标资料库 extends 资料库
-
-
-
-class 对标指标资料库 extends 资料库
-
-  @rawDataToIndicators: ->
-    @dbClear()
-    units = @focusUnits() # 对标资料库.dbDictKeys()
-    指标维度 = 指标维度库.dbValue()
-    院内指标资料 = 院内指标资料库.dbValue()
-
-    对标项 = ['均1','均2','某A','某B']
-    informal = @createMissingData()  
-
-    for dataName, dimension of 指标维度 when dataName?     
-      for entityName in units when 院内指标资料[entityName]?
-        for year, value of 院内指标资料[entityName][dataName]
-          @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
-
-        for item in 对标项
-          key = item
-          otherData = 对标资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
-    
-    @dbSave()
-    console.log "对标指标资料库: 指标数据移动完毕"
-    return this    
 
 
 
@@ -496,7 +465,7 @@ class BCG矩阵报告 extends 散点图报告
     #@dataPrepare()
     data = @dbValue()
     
-    console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
+    #console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
     
     [indicator, _indicator] = [
       '医疗服务收入三年复合增长率'   # x
@@ -727,152 +696,6 @@ class 单科对比雷达图报告 extends 雷达图报告
 
 
 
-class 对标单科指标简单排序 extends 排序报告
-  @dataPrepare: ->
-    @dbClear()
-    focusUnits = @focusUnits()
-    for unit in focusUnits
-      for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
-        indicatorName = "#{unit}: #{indicator}"
-        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)))
-        @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
-    @dbSave()
-
-
-
-
-
-
-
-class 对标单科指标评分排序 extends 评分排序报告
-
-  @dataPrepare: ->
-    @dbClear()
-    direction = 指标导向库.dbRevertedValue()
-
-    # 从高到低排序
-    obj = @sortedIndicators()
-    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
-    for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
-      first = arr[0][indicator]
-      last = arr[arr.length - 1][indicator]
-      distance = first - last
-      @dbSet(indicator, arr.map (unit, idx)-> 
-        value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / distance
-        console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
-        switch 
-          when realIndicatorName in direction.逐步提高
-            unit[indicator] = value
-          when realIndicatorName in direction.逐步降低
-            unit[indicator] = 100 - value
-        unit
-      )
-
-    @dbSave()
-
-
-
-    
-  @sortedIndicators: ->
-    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
-    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
-    对标单科指标简单排序.dbValue()
-
-
-
-
-
-class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
-  @dataPrepare: ->
-    @dbClear()
-    sortKey = 'Y2020'
-    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
-    
-    groups = 二级指标权重.groups()
-    dict = 二级指标权重.indicatorGroup()
-
-    dbscores = 对标单科指标评分排序.dbValue()
-    
-    getUnits = (scores)->    
-      for deptIndicator, arr of scores when arr.length is largest
-        return (each.unitName for each in arr)
-    
-    for deptIndicator, arr of dbscores
-      sp = deptIndicator.split(': ')
-      # 单位名和指标名
-      [departName, indicatorName] = [sp[0], sp[1]]
-
-      for each in arr when existNumber(each[deptIndicator])
-        for dimensionName in groups when indicatorName in dict[dimensionName]
-          @db()
-            .get('data')
-            .get(departName)
-            .get(dimensionName)
-            .get(indicatorName)
-            .get(each.unitName)
-            .set(each[deptIndicator])
-
-      inObj = @db().get('data').value() #get(departName).get(dimensionName).value()
-
-      transform = (name, obj) ->
-        obj.key = name
-        return obj
-
-      # 各部门
-      for departName, departObj of inObj
-        # 各维度
-        for dimensionName, dimensionObj of departObj
-          dimensionArray = (transform(indicatorName, indicatorObj) for indicatorName, indicatorObj of dimensionObj)
-          @db().get(departName).get(dimensionName).set(dimensionArray)
-          @db().get(departName).get(dimensionName).sort((a,b)-> b[sortKey] - a[sortKey])
-
-    @dbDelete('data').save()
-
-
-
-
-
-
-  @dataPrepare_array: ->
-    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
-    @dbClear()
-    groups = 二级指标权重.groups()
-    dict = 二级指标权重.indicatorGroup()
-    dbscores = 对标单科指标评分排序.dbValue()
-    getUnits = (scores)->    
-      for deptIndicator, arr of scores when arr.length is largest
-        return (each.unitName for each in arr)
-    units = getUnits(dbscores)
-    units.sort()
-    for deptIndicator, arr of dbscores
-      sp = deptIndicator.split(': ')
-      [departName, indicatorName] = [sp[0], sp[1]]
-
-      # 为当前个体(名 departName)中的每一个对象设置array
-      for line in units
-        for dimensionName in groups
-          try
-            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
-            unless @db().get(departName).get(dimensionName).get(line).value()
-              @db().get(departName).get(dimensionName).get(line).set([]) #.save()
-              #console.log({departName,line, try: true})
-
-          catch error
-            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
-            @db().get(departName).get(dimensionName).get(line).set([]) #.save()
-            #console.log({departName,line})
-
-      for each in arr
-        for dimensionName in groups when indicatorName in dict[dimensionName]
-          @db().get(departName).get(dimensionName).get(each.unitName).push({
-            key: indicatorName
-            value: each[deptIndicator] ? 0
-          })
-    @dbSave()
-
-
-
-
 
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
@@ -911,7 +734,7 @@ class 院内各科指标评分排序 extends 评分排序报告
       last = arr[arr.length - 1][indicator]
       distance = first - last
       @dbSet(indicator, arr.map (unit, idx)-> 
-        value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / distance
+        value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
         console.log({bug:"> 100", indicator, distance, value, last, first, unit}) if (value > 101) or (value is null)
         switch
           when indicator in direction.逐步提高
@@ -952,7 +775,7 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 
 
 
-class 院内单科多维度指标汇集 extends 分析报告
+class 院内单科多维度指标评分汇集 extends 分析报告
   @dataPrepare: ->
     @dbClear()
     dimensions = 指标维度库.dbValue()
@@ -960,42 +783,33 @@ class 院内单科多维度指标汇集 extends 分析报告
 
     # step one: collect all indicators in a dimension
     # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj when dimensions[indicator]?
-      dmName = dimensions[indicator]
+    for indicator, arr of obj when (dmName = dimensions[indicator])?
       weight = 1 # get weight here
       for each in arr
         unless @db().get(dmName)?.value()? and @db().get(dmName).get(each.unitName)?.value()?
           @db().get(dmName).get(each.unitName).set('indicators', []) 
         unit = @db().get(dmName).get(each.unitName).get('indicators')
-        unit.push(indicator, value: each[indicator]) #if existNumber(each[indicator])
-        console.log({nodata: each.unitName,indicator, value: each[indicator]}) unless existNumber(each[indicator])
-        
+        unit.push({indicator, value: each[indicator]})
+        console.log({shouldNotHappen: each.unitName,indicator, value: each[indicator]}) \
+          unless existNumber(each[indicator])
+    
+    # 一下计算维度分数
+    # step two: calculate dimension value
+    维度 = 维度导向库.dbValue()
+    vectors = 指标维度库.vectors()
+
+    for dmName, dmObj of @dbValue()
+      s = vectors[dmName].length
+      for unitName, unitObj of dmObj
+        {indicators} = unitObj
+        v = 0
+        for each in indicators
+          weight = 维度[each]?.本位权重 ? 1 / s
+          v += each.value * weight
+        @db().get(dmName).get(unitName).set('score', v)
+
     @dbSave()
 
-    ###
-    newObj = {}
-    compareObj = {}
-    selfObj = {}
-    #self
-    
-    # step one: collect all indicators in a dimension
-    # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj when dimensions[indicator]?
-      dmName = dimensions[indicator]
-      newObj[dmName] ?= {} 
-      for each in arr 
-        unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
-        weight = switch indicator
-          when '医疗服务收入三年复合增长率' then 0.382 * 2
-          when '医疗服务收入占全院比重' then 0.618 * 2
-          when 'CMI当量DRGs组数' then 0.382 * 2
-          when 'CMI值' then 0.618 * 2
-          else 1
-        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
-        #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
-
-    @dbDefault(newObj).save()
-    ###
 
 
 
@@ -1009,11 +823,37 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
     院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
     院内各科维度轮比雷达图.dbClear()
 
+    compareObj = {}
+    # 一下计算维度分数
+    # step two: calculate dimension value
+    维度 = 维度导向库.dbValue()
+    vectors = 指标维度库.vectors()
+
+    for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
+      s = vectors[dmName].length
+      for unitName, unitObj of dmObj
+        # step three: turning into an ordered array
+        unless @db().get(unitName)?.value()?
+          @db().set(unitName, [])
+        newUnitObj = {}
+        newUnitObj.dimension = dmName
+        newUnitObj[dmName] = unitObj.score
+        @db().get(unitName).push(newUnitObj)
+
+      sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+      compareObj[dmName] = sorted
+      console.log {compareObj}
+
+    @dbSave()
+    #@dbDefault(selfObj).save()
+    院内各科维度轮比雷达图.dbDefault(compareObj).save()
+    院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
+
+    ###
     dimensions = 指标维度库.dbValue()
     obj = 院内各科指标评分排序.dbValue()
 
     newObj = {}
-    compareObj = {}
     selfObj = {}
     #self
     
@@ -1061,6 +901,7 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
 
       sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
       compareObj[dmName] = sorted
+      ###
       ### 
       # 不需要比例放大维度分数,各指标分数提高,则维度分数提高,故不比例放大才合乎实际情况
       first = sorted[0]
@@ -1069,11 +910,12 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
         each[dmName] = refined
         each
       ### 
-
-    @dbDefault(selfObj).save()
+  ###
+    @dbSave()
+    #@dbDefault(selfObj).save()
     院内各科维度轮比雷达图.dbDefault(compareObj).save()
     院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
-
+  ###
 
 
 
@@ -1146,7 +988,7 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
     names = (obj.unitName for obj in @db().get(key).value())
     key = '医疗服务收入三年复合增长率'
     all =  院内二级专科BCG矩阵分析.db().get(key).value()
-    console.log({all})
+    #console.log({all})
     @db().set(key, [])
     for unitName in names # 以此顺序收集
       for each in all when each.unitName is unitName
@@ -1348,6 +1190,186 @@ class 院内分析报告 extends 分析报告
 
 
 
+# ------------------------------------- 对标本非逻辑有异,合表同理遴选即可 ------------------------------------
+class 对标资料库 extends 资料库
+
+
+
+class 对标指标资料库 extends 资料库
+
+  @rawDataToIndicators: ->
+    @dbClear()
+    units = @focusUnits() # 对标资料库.dbDictKeys()
+    指标维度 = 指标维度库.dbValue()
+    院内指标资料 = 院内指标资料库.dbValue()
+
+    对标项 = ['均1','均2','某A','某B']
+    informal = @createMissingData()  
+
+    for dataName, dimension of 指标维度 when dataName?     
+      for entityName in units when 院内指标资料[entityName]?
+        for year, value of 院内指标资料[entityName][dataName]
+          @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
+
+        for item in 对标项
+          key = item
+          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
+    
+    @dbSave()
+    console.log "对标指标资料库: 指标数据移动完毕"
+    return this    
+
+
+
+
+
+
+class 对标单科指标简单排序 extends 排序报告
+  @dataPrepare: ->
+    @dbClear()
+    focusUnits = @focusUnits()
+    for unit in focusUnits
+      for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
+        indicatorName = "#{unit}: #{indicator}"
+        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)))
+        @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
+    @dbSave()
+
+
+
+
+
+
+
+class 对标单科指标评分排序 extends 评分排序报告
+
+  @dataPrepare: ->
+    @dbClear()
+    direction = 指标导向库.dbRevertedValue()
+
+    # 从高到低排序
+    obj = @sortedIndicators()
+    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
+      first = arr[0][indicator]
+      last = arr[arr.length - 1][indicator]
+      distance = first - last
+      @dbSet(indicator, arr.map (unit, idx)-> 
+        value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
+        console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
+        switch 
+          when realIndicatorName in direction.逐步提高
+            unit[indicator] = value
+          when realIndicatorName in direction.逐步降低
+            unit[indicator] = 100 - value
+        unit
+      )
+
+    @dbSave()
+
+
+
+    
+  @sortedIndicators: ->
+    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
+    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
+    对标单科指标简单排序.dbValue()
+
+
+
+
+
+class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
+  @dataPrepare: ->
+    @dbClear()
+    sortKey = 'Y2020'
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
+
+    dbscores = 对标单科指标评分排序.dbValue()
+    
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      # 单位名和指标名
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      for each in arr when existNumber(each[deptIndicator])
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db()
+            .get('data')
+            .get(departName)
+            .get(dimensionName)
+            .get(indicatorName)
+            .get(each.unitName)
+            .set(each[deptIndicator])
+
+      inObj = @db().get('data').value() #get(departName).get(dimensionName).value()
+
+      transform = (name, obj) ->
+        obj.key = name
+        return obj
+
+      # 各部门
+      for departName, departObj of inObj
+        # 各维度
+        for dimensionName, dimensionObj of departObj
+          dimensionArray = (transform(indicatorName, indicatorObj) for indicatorName, indicatorObj of dimensionObj)
+          @db().get(departName).get(dimensionName).set(dimensionArray)
+          @db().get(departName).get(dimensionName).sort((a,b)-> b[sortKey] - a[sortKey])
+
+    @dbDelete('data').save()
+
+
+
+
+
+
+  @dataPrepare_array: ->
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    @dbClear()
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
+    dbscores = 对标单科指标评分排序.dbValue()
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    units = getUnits(dbscores)
+    units.sort()
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      # 为当前个体(名 departName)中的每一个对象设置array
+      for line in units
+        for dimensionName in groups
+          try
+            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
+            unless @db().get(departName).get(dimensionName).get(line).value()
+              @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+              #console.log({departName,line, try: true})
+
+          catch error
+            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
+            @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+            #console.log({departName,line})
+
+      for each in arr
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db().get(departName).get(dimensionName).get(each.unitName).push({
+            key: indicatorName
+            value: each[deptIndicator] ? 0
+          })
+    @dbSave()
+
+
+
 
 
 class 对标分析报告 extends 分析报告
@@ -1527,7 +1549,7 @@ class 生成器 extends CaseSingleton
     return this
 
   @localIndicatorRadarChart: ->
-    院内单科多维度指标汇集.dataPrepare()
+    院内单科多维度指标评分汇集.dataPrepare()
     院内单科多维度评分集中分析.dataPrepare()
     return this
 
@@ -1582,7 +1604,7 @@ class 生成器 extends CaseSingleton
 
 
 生成器.buildDB()
-生成器.generateReports()
+#生成器.generateReports()
 
 #生成器.run()
 生成器
@@ -1648,4 +1670,4 @@ for uname, idx in 院内分析报告.dbDictKeys()
 院内分析报告.dbSave()
 ###
 
-#维度导向库.combineTwo()
+#维度导向库.combine2Excel()
