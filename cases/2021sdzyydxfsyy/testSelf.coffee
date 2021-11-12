@@ -124,8 +124,9 @@ class 维度导向库 extends NormalCaseSingleton
     导向 = 指标导向库.dbValue()
     维度 = 指标维度库.db()
     
+    # 数据名采用顺序排列,与其他采用倒序排序方式不同
     arr = ({数据名, 指标导向, 二级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
-      if a.数据名 < b.数据名 then -1 else 1
+      if b.数据名 > a.数据名 then -1 else 1
 
     opts = @options()
     opts.data = [{
