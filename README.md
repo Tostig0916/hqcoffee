@@ -27,6 +27,22 @@
 3. Word、PDF、md等文件格式生成和转换
    1. pandoc
 
+## 安装方法
+
+无论是Mac/Linux/Windows系统,除了第0步git,其主要安装顺序是一样的,
+
+0. git Windows系统需要安装git官方的客户端,带有Git Bash,可通过任何电脑管家之类的软件或直接搜索bing.com找Windows git
+
+1. vscode 通过官方网站下载安装,Windows系统可通过电脑管家等安装
+2. nodejs.org 通过官方网站下载安装
+3. coffeescript.org 通过官方网站,查看下载安装方法,简单说就是在git bash中运行 `npm i -g coffeescript`
+4. 确定想要安装本项目的文件夹,例如Windows e盘git目录,或其他操作系统~/git目录,先在git bash 进入该目录,然后运行 `git clone 你的代码库地址`, 其中你的代码库地址,是在GitHub账户中,你所fork的这个项目页面上,有code绿色按钮,点开第一项,先复制好即可执行clone命令
+5. `cd hqcoffee; npm i`
+
+## 使用方法
+
+待续
+
 ### 注意事项
 
 1. 指标数据填报表,需要使用"数据名"作为表头,而不用其他的如"项目"之类表头
@@ -34,7 +50,7 @@
 3. "医护比"等比例指标,其数值写成 x/y 而不是x:y, 否则转换成JSON时会出错
 4. 一个指标名仅对应一个数值,不能使用"导师所带硕士/博士人数"然后数值为"6/3",这是常识性错误,须拆分成两个指标
 
-### 行业标准
+## 行业标准
 
 #### 国内
 
@@ -46,17 +62,18 @@
 
    世卫 IDC-11 <http://www.nhc.gov.cn/ewebeditor/uploadfile/2018/12/20181221160228191.xlsx>
 
-### 其他
+## 其他
 
-#### tutorial
+### tutorial
 
 <https://youtu.be/2LhoCfjm8R4>
 
-#### sql 99
+### sql 99
 
+目前没有用SQL.有一个库,但经过测试bug太多,放弃.
 sql 99 tutorial <https://crate.io/docs/sql-99/en/latest/>
 
-#### upstream
+### 设置 git upstream
 
 how to fetch origin updates to a forked rep
 
@@ -73,7 +90,7 @@ in short:
 
 ```
 
-#### why .gitignore not work
+### why .gitignore not work
 
 ``` bash
 
