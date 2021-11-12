@@ -877,7 +877,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
     @dbClear()
-    year = @years()[0]
+    year = @years()[0] # 最大的那个
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
