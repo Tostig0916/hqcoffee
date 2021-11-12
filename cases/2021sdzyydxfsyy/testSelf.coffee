@@ -929,12 +929,11 @@ class 院内单科多指标评分雷达图 extends 单科雷达图报告
 # 以指标维度为主体,看相关指标趋势离散度
 class 院内各科维度轮比雷达图 extends 多科雷达图报告
   @dataPrepare: ->
-    console.log("use 院内单科多维度评分雷达图 to prepare")
+    console.log("use 院内单科多维度评分集中分析 to prepare")
     return
 
 
 
-# 修正单科多维度问题, 尚未改写
 class 院内单科多维度指标汇集 extends 分析报告
   @dataPrepare: ->
     @dbClear()
@@ -959,14 +958,19 @@ class 院内单科多维度指标汇集 extends 分析报告
           when 'CMI当量DRGs组数' then 0.382 * 2
           when 'CMI值' then 0.618 * 2
           else 1
-        unit.dmis.push(weight * each[indicator]) #if existNumber(each[indicator])
+        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
         #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
 
+    @dbDefault(newObj).save()
 
+
+
+
+class 院内各科相关维度轮比分析 extends 分析报告
 
 
 # 以专科为单位,各维度雷达图
-class 院内单科多维度评分雷达图 extends 单科雷达图报告
+class 院内单科多维度评分集中分析 extends 单科雷达图报告
   @dataPrepare: ->
     @dbClear()
     院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
@@ -993,7 +997,7 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
           when 'CMI当量DRGs组数' then 0.382 * 2
           when 'CMI值' then 0.618 * 2
           else 1
-        unit.dmis.push(weight * each[indicator]) #if existNumber(each[indicator])
+        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
         #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
 
     # step two: calculate dimension value
@@ -1036,7 +1040,6 @@ class 院内单科多维度评分雷达图 extends 单科雷达图报告
     @dbDefault(selfObj).save()
     院内各科维度轮比雷达图.dbDefault(compareObj).save()
     院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
-
 
 
 
@@ -1250,7 +1253,7 @@ class 院内专科梯队Topsis评分 extends 分析报告
   @dataPrepare: ->
     @dbClear()
     weight = 维度权重.dbValue()
-    for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
+    for unitName, unitArray of 院内单科多维度评分集中分析.dbValue()
       @dbSet(unitName, {})
       value = 0
       for object in unitArray when existNumber(v = object[object.dimension])
@@ -1295,7 +1298,7 @@ class 院内分析报告 extends 分析报告
       院内各科指标简单排序
       院内各科指标评分排序 
       院内各科维度轮比雷达图
-      院内单科多维度评分雷达图
+      院内单科多维度评分集中分析
 
       院内专科BCG矩阵分析
       院内二级专科BCG矩阵分析
@@ -1491,7 +1494,8 @@ class 生成器 extends CaseSingleton
     return this
 
   @localIndicatorRadarChart: ->
-    院内单科多维度评分雷达图.dataPrepare()
+    院内单科多维度指标汇集.dataPrepare()
+    院内单科多维度评分集中分析.dataPrepare()
     return this
 
 
@@ -1582,7 +1586,7 @@ db.filter()
 #console.log db: 缺漏追踪库.db().get('院内资料库').value()?
 
 #
-#院内单科多维度评分雷达图.dataPrepare()
+#院内单科多维度评分集中分析.dataPrepare()
 #console.log @focusUnits()[1..9]
 #院内分析报告.newReport()
 
