@@ -169,7 +169,7 @@ class 指标维度库 extends NormalCaseSingleton
     opts = @options()
     json= @dbValue()
     arr = ({数据名:key, 维度:value} for key, value of json).sort(
-      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
       sheet:'指标维度'
@@ -202,7 +202,7 @@ class 指标导向库 extends NormalCaseSingleton
     opts = @options()
     json= @dbValue()
     arr = ({数据名:key, 导向:value} for key, value of json).sort(
-      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
       sheet:'指标导向'
