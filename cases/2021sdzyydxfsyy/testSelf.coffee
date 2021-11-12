@@ -404,7 +404,7 @@ class 表格报告 extends 分析报告
 
 
 class 散点图报告 extends 分析报告
-  @chartType: -> 'scatter' #'line'
+  @chartType: -> 'scatter'
 
 
   @slides: (funcOpts) ->
@@ -940,6 +940,21 @@ class 院内单科多维度指标汇集 extends 分析报告
     dimensions = 指标维度库.dbValue()
     obj = 院内各科指标评分排序.dbValue()
 
+    # step one: collect all indicators in a dimension
+    # 注意: 这一步还可以根据设置好的指标权重进行预处理
+    for indicator, arr of obj when dimensions[indicator]?
+      dmName = dimensions[indicator]
+      weight = 1 # get weight here
+      for each in arr
+        unless @db().get(dmName)?.value()? and @db().get(dmName).get(each.unitName)?.value()?
+          @db().get(dmName).get(each.unitName).set('indicators', []) 
+        unit = @db().get(dmName).get(each.unitName).get('indicators')
+        unit.push(indicator, value: each[indicator]) #if existNumber(each[indicator])
+        console.log({nodata: each.unitName,indicator, value: each[indicator]}) unless existNumber(each[indicator])
+        
+    @dbSave()
+
+    ###
     newObj = {}
     compareObj = {}
     selfObj = {}
@@ -962,7 +977,7 @@ class 院内单科多维度指标汇集 extends 分析报告
         #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
 
     @dbDefault(newObj).save()
-
+    ###
 
 
 
