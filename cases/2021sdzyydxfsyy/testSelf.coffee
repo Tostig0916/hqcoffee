@@ -305,6 +305,9 @@ class 分析报告 extends NormalCaseSingleton
   @dataPrepare: ->
  
 
+  @sectionData: ->
+    @dbValue()
+
 
   @slides:(funcOpts) ->
     {pres, sectionTitle} = funcOpts
@@ -319,11 +322,15 @@ class 分析报告 extends NormalCaseSingleton
 # https://github.com/gitbrent/PptxGenJS/blob/master/demos/modules/demo_table.mjs
 class 表格报告 extends 分析报告
   @arrayName: ->
+  
   @titles: ->
+  
+  @sectionData: ->
+    @db().get(@arrayName()).value()
 
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
-    data = @db().get(@arrayName()).value()
+    data = @sectionData()
     size = data.length
     titles = @titles() 
 
@@ -390,7 +397,7 @@ class 散点图报告 extends 分析报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()    
-    data = @dbValue()
+    data = @sectionData()
         
     for indicator, arr of data
       delete(data[indicator])
@@ -463,7 +470,7 @@ class BCG矩阵报告 extends 散点图报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
     
     #console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
     
@@ -544,7 +551,7 @@ class 排序报告 extends 分析报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
     for indicator, arr of data when arr.length > 0
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
@@ -593,7 +600,7 @@ class 多科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
 
     for indicator, arr of data
       delete(data[indicator])
@@ -637,7 +644,7 @@ class 单科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
     for unitName, arr of data
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
@@ -669,7 +676,7 @@ class 单科对比雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
-    data = @dbValue()
+    data = @sectionData()
     
     for departName, departObj of data
       for dimensionName, dimensionArray of departObj
@@ -769,10 +776,8 @@ class 院内单科多指标评分雷达图 extends 单科雷达图报告
 
 # 以指标维度为主体,看相关指标趋势离散度
 class 院内各科维度轮比雷达图 extends 多科雷达图报告
-  @dataPrepare: ->
-    console.log("use 院内单科多维度评分集中分析 to prepare")
-    return
-
+  @sectionData: ->
+    院内各科相关维度轮比分析.dbValue()
 
 
 class 院内单科多维度指标评分汇集 extends 分析报告
@@ -782,19 +787,20 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     obj = 院内各科指标评分排序.dbValue()
 
     # step one: collect all indicators in a dimension
-    # 注意: 这一步还可以根据设置好的指标权重进行预处理
     for indicator, arr of obj when (dmName = dimensions[indicator])?
-      weight = 1 # get weight here
       for each in arr
         unless @db().get(dmName)?.value()? and @db().get(dmName).get(each.unitName)?.value()?
           @db().get(dmName).get(each.unitName).set('indicators', []) 
         unit = @db().get(dmName).get(each.unitName).get('indicators')
         unit.push({indicator, value: each[indicator]})
-        console.log({shouldNotHappen: each.unitName,indicator, value: each[indicator]}) \
+        
+        # 查错
+        console.log({error: each.unitName,indicator, value: each[indicator]}) \
           unless existNumber(each[indicator])
     
-    # 一下计算维度分数
+    # 计算维度分数
     # step two: calculate dimension value
+    # 注意: 这一步根据设置好的指标权重进行预处理
     维度 = 维度导向库.dbValue()
     vectors = 指标维度库.vectors()
 
@@ -814,23 +820,22 @@ class 院内单科多维度指标评分汇集 extends 分析报告
 
 
 class 院内各科相关维度轮比分析 extends 分析报告
+  @dataPrepare: ->
+    @dbClear()
+    for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
+      sorted = ({unitName, "#{dmName}":unitObj.score} for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+      @db().set(dmName, sorted)
+
+    @dbSave()
+
+
 
 
 # 以专科为单位,各维度雷达图
 class 院内单科多维度评分集中分析 extends 单科雷达图报告
   @dataPrepare: ->
     @dbClear()
-    院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
-    院内各科维度轮比雷达图.dbClear()
-
-    compareObj = {}
-    # 一下计算维度分数
-    # step two: calculate dimension value
-    维度 = 维度导向库.dbValue()
-    vectors = 指标维度库.vectors()
-
     for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
-      s = vectors[dmName].length
       for unitName, unitObj of dmObj
         # step three: turning into an ordered array
         unless @db().get(unitName)?.value()?
@@ -840,88 +845,16 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
         newUnitObj[dmName] = unitObj.score
         @db().get(unitName).push(newUnitObj)
 
-      sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
-      compareObj[dmName] = sorted
-      console.log {compareObj}
-
     @dbSave()
-    #@dbDefault(selfObj).save()
-    院内各科维度轮比雷达图.dbDefault(compareObj).save()
-    院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
 
-    ###
-    dimensions = 指标维度库.dbValue()
-    obj = 院内各科指标评分排序.dbValue()
-
-    newObj = {}
-    selfObj = {}
-    #self
-    
-    # step one: collect all indicators in a dimension
-    # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj when dimensions[indicator]?
-      dmName = dimensions[indicator]
-      newObj[dmName] ?= {} 
-      for each in arr 
-        unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
-        weight = switch indicator
-          when '医疗服务收入三年复合增长率' then 0.382 * 2
-          when '医疗服务收入占全院比重' then 0.618 * 2
-          when 'CMI当量DRGs组数' then 0.382 * 2
-          when 'CMI值' then 0.618 * 2
-          else 1
-        unit.dmis.push(weight * each[indicator]) if existNumber(each[indicator])
-        #console.log({"bug >100: #{indicator}": each[indicator], unit}) if each[indicator] > 101
-
-    # step two: calculate dimension value
-    
-    for dmName, dmObj of newObj
-      for unitName, unitObj of dmObj
-        {dmis} = unitObj
-        #unitObj[dmName] 
-        v = 0
-        v += each for each in dmis
-        
-        # 代码存在bug导致服务价值和医保收入等仅留下一个指标数值,原因待查,先予以越过
-        s = dmis.length
-        #s = if dmName in ['医保价值','医服收入'] then 2 else dmis.length  # 临时!!!
-
-        if s > 0
-          unitObj[dmName] = v / s
-          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if s < 2 
-          #console.log({unitName, dmName, value: unitObj[dmName],v,s}) if unitName is "男科"
-        #delete(unitObj.dmis)
-    
-    # step three: turning into an ordered array
-        selfObj[unitName] ?= []
-        newUnitObj = {}
-        newUnitObj.dimension = dmName
-        newUnitObj[dmName] = unitObj[dmName]
-        selfObj[unitName].push(newUnitObj)
-
-      sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
-      compareObj[dmName] = sorted
-      ###
-      ### 
-      # 不需要比例放大维度分数,各指标分数提高,则维度分数提高,故不比例放大才合乎实际情况
-      first = sorted[0]
-      compareObj[dmName] = sorted.map (each, idx) -> 
-        refined = 100 * each[dmName] / first[dmName]
-        each[dmName] = refined
-        each
-      ### 
-  ###
-    @dbSave()
-    #@dbDefault(selfObj).save()
-    院内各科维度轮比雷达图.dbDefault(compareObj).save()
-    院内各科维度轮比散点图.dbDefault(compareObj).save() # 临时测试绘制散点图
-  ###
 
 
 
 
 class 院内各科维度轮比散点图 extends 散点图报告
-  @dataPrepare: ->
+  @sectionData: ->
+    院内各科相关维度轮比分析.dbValue()
+
 
   @showLabel: -> true
 
@@ -1170,14 +1103,14 @@ class 院内专科梯队表 extends 表格报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内各科指标简单排序
-      院内各科指标评分排序 
-      院内各科维度轮比雷达图
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      #院内各科维度轮比雷达图
       院内单科多维度评分集中分析
 
-      院内专科BCG矩阵分析
-      院内二级专科BCG矩阵分析
-      院内二级权重专科BCG矩阵分析
+      #院内专科BCG矩阵分析
+      #院内二级专科BCG矩阵分析
+      #院内二级权重专科BCG矩阵分析
       院内专科梯队表
 
       院内各科维度轮比散点图
@@ -1551,6 +1484,7 @@ class 生成器 extends CaseSingleton
   @localIndicatorRadarChart: ->
     院内单科多维度指标评分汇集.dataPrepare()
     院内单科多维度评分集中分析.dataPrepare()
+    院内各科相关维度轮比分析.dataPrepare()
     return this
 
 
@@ -1603,8 +1537,8 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 
-生成器.buildDB()
-#生成器.generateReports()
+#生成器.buildDB()
+生成器.generateReports()
 
 #生成器.run()
 生成器
