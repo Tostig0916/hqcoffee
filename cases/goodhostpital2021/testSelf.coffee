@@ -364,7 +364,7 @@ class 院内指标资料库 extends 资料库
 
 
 
-
+# ---------------------------------  slides api  -----------------------------------
 class 分析报告 extends NormalCaseSingleton
 
   @newReport: ->
@@ -400,8 +400,10 @@ class 分析报告 extends NormalCaseSingleton
     console.log {slides: sectionTitle}
 
 
-
-
+  # 每部分限定几张PPT,用于测试和demo
+  @pageLimit: ->
+    #null 
+    5
 
 
 
@@ -484,10 +486,16 @@ class 散点图报告 extends 分析报告
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()    
     data = @sectionData()
-        
+    
+    pages = 0
+    pageLimit = @pageLimit()
+
     for indicator, arr of data
       delete(data[indicator])
       for _indicator, _arr of data
+   
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
@@ -542,6 +550,9 @@ class 散点图报告 extends 分析报告
           dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
           dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
         })
+
+
+
 
   @showLabel: ->
     true
@@ -635,10 +646,15 @@ class 排序报告 extends 分析报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
-    
-    #@dataPrepare()
+
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     for indicator, arr of data when arr.length > 0
+
+      return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -684,13 +700,16 @@ class 多科雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
-    
-    #@dataPrepare()
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
 
     for indicator, arr of data
       delete(data[indicator])
       for _indicator, _arr of data
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+  
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
@@ -729,9 +748,14 @@ class 单科雷达图报告 extends 雷达图报告
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
-    #@dataPrepare()
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     for unitName, arr of data
+
+      return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -762,10 +786,17 @@ class 单科对比雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
+
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     
     for departName, departObj of data
       for dimensionName, dimensionArray of departObj
+
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
         # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
@@ -789,6 +820,9 @@ class 单科对比雷达图报告 extends 雷达图报告
 
 
 
+
+
+# ---------------------------------  data api  -----------------------------------
 
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
@@ -1213,32 +1247,6 @@ class 院内二级专科梯队表 extends 院内专科梯队表
 
 
 
-class 院内分析报告 extends 分析报告
-  @sections: ->
-    [
-      #院内各科指标简单排序
-      #院内各科指标评分排序 
-      #院内各科维度轮比雷达图
-      院内单科多维度评分集中分析
-
-      院内专科BCG矩阵分析
-      院内二级专科BCG矩阵分析
-      院内二级权重专科BCG矩阵分析
-      
-      #院内专科梯队表
-      院内二级专科梯队表
-      院内大小专科梯队混合表
-
-      院内各科维度轮比散点图
-      
-      # 尚未制作
-      # 院内各科指标轮比雷达图
-      # 院内单科多指标评分雷达图
-   ]
-
-
-
-
 # ------------------------------------- 对标本非逻辑有异,合表同理遴选即可 ------------------------------------
 class 对标资料库 extends 资料库
 
@@ -1426,6 +1434,34 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     @dbSave()
 
 
+
+
+
+
+
+# ---------------------------------  report api  -----------------------------------
+class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      #院内各科维度轮比雷达图
+      院内单科多维度评分集中分析
+
+      院内专科BCG矩阵分析
+      院内二级专科BCG矩阵分析
+      院内二级权重专科BCG矩阵分析
+      
+      #院内专科梯队表
+      院内二级专科梯队表
+      院内大小专科梯队混合表
+
+      院内各科维度轮比散点图
+      
+      # 尚未制作
+      # 院内各科指标轮比雷达图
+      # 院内单科多指标评分雷达图
+   ]
 
 
 
