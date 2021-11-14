@@ -3,9 +3,11 @@ path = require 'path'
 
 console.log SimpleIndicator.fromJSONData  {
         basename: "二级国考指标填报表"
+        #mainKeyName: "指标名称"
         headerRows: 3
         sheetStubs: false
         needToRewrite: false #true
+        customData: true
       }
 
 ###

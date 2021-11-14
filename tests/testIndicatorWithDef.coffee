@@ -28,6 +28,7 @@ getHistdata = (selection) ->
         needToRewrite: false #true
       }
   
+  #funcOpts.mainKeyName = "指标名称"
   histdata = SimpleIndicator.fromJSONData(funcOpts)
   return {funcOpts, histdata}
 

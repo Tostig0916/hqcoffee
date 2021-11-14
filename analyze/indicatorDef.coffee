@@ -72,6 +72,7 @@ class IndicatorDefInfoByVersion
 
 class IndicatorDef
 	@fromMannualFile: (funcOpts={}) ->
+		funcOpts.mainKeyName ?= "指标名称"
 		json = JSONUtils.getJSON(funcOpts)
 		indicators = {}
 		for versionName, mannual of json
