@@ -109,3 +109,10 @@ in short:
    git commit -m 'fixed ignore files'
 
 ```
+
+### change hosts on Mac 
+
+```bash
+   
+   sudo killall -HUP mDNSResponder
+```
