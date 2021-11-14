@@ -10,23 +10,83 @@
   TODO:
     医院库和专科库分开?
     若不分开,每次需要剔除医院
+
+
+  注意排序:
+    除了指标名是从小到大排序英文在前,其他例如年份,数值都是默认从大到小排序的.注意看 sort 用法,如果不符合前述原则,
+    则须加以留意並讨论
+
+  对标报告:
+    对标报告其实逻辑上与院内报告是雷同的.之所以区分,是因为传统习惯,以及数据表设计缺陷.
+    如果将对标单位统一命名,例如医院,是本医院,医院对标均1,医院对标均2,医院对标某A,医院对标某B,依次类推,则可将所有
+    数据置于同一电子表格的不同sheet内,其结构完全一样,分析过程也没有不同,只需挑选其中的对象即可,不需要另外设计代码
 ###
 
 util = require 'util'
 path = require 'path'
 
 {DataManager} = require path.join __dirname, '..', '..', 'analyze', './prepare'
-{fix} = require path.join __dirname, '..', '..', 'analyze', './fix'
+{fix, existNumber} = require path.join __dirname, '..', '..', 'analyze', './fix'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
-# 设置为true则容忍指标直接填报不完整,而通过原始数据推算
-informal = true #false
+
+# informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
+
+
+# 如果要用本地的项目别名库取代系统的别名库,在localOptions中return true
+class 项目别名库 extends 别名库
+  @localOptions: ->
+    false
+
+  # 必须置于此处,以便随客户文件夹而建立数据库文件
+  @_dbPath: ->
+    if @localOptions()
+      path.join __dirname, "#{@name}.json"
+    else
+      super()
+
+
+  @options: ->
+    if @localOptions()
+      @_options = {
+        dirname: __dirname
+        basename: @name
+        mainKeyName: "数据名"
+        header: {rows: 1}
+        columnToKey: {'*':'{{columnHeader}}'}
+        sheetStubs: true
+        needToRewrite: false
+        rebuild: false
+        unwrap: true 
+        renaming: @normalKeyName
+      }
+
+    else
+      super()
+
+
+
+
+
+
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
+  @customerName: ->
+    "Good Hospital"
+
+  @customGrade: ->
+    "三级综合" # could be "二级综合"/"三级中医" etc
+
+  @normalKeyName: ({mainKey}) =>
+    # keep 则保存json文件
+    项目别名库.ajustedName({name:mainKey,keep:true})
+
+
+
   @logdb: ->
     SystemLog.db().get(@name)
 
@@ -46,6 +106,7 @@ class AnyCaseSingleton extends StormDBSingleton
 
     funcOpts.regest_db = 缺漏追踪库.db()
     funcOpts.log_db = @logdb()
+    funcOpts.hostname = @name
 
     DataManager.getData(funcOpts)
 
@@ -53,29 +114,10 @@ class AnyCaseSingleton extends StormDBSingleton
 
 
 
-class 维度权重 extends AnyCaseSingleton
-  @dict: -> 
-    {
-      服务收入: 2.5
-      医保价值: 0.5
-      质量安全: 1.5
-      地位影响: 0.5
-      学科建设: 0.1
-      人员结构: 0.1
-      功能定位: 0.1
-      服务流程: 0.1
-      费用控制: 0.1
-      合理用药: 0.1
-      收支结构: 0.1
-      资源效率: 0.1
-      人才培养: 0.1
-    }
-  
 
 class CaseSingleton extends AnyCaseSingleton
-  @customerName: ->
-    "Good Hospital"
-
+  @createMissingData: -> 
+    false
 
   # 必须置于此处,以便随客户文件夹而建立数据库文件
   @_dbPath: ->
@@ -102,9 +144,8 @@ class CaseSingleton extends AnyCaseSingleton
 
 
 class NormalCaseSingleton extends CaseSingleton
-
   @options: ->
-    @_options ?= {
+    @_options = {
       dirname: __dirname
       basename: @name
       mainKeyName: "数据名"
@@ -119,14 +160,63 @@ class NormalCaseSingleton extends CaseSingleton
 
 class 缺漏追踪库 extends NormalCaseSingleton
 
+
 class SystemLog extends NormalCaseSingleton
 
+
+class 维度导向库 extends NormalCaseSingleton
+  # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量本位权重
+  @combine2Excel: ->
+    导向 = 指标导向库.dbValue()
+    维度 = 指标维度库.db()
+    
+    # 数据名采用顺序排列,与其他采用倒序排序方式不同
+    arr = ({数据名, 指标导向, 二级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
+      if b.数据名 > a.数据名 then -1 else 1
+
+    opts = @options()
+    opts.data = [{
+      sheet:'维度导向'
+      columns:[
+        {label:'二级指标',value:'二级指标'}
+        {label:'指标导向',value:'指标导向'}
+        {label:'数据名',value:'数据名'}
+      ]
+      content: arr
+    }]
+
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
+
 class 指标维度库 extends NormalCaseSingleton
+  @dataPrepare: ->
+    @dbClear()
+    for key, obj of 维度导向库.dbValue()
+      @dbSet(key, obj.二级指标)
+    @dbSave()
+
+
+
+  # 矢量指标,即有明确方向的指标
+  @vectors: ->
+    obj = {}
+    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
+      (obj[v] ?= []).push(k)
+    obj
+
+
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
     arr = ({数据名:key, 维度:value} for key, value of json).sort(
-      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
       sheet:'指标维度'
@@ -144,12 +234,22 @@ class 指标维度库 extends NormalCaseSingleton
     @write2Excel(opts)
 
 
+
+
 class 指标导向库 extends NormalCaseSingleton
+  @dataPrepare: ->
+    @dbClear()
+    for key, obj of 维度导向库.dbValue()
+      @dbSet(key, obj.指标导向)
+    @dbSave()
+
+    
+
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
     arr = ({数据名:key, 导向:value} for key, value of json).sort(
-      (a,b)-> if a.数据名 < b.数据名 then -1 else 1
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
       sheet:'指标导向'
@@ -202,10 +302,6 @@ class 院内资料库 extends 资料库
 
 
 
-class 对标资料库 extends 资料库
-
-
-
 
 class 院内指标资料库 extends 资料库
 
@@ -214,47 +310,17 @@ class 院内指标资料库 extends 资料库
     指标维度 = 指标维度库.dbValue()
     years = @years()
     units = @localUnits()
-    
+    informal = @createMissingData()
 
     for dataName, dimension of 指标维度 when dataName?
       for entityName in units 
         for year in years
           key = year
           ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) #if ownData
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
     @dbSave()
     console.log "院内指标资料库: 指标数据移动完毕"
     return this
-
-
-
-class 对标指标资料库 extends 资料库
-
-  @rawDataToIndicators: ->
-    @dbClear()
-    units = @focusUnits() # 对标资料库.dbDictKeys()
-    指标维度 = 指标维度库.dbValue()
-    院内指标资料 = 院内指标资料库.dbValue()
-
-    对标项 = ['均1','均2','某A','某B']
-    
-
-    for dataName, dimension of 指标维度 when dataName?     
-      for entityName in units
-        for year, value of 院内指标资料[entityName][dataName]
-          @dbSet("#{entityName}.#{dataName}.#{year}", value)
-
-        for item in 对标项
-          key = item
-          otherData = 对标资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) #if otherData
-    
-    @dbSave()
-    console.log "对标指标资料库: 指标数据移动完毕"
-    return this    
-
-
-
 
 
 
@@ -266,8 +332,10 @@ class 分析报告 extends NormalCaseSingleton
     opts.generate = (funcOpts) => 
       {pres} = funcOpts
       # title slide
+      title = "数智分析报告"
       slide = pres.addSlide("TITLE_SLIDE")
-      slide.addText("量化报告")
+      slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
+      slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
       # slides in sections
       for section in @sections()
         # slide section could be added from key
@@ -283,6 +351,9 @@ class 分析报告 extends NormalCaseSingleton
   @dataPrepare: ->
  
 
+  @sectionData: ->
+    @dbValue()
+
 
   @slides:(funcOpts) ->
     {pres, sectionTitle} = funcOpts
@@ -294,103 +365,93 @@ class 分析报告 extends NormalCaseSingleton
 
 
 
-class 院内分析报告 extends 分析报告
-  @sections: ->
-    [
-      院内专科梯队表
-      院内专科BCG散点图
-      
-      #院内各科指标轮比雷达图
-      #院内单科多指标评分雷达图
-
-
-      院内各科维度轮比雷达图
-      院内单科多维度评分雷达图
-
-      院内各科指标简单排序
-      院内各科指标评分排序 
-      院内各科维度轮比散点图
-   ]
-
-
-
-
-
-
-class 对标分析报告 extends 分析报告
-  @sections: ->
-    [
-      #对标各科指标评分轮比雷达图
-      #对标单科多指标评分雷达图
-
-      #对标各科维度轮比雷达图
-      #对标单科多维度评分雷达图
-
-      对标单科指标简单排序
-      对标单科指标评分排序 
-      #对标各科维度轮比散点图
-    ]
-
-
 # https://github.com/gitbrent/PptxGenJS/blob/master/demos/modules/demo_table.mjs
 class 表格报告 extends 分析报告
   @arrayName: ->
+  
   @titles: ->
+  
+  @sectionData: ->
+    @db().get(@arrayName()).value()
 
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
-    data = @db().get(@arrayName()).value()
-    rows = []
+    data = @sectionData()
+    size = data.length
     titles = @titles() 
-    rows.push(titles)
-    for each in data
-      rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
 
-    slide = pres.addSlide({sectionTitle})
+    # 自动切分页面未掌握技巧,姑且在此切分,待掌握技巧后代码无须变动
+    newPage = (data) ->
+      rows = []
+      rows.push(titles)
 
-    #console.log {rows}
-    slide.addTable(rows, {
-      #x: 0.5
-      #y: 0.3 
-      #w: "90%" 
-      #h: 1   
-      colW: [
-        1.2,0.55,0.55,0.55,0.55
-        0.55,0.55,0.55,0.55,0.55
-        0.55,0.55,0.55,0.55,0.55
-      ]
-      border: {color: "CFCFCF"} 
-      #margin: 0.05
-      align: "left"
-      valign: "middle"
-      fontFace: "Segoe UI"
-      fontSize: 9
-      autoPage: true
-      autoPageRepeatHeader: true
-      autoPageCharWeight: -0.5
-      autoPageLineWeight: -0.5
-      autoPageHeaderRows: 1
-      #autoPageSlideStartY: 0.2
-      verbose: false
-    })
+      #console.log {data}
+      for each in data
+        rows.push ((if t is '科室名称' then each[t] else fix(each[t] ? 0)) for t in titles)
+
+      slide = pres.addSlide({sectionTitle})
+      width = [1.2]
+      n = titles.length    
+      while --n > 0
+        width.push(0.55) 
+      #console.log {width}
+      slide.addText(sectionTitle, {
+        x: '35%', 
+        y: '10%',
+        #color: "DDDD00", 
+        fontSize: 18
+      })
+      slide.addTable(rows, {
+        #x: 0.5
+        y: "20%" 
+        #w: "90%" 
+        #h: 1   
+        colW: width
+        border: {color: "CFCFCF"} 
+        #margin: 0.05
+        align: "left"
+        valign: "middle"
+        fontFace: "Segoe UI"
+        fontSize: 9
+        autoPage: false #true
+        autoPageRepeatHeader: true
+        autoPageCharWeight: -0.5
+        autoPageLineWeight: -0.5
+        autoPageHeaderRows: 1
+        #autoPageSlideStartY: 0.2
+        verbose: false
+        #showTitle:true
+        #title: sectionTitle
+      })
+    
+    lines = 15
+    ps = 0 
+    pe = lines
+    while size >= ps
+      newPage(data[ps...Math.min(pe, size)])
+      #console.log({size, ps, pe})
+      ps = pe
+      pe += lines
+
 
 
 
 class 散点图报告 extends 分析报告
-  @chartType: -> 'scatter' #'line'
+  @chartType: -> 'scatter'
 
 
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
-    chartType = @chartType()
-    
-    #@dataPrepare()
-    data = @dbValue()
+    chartType = @chartType()    
+    data = @sectionData()
+        
     for indicator, arr of data
-      for _indicator, _arr of data when _indicator isnt indicator
+      delete(data[indicator])
+      for _indicator, _arr of data
         nar = []
         arr.map (each, idx) -> 
-          nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
+          nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
+
         slide = pres.addSlide({sectionTitle})
         #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
         #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -398,19 +459,20 @@ class 散点图报告 extends 分析报告
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
         slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+
         chartData = [
-          {
+          { # x
             name: _indicator
-            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
-            #labels: arr[0..19].map (each,idx)-> each.unitName
+            values: nar.map (each,idx)-> each[_indicator]
+            #labels: arr.map (each,idx)-> each.unitName
           }
-          {
+          { # y
             name: indicator
-            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
-            labels: arr[0..19].map (each,idx)-> each.unitName
+            values: arr.map (each,idx)-> each[indicator]
+            labels: arr.map (each,idx)-> each.unitName
           }
         ]
-        
+
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1 
           y: 0.1 
@@ -421,23 +483,104 @@ class 散点图报告 extends 分析报告
           
           showTitle: true, 
           title: "#{indicator} vs #{_indicator}"
-          
-          valAxisTitle: indicator,
-          valAxisTitleColor: "428442",
-          valAxisTitleFontSize: 10,
-          showValAxisTitle: true,
-          lineSize: 0,
-          
+
+          # x
           catAxisTitle: _indicator,
           catAxisTitleColor: "428442",
           catAxisTitleFontSize: 10,
           showCatAxisTitle: true,
+
+          # y
+          valAxisTitle: indicator,
+          valAxisTitleColor: "428442",
+          valAxisTitleFontSize: 10,
+          showValAxisTitle: true,
+
+          lineSize: 0,
           
-          showLabel: true, #// Must be set to true or labels will not be shown
+          showLabel: @showLabel(), #// Must be set to true or labels will not be shown
           dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
-          #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
+          dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
         })
 
+  @showLabel: ->
+    true
+
+
+
+
+class BCG矩阵报告 extends 散点图报告
+
+  @slides: (funcOpts) ->
+    {pres, sectionTitle} = funcOpts
+    chartType = @chartType()
+    
+    #@dataPrepare()
+    data = @sectionData()
+    
+    #console.log({sectionTitle,data: @db().get("医疗服务收入三年复合增长率").get(1).value()}) if /BCG/i.test(sectionTitle)
+    
+    [indicator, _indicator] = [
+      '医疗服务收入三年复合增长率'   # x
+      '医疗服务收入占全院比重'      # y
+    ]
+
+    arr = data[indicator]
+    _arr = data[_indicator]
+
+    nar = []
+    arr.map (each, idx) -> 
+      nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
+
+    slide = pres.addSlide({sectionTitle})
+    #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
+    #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
+    #slide.background = { path: "https://some.url/image.jpg" }  # image: url
+    #slide.color = "696969"  # Set slide default font color
+    # EX: Styled Slide Numbers
+    slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+    chartData = [
+      { # x
+        name: indicator
+        values: arr.map (each,idx)-> each[indicator]
+        #labels: arr.map (each,idx)-> each.unitName
+      }
+      { # y
+        name: _indicator
+        values: nar.map (each,idx)-> each[_indicator]
+        labels: nar.map (each,idx)-> each.unitName
+      }
+    ]
+
+    slide.addChart(pres.ChartType[chartType], chartData, { 
+      x: 0.1 
+      y: 0.1 
+      w: "95%"
+      h: "95%"
+      showLegend: false, 
+      #legendPos: 'b'
+      
+      showTitle: true, 
+      title: sectionTitle #"#{indicator} vs #{_indicator}"
+      
+      # x
+      catAxisTitle: indicator,
+      catAxisTitleColor: "428442",
+      catAxisTitleFontSize: 10,
+      showCatAxisTitle: true,
+      lineSize: 0,
+
+      # y
+      valAxisTitle: _indicator,
+      valAxisTitleColor: "428442",
+      valAxisTitleFontSize: 10,
+      showValAxisTitle: true,
+      lineSize: 0,
+            
+      showLabel: true, #// Must be set to true or labels will not be shown
+      dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
+      #dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
+    })
 
 
 
@@ -454,8 +597,8 @@ class 排序报告 extends 分析报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
-    for indicator, arr of data
+    data = @sectionData()
+    for indicator, arr of data when arr.length > 0
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -474,15 +617,21 @@ class 排序报告 extends 分析报告
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
         w: "95%", h: "90%"
-        showLegend: true, legendPos: 'b'
+        showLegend: true, 
+        legendPos: 'b'
         showTitle: true, 
-        title: indicator 
+        title: indicator
+        #chartColors: ['0088CC','FFCC00']
+        showDataTableKeys: true 
+        #showValue: true # 只有整数?怎么设置小数点保留位数?
       })
 
 
 
 
-
+class 评分排序报告 extends 排序报告
+  @chartType: ->
+    'bar3d'
 
 
 class 雷达图报告 extends 分析报告
@@ -497,9 +646,11 @@ class 多科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
+
     for indicator, arr of data
-      for _indicator, _arr of data when _indicator isnt indicator
+      delete(data[indicator])
+      for _indicator, _arr of data
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
@@ -539,7 +690,7 @@ class 单科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     
     #@dataPrepare()
-    data = @dbValue()
+    data = @sectionData()
     for unitName, arr of data
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
@@ -571,23 +722,30 @@ class 单科对比雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
+    data = @sectionData()
+    
+    for departName, departObj of data
+      for dimensionName, dimensionArray of departObj
+        # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
+        slide = pres.addSlide({sectionTitle})
+        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        chartData = []
+        for line in ['均2','Y2020','均1']
+          chartData.push {
+            name: line
+            labels: dimensionArray.map (each, idx) -> each.key
+            values: dimensionArray.map (each, idx) -> each[line]
+          }
+
+        slide.addChart(pres.ChartType[chartType], chartData, { 
+          x: 0.1, y: 0.1, 
+          w: "95%", h: "90%"
+          showLegend: true, legendPos: 'b'
+          showTitle: true, 
+          title: "#{departName}: #{if dimensionName is '满意度评价' then '地位影响' else dimensionName}" 
+        })
 
 
-
-
-
-
-
-class 对标单科指标简单排序 extends 排序报告
-  @dataPrepare: ->
-    @dbClear()
-    focusUnits = @focusUnits()
-    for unit in focusUnits
-      for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
-        indicatorName = "#{unit}: #{indicator}"
-        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when value))
-        @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
-    @dbSave()
 
 
 
@@ -595,106 +753,65 @@ class 对标单科指标简单排序 extends 排序报告
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
     @dbClear()
-    year = @years()[0]
-    localUnits = @localUnits()
+    year = @years()[0] # 最大的那个
     指标维度 = 指标维度库.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
-      arr = 院内指标资料库.dbAsArray({dataName,key:year,except:/^医院$/})
-      _arr = arr.sort (a,b)-> 
-        try
-          b[dataName] - a[dataName]
-        catch error
-          -1
-      @dbSet(dataName, _arr)
-    
-    @dbSave()
-
-  @chartType: ->
-    'bar3d'
-
-
-
-
-
-
-
-
-class 对标单科指标评分排序 extends 排序报告
-  @dataPrepare: ->
-    @dbClear()
-    direction = 指标导向库.dbRevertedValue()
-    obj = 对标单科指标简单排序.dbValue()
-    for indicator, arr of obj #when arr[0] # 有些项目可能是空的,予以排除
-      realIndicatorName = indicator.split(': ')[1]
-      switch 
-        when not arr[0]? 
-          @dbSet(indicator, arr)
-        when realIndicatorName in direction.逐步提高
-          first = arr[0][indicator]
-          @dbSet(indicator, arr.map (unit, idx)-> 
-            value = 100 * unit[indicator] / first
-            console.log {bug:"> 100" ,value, first} if value > 101
-            unit[indicator] = value
-            unit
-          )
-        when realIndicatorName in direction.逐步降低
-          arr.reverse()
-          first = arr[0][indicator]
-          @dbSet(indicator, arr.map (unit, idx)-> 
-            value = 100 * first / unit[indicator]
-            console.log {bug:"> 100" ,value, first} if value > 101
-            unit[indicator] = value
-            unit
-          )
+      except = /^医院$/  #/(^医院$|^大|合并)/
+      arr = 院内指标资料库.dbAsArray({dataName,key:year,except})
+      @dbSet(dataName, arr)
+      @db().get(dataName).sort((a,b)-> b[dataName] - a[dataName])
 
     @dbSave()
 
 
 
-    
 
 
 
-class 院内各科指标评分排序 extends 排序报告
+
+class 院内各科指标评分排序 extends 评分排序报告
 
   @dataPrepare: ->
     @dbClear()
-    direction = 指标导向库.dbRevertedValue()
-    # console.log {direction}
-    
+    direction = 指标导向库.dbRevertedValue()    
     #return null unless direction.逐步提高?
     
-    obj = 院内各科指标简单排序.dbValue()
-    #@db().default(obj).save()
-    for indicator, arr of obj
-      switch
-        when not arr[0]?
-          @dbSet(indicator, arr) 
-        when indicator in direction.逐步提高
-          #console.log({indicator, arr})
-          first = arr[0][indicator]
-          @dbSet(indicator, arr.map (unit, idx)-> 
-            value = 100 * unit[indicator] / first
-            console.log {bug:"> 100" ,value, first} if value > 101
-            unit[indicator] = value
-            unit
-          )
-        when indicator in direction.逐步降低
-          arr.reverse()
-          first = arr[0][indicator]
-          @dbSet(indicator, arr.map (unit, idx)-> 
-            value = 100 * first / unit[indicator]
-            console.log {bug:"> 100" ,value, first} if value > 101
-            unit[indicator] = value
-            unit
-          )
+    # 均为由高到低排序
+    obj = @sortedIndicators()
+    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    #console.log {directions}
+
+    for indicator, arr of obj when arr[0]? and (indicator in directions)
+      first = arr[0][indicator]
+      last = arr[arr.length - 1][indicator]
+      distance = first - last
+      
+      newArr = (up) -> 
+        result = arr.map (unit, idx)-> 
+          value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
+          console.log({bug:"> 100", indicator, distance, value, last, first, unit}) if (value > 101) or (value is null)
+          switch
+            when up
+              unit[indicator] = value
+            else #indicator in direction.逐步降低
+              unit[indicator] = 100 - value
+          unit
+        
+        #return result
+        if up then result else result.reverse()
+      
+      up = indicator in direction.逐步提高 
+      @dbSet(indicator, newArr(up))
 
     @dbSave()
 
     #console.log direction
 
-
+  @sortedIndicators: ->
+    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
+    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
+    院内各科指标简单排序.dbValue()
 
 
 
@@ -712,88 +829,87 @@ class 院内单科多指标评分雷达图 extends 单科雷达图报告
 
 # 以指标维度为主体,看相关指标趋势离散度
 class 院内各科维度轮比雷达图 extends 多科雷达图报告
+  @sectionData: ->
+    院内各科相关维度轮比分析.dbValue()
+
+
+class 院内单科多维度指标评分汇集 extends 分析报告
   @dataPrepare: ->
-    console.log("use 院内单科多维度评分雷达图 to prepare")
-    return
+    @dbClear()
+    dimensions = 指标维度库.dbValue()
+    obj = 院内各科指标评分排序.dbValue()
+
+    # step one: collect all indicators in a dimension
+    for indicator, arr of obj when (dmName = dimensions[indicator])?
+      for each in arr
+        unless @db().get(dmName)?.value?()? and @db().get(dmName).get(each.unitName)?.value?()?
+          @db().get(dmName).get(each.unitName).set('indicators', []) 
+        unit = @db().get(dmName).get(each.unitName).get('indicators')
+        unit.push({indicator, value: each[indicator]})
+        
+        # 查错
+        console.log({error: each.unitName,indicator, value: each[indicator]}) \
+          unless existNumber(each[indicator])
+    
+    # 计算维度分数
+    # step two: calculate dimension value
+    # 注意: 这一步根据设置好的指标权重进行预处理
+    维度 = 维度导向库.dbValue()
+    vectors = 指标维度库.vectors()
+
+    for dmName, dmObj of @dbValue()
+      s = vectors[dmName].length
+      for unitName, unitObj of dmObj
+        {indicators} = unitObj
+        v = 0
+        for each in indicators
+          weight = 维度[each]?.本位权重 ? 1 / s
+          v += each.value * weight
+        @db().get(dmName).get(unitName).set('score', v)
+
+    @dbSave()
 
 
 
 
+class 院内各科相关维度轮比分析 extends 分析报告
+  @dataPrepare: ->
+    @dbClear()
+    for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
+      sorted = ({unitName, "#{dmName}":unitObj.score} for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
+      @db().set(dmName, sorted)
 
+    @dbSave()
 
 
 
 
 # 以专科为单位,各维度雷达图
-class 院内单科多维度评分雷达图 extends 单科雷达图报告
+class 院内单科多维度评分集中分析 extends 单科雷达图报告
   @dataPrepare: ->
-    院内各科维度轮比散点图.dbClear() # 临时测试绘制散点图
-    院内各科维度轮比雷达图.dbClear()
     @dbClear()
-    dimensions = 指标维度库.dbValue()
-    focusUnits = @focusUnits()[1..]
-    obj = 院内各科指标评分排序.dbValue()
-
-    newObj = {}
-    compareObj = {}
-    selfObj = {}
-    #self
-    # step one: collect all indicators in a dimension
-    # 注意: 这一步还可以根据设置好的指标权重进行预处理
-    for indicator, arr of obj when dimensions[indicator]?
-      dmName = dimensions[indicator]
-      newObj[dmName] ?= {} 
-      for each in arr 
-        unit = (newObj[dmName][each.unitName] ?= {unitName:each.unitName,dmis:[]})
-        weight = switch indicator
-          when '医疗服务收入三年复合增长率' then 0.382 * 2
-          when '医疗服务收入占全院比重' then 0.618 * 2
-          else 1
-        unit.dmis.push(weight * each[indicator]) if each[indicator]
-        console.log({"bug >100: #{indicator}": each[indicator]}) if each[indicator] > 101
-    # step two: calculate dimension value
-    
-    for dmName, dmObj of newObj
+    for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
       for unitName, unitObj of dmObj
-        {dmis} = unitObj
-        #unitObj[dmName] 
-        v = 0
-        v += each for each in dmis
-        s = dmis.length
-        if s > 0
-          unitObj[dmName] = v / s
-        delete(unitObj.dmis)
-    
-    # step three: turning into an ordered array
-        selfObj[unitName] ?= []
+        # step three: turning into an ordered array
+        unless @db().get(unitName)?.value?()?
+          @db().set(unitName, [])
         newUnitObj = {}
         newUnitObj.dimension = dmName
-        newUnitObj[dmName] = unitObj[dmName]
-        selfObj[unitName].push(newUnitObj)
+        newUnitObj[dmName] = unitObj.score
+        @db().get(unitName).push(newUnitObj)
 
-      sorted = (unitObj for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
-      compareObj[dmName] = sorted
-      ### 
-      # 不需要比例放大维度分数,各指标分数提高,则维度分数提高,故不比例放大才合乎实际情况
-      first = sorted[0]
-      compareObj[dmName] = sorted.map (each, idx) -> 
-        refined = 100 * each[dmName] / first[dmName]
-        each[dmName] = refined
-        each
-      ### 
-
-    @db().default(selfObj).save()
-    院内各科维度轮比雷达图.db().default(compareObj).save()
-    院内各科维度轮比散点图.db().default(compareObj).save() # 临时测试绘制散点图
-
+    @dbSave()
 
 
 
 
 
 class 院内各科维度轮比散点图 extends 散点图报告
-  @dataPrepare: ->
+  @sectionData: ->
+    院内各科相关维度轮比分析.dbValue()
 
+
+  @showLabel: -> true
 
 
 
@@ -804,34 +920,204 @@ class 院内单科多维评分散点图 extends 散点图报告
 
 
 
-class 院内专科BCG散点图 extends 散点图报告
+class 院内专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
     
     obj = 院内各科指标简单排序.dbValue()
     selfObj = {}
-    #@db().default(obj).save()
-    for indicator, arr of obj when indicator in [
-      '医疗服务收入三年复合增长率'
+    indicators = [
       '医疗服务收入占全院比重'
+      '医疗服务收入三年复合增长率'
     ]
-      selfObj[indicator] = arr
+    
+    for indicator in indicators
+      selfObj[indicator] = obj[indicator]
 
-    @db().default(selfObj).save()
+    #for indicator, arr of obj when indicator in indicators
+    #  selfObj[indicator] = arr
+    
+    
+    @dbDefault(selfObj).save()
 
 
 
 
-
-
-class 院内专科梯队Topsis评分 extends 院内分析报告
+class 院内二级专科BCG矩阵分析 extends BCG矩阵报告
   @dataPrepare: ->
     @dbClear()
-    weight = 维度权重.dict()
-    for unitName, unitArray of 院内单科多维度评分雷达图.dbValue()
+    keys = (k for k, v of 院内专科BCG矩阵分析.dbValue())
+    
+    for key in keys
+      @db().set(key, 
+      院内专科BCG矩阵分析.db()
+        .get(key)
+        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
+        .value())
+    
+    @dbSave()
+    
+
+
+class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
+  @dataPrepare: ->
+    @dbClear()
+    key = '医疗服务收入占全院比重'
+    百分之零点一 = 1.5
+    @db().set(key, 
+      院内二级专科BCG矩阵分析.db()
+        .get(key)
+        .filter((obj) -> (obj[key] > 百分之零点一))
+        .value()
+    )
+
+    names = (obj.unitName for obj in @db().get(key).value())
+    key = '医疗服务收入三年复合增长率'
+    all =  院内二级专科BCG矩阵分析.db().get(key).value()
+    #console.log({all})
+    @db().set(key, [])
+    for unitName in names # 以此顺序收集
+      for each in all when each.unitName is unitName
+        @db().get(key).push(each)
+        #all.shift() # 递减循环次数,但出错,仍使用笨办法
+
+    @dbSave()
+
+
+
+class 二级指标权重 extends 分析报告
+
+  @dataPrepare: ->
+    @dbClear()
+    #@dbSet('data',[])
+    for cat, category of @struct()
+      for dim, dimension of category.indicators
+        @db().get(dim).set(category.weight * dimension.weight) 
+    @dbSave()
+    
+
+  @struct: ->
+    {
+      医疗质量:{
+        weight: 0.3
+        indicators: {
+          质量安全:{
+            weight:0.3
+          }
+          功能定位: {
+            weight:0.2
+          }
+          合理用药: {
+            weight: 0.15
+          }
+          服务流程: {
+            weight: 0.2
+          }
+          医保价值: {
+            weight: 0.1
+          }
+        }
+      }
+      运营效率:{
+        weight: 0.2
+        indicators: {
+          收支结构:{
+            weight: 0.3
+          }
+          费用控制:{
+            weight: 0.5
+          }
+          经济管理:{
+            weight: 0
+          }
+          资源效率:{
+            weight: 0.2
+          }
+        }
+      }
+      持续发展: {
+        weight: 0.2
+        indicators: {
+          人员结构:{
+            weight: 0.4 #0.3
+          }
+          人才培养:{
+            weight: 0 #0.3
+          }
+          学科建设:{
+            weight: 0.6 #0.4
+          }
+          信用建设:{
+            weight: 0 #0.15
+          }
+        }
+      }
+      满意度评价: {
+        weight: 0.3
+        indicators: {
+          医服收入:{
+            weight: 0.8
+          }
+          地位影响: {
+            weight: 0.2
+          }
+          医务人员满意度:{
+            weight: 0
+          }
+          患者满意度:{
+            weight: 0
+          }
+        }
+      }
+    }
+
+  @indicatorGroup: ->
+    dm = 指标维度库.dbRevertedValue()
+    struct = @struct()
+    dict = {}
+    for group, groupObj of struct
+      dict[group] = []
+      for dimension, obj of groupObj.indicators
+        dict[group] = dict[group].concat(dm[dimension]) if dm[dimension]?
+    return dict
+
+
+
+  @groups: ->
+    (group for group, obj of @struct())
+
+
+
+  @dictWithPerfectData: -> 
+    {
+      医服收入: 2.5
+      医保价值: 0.5
+      质量安全: 1.5
+      地位影响: 0.5
+      学科建设: 0.1
+      人员结构: 0.1
+      功能定位: 0.1
+      服务流程: 0.1
+      费用控制: 0.1
+      合理用药: 0.1
+      收支结构: 0.1
+      资源效率: 0.1
+      人才培养: 0.1
+    }
+
+      
+
+
+
+
+class 院内专科梯队Topsis评分 extends 分析报告
+  @dataPrepare: ->
+    @dbClear()
+    weight = 二级指标权重.dbValue()
+    for unitName, unitArray of 院内单科多维度评分集中分析.dbValue()
       @dbSet(unitName, {})
       value = 0
-      for object in unitArray when v = object[object.dimension]
+      for object in unitArray when existNumber(v = object[object.dimension])
         @db().get(unitName).set(object.dimension, v)
         value += v * weight[object.dimension]
       @db().get(unitName).set('综合评分',value).save()
@@ -840,9 +1126,10 @@ class 院内专科梯队Topsis评分 extends 院内分析报告
 
 class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
-    @dbClear()
+    @dbClear() #()
     arrayName = @arrayName()
-    @dbDefault({'学科梯队':[]})
+    @db().set('学科梯队',[])
+
     topsis = 院内专科梯队Topsis评分.dbValue()
     for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
       unitObj.科室名称 = unitName
@@ -856,8 +1143,8 @@ class 院内专科梯队表 extends 表格报告
 
 
   @titles: ->
-    dict = 维度权重.dict()
-    arr = (key for key, value of dict)
+    dict = 二级指标权重.dbValue()
+    arr = (key for key, value of dict when value > 0)
     arr.unshift("科室名称")
     arr.push('综合评分')
     #console.log {arr,dict}
@@ -866,31 +1153,276 @@ class 院内专科梯队表 extends 表格报告
 
 
 
+class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      #院内各科指标简单排序
+      #院内各科指标评分排序 
+      #院内各科维度轮比雷达图
+      院内单科多维度评分集中分析
+
+      #院内专科BCG矩阵分析
+      #院内二级专科BCG矩阵分析
+      #院内二级权重专科BCG矩阵分析
+      院内专科梯队表
+
+      院内各科维度轮比散点图
+      
+      # 尚未制作
+      # 院内各科指标轮比雷达图
+      # 院内单科多指标评分雷达图
+   ]
+
+
+
+
+# ------------------------------------- 对标本非逻辑有异,合表同理遴选即可 ------------------------------------
+class 对标资料库 extends 资料库
+
+
+
+class 对标指标资料库 extends 资料库
+
+  @rawDataToIndicators: ->
+    @dbClear()
+    units = @focusUnits() # 对标资料库.dbDictKeys()
+    指标维度 = 指标维度库.dbValue()
+    院内指标资料 = 院内指标资料库.dbValue()
+
+    对标项 = ['均1','均2','某A','某B']
+    informal = @createMissingData()  
+
+    for dataName, dimension of 指标维度 when dataName?     
+      for entityName in units when 院内指标资料[entityName]?
+        for year, value of 院内指标资料[entityName][dataName]
+          @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
+
+        for item in 对标项
+          key = item
+          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
+    
+    @dbSave()
+    console.log "对标指标资料库: 指标数据移动完毕"
+    return this    
+
+
+
+
+
+
+class 对标单科指标简单排序 extends 排序报告
+  @dataPrepare: ->
+    @dbClear()
+    focusUnits = @focusUnits()
+    for unit in focusUnits
+      for indicator, valueGroup of 对标指标资料库.db().get(unit).value()
+        indicatorName = "#{unit}: #{indicator}"
+        @dbSet(indicatorName,({unitName:name, "#{indicatorName}":value} for name, value of valueGroup when existNumber(value)))
+        @db().get(indicatorName).sort (a,b) -> b[indicatorName] - a[indicatorName]
+    @dbSave()
+
+
+
+
+
+
+
+class 对标单科指标评分排序 extends 评分排序报告
+
+  @dataPrepare: ->
+    @dbClear()
+    direction = 指标导向库.dbRevertedValue()
+
+    # 从高到低排序
+    obj = @sortedIndicators()
+    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
+      first = arr[0][indicator]
+      last = arr[arr.length - 1][indicator]
+      distance = first - last
+      newArr = (up)->
+        result = arr.map (unit, idx)-> 
+          value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
+          console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
+          switch 
+            when up
+              unit[indicator] = value
+            else #realIndicatorName in direction.逐步降低
+              unit[indicator] = 100 - value
+          unit
+        
+        #return result
+        if up then result else result.reverse()
+
+      up = realIndicatorName in direction.逐步提高
+      @dbSet(indicator, newArr(up))
+
+    @dbSave()
+
+
+
+    
+  @sortedIndicators: ->
+    # 以下计算的前提,是原来的排序以数值为依据(不以优劣为依据),从大到小排列
+    # 若为安全起见,此处可先再次排序确保不受别处代码变更影响
+    对标单科指标简单排序.dbValue()
+
+
+
+
+
+class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
+  @dataPrepare: ->
+    @dbClear()
+    sortKey = 'Y2020'
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
+
+    dbscores = 对标单科指标评分排序.dbValue()
+    
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      # 单位名和指标名
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      for each in arr when existNumber(each[deptIndicator])
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db()
+            .get('data')
+            .get(departName)
+            .get(dimensionName)
+            .get(indicatorName)
+            .get(each.unitName)
+            .set(each[deptIndicator])
+
+      inObj = @db().get('data').value() #get(departName).get(dimensionName).value()
+
+      transform = (name, obj) ->
+        obj.key = name
+        return obj
+
+      # 各部门
+      for departName, departObj of inObj
+        # 各维度
+        for dimensionName, dimensionObj of departObj
+          dimensionArray = (transform(indicatorName, indicatorObj) for indicatorName, indicatorObj of dimensionObj)
+          @db().get(departName).get(dimensionName).set(dimensionArray)
+          @db().get(departName).get(dimensionName).sort((a,b)-> b[sortKey] - a[sortKey])
+
+    @dbDelete('data').save()
+
+
+
+
+
+
+  @dataPrepare_array: ->
+    largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
+    @dbClear()
+    groups = 二级指标权重.groups()
+    dict = 二级指标权重.indicatorGroup()
+    dbscores = 对标单科指标评分排序.dbValue()
+    getUnits = (scores)->    
+      for deptIndicator, arr of scores when arr.length is largest
+        return (each.unitName for each in arr)
+    units = getUnits(dbscores)
+    units.sort()
+    for deptIndicator, arr of dbscores
+      sp = deptIndicator.split(': ')
+      [departName, indicatorName] = [sp[0], sp[1]]
+
+      # 为当前个体(名 departName)中的每一个对象设置array
+      for line in units
+        for dimensionName in groups
+          try
+            # 第一个对比对象因未曾有故报错,由catch处理设置,其后此处一一设置
+            unless @db().get(departName).get(dimensionName).get(line).value()
+              @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+              #console.log({departName,line, try: true})
+
+          catch error
+            # 首次设置,在单位名下对比对象名尚未设立,故会出错,以下这一行将设置第一个对比对象的array
+            @db().get(departName).get(dimensionName).get(line).set([]) #.save()
+            #console.log({departName,line})
+
+      for each in arr
+        for dimensionName in groups when indicatorName in dict[dimensionName]
+          @db().get(departName).get(dimensionName).get(each.unitName).push({
+            key: indicatorName
+            value: each[deptIndicator] ? 0
+          })
+    @dbSave()
+
+
+
+
+
+class 对标分析报告 extends 分析报告
+  @sections: ->
+    [
+      对标单科指标简单排序
+      对标单科指标评分排序 
+      对标单科多指标评分雷达图
+      
+      #对标单科多维度评分雷达图
+
+      #对标各科指标评分轮比雷达图
+      #对标各科维度轮比雷达图
+      #对标各科维度轮比散点图
+    ]
+
+
+
+
 # 本程序引用其他库,但其他库不应引用本文件,故不设置 module.exports,并且可以在class定义区域下方编写生产脚本
 
 class 生成器 extends CaseSingleton
-
+  
+  # 不知原因,不能连续运行这两步,内存中的各class数据会出现"串台"现象,
+  # 需要分步做,第二步是从数据库读取,结果正确
   @run: ->
+    @buildDB()
+    @generateReports()
+
+
+  @buildDB: ->
     this
       #.showDBs()
       .readExcel()
+      .checkForAllIndicators()
+      #.showMissingIndicatorsOrDataProblems()
+
+      #.saveUtilExcel()
+
       #.showUnitNames()
       #._tryGetSomeData()
       #.showDimensions()
-      .showMissingIndicatorsOrDataProblems()
+      
       .exportRawDataToReportDB()
       
       .simpleLocalIndicatorOrdering()
+      .localIndicatorBCGChart()
       .localIndicatorScoreSort()
       .localIndicatorRadarChart()
-      .localIndicatorBCGChart()
       .localTeamsTable()
-      .localReport()
 
       .simpleCompareIndicatorOrdering()
       .compareIndicatorScoreSort()
+      .compareIndicatorScoreRadarChart()
+  
+  
+  
+  @generateReports: ->
+    this
+      .localReport()
       .compareReport()
-      #.saveUtilExcel()
 
 
 
@@ -898,15 +1430,17 @@ class 生成器 extends CaseSingleton
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
     #console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #指标维度库,指标导向库,
+    指标维度库.dataPrepare()
+    指标导向库.dataPrepare()
     return this
 
 
 
   # 查看各自 db, 以及log
   @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
-    console.log {log: v.logdb().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
+    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库}
     return this
 
 
@@ -945,16 +1479,14 @@ class 生成器 extends CaseSingleton
     缺漏追踪库.dbClear()
 
     指标维度 = 指标维度库.dbValue()
-
-    informal = true
     
     k1 = 'Y2020'
     k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        院内资料库.getData({entityName, dataName, key:k1, informal})
+        院内资料库.getData({entityName, dataName, key:k1, informal:true})
       for entityName in 对标资料库.dbDictKeys()
-        对标资料库.getData({entityName, dataName, key:k2, informal})
+        对标资料库.getData({entityName, dataName, key:k2, informal:true})
     console.log "指标数据筛查完毕"
     return this
 
@@ -962,12 +1494,12 @@ class 生成器 extends CaseSingleton
 
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->
-    @checkForAllIndicators()
+    #@checkForAllIndicators()
     
     console.log { 
       院内资料: 院内资料库.logdb().value()
       对标资料: 对标资料库.logdb().value()
-      缺漏追踪: 缺漏追踪库.dbDictKeys()
+      缺漏追踪: (key for key, value of 缺漏追踪库.db().get('院内资料库').value() when value.length > 1)
     }
     return this
 
@@ -1001,16 +1533,29 @@ class 生成器 extends CaseSingleton
     对标单科指标评分排序.dataPrepare()
     return this 
 
+  @compareDimensionScoreRadarChart: ->
+    对标单科多维度评分雷达图.dataPrepare()
+    return this
+
+  @compareIndicatorScoreRadarChart: ->
+    对标单科多指标评分雷达图.dataPrepare()
+    return this
+
   @localIndicatorRadarChart: ->
-    院内单科多维度评分雷达图.dataPrepare()
+    院内单科多维度指标评分汇集.dataPrepare()
+    院内单科多维度评分集中分析.dataPrepare()
+    院内各科相关维度轮比分析.dataPrepare()
     return this
 
 
   @localIndicatorBCGChart: ->
-    院内专科BCG散点图.dataPrepare()
+    院内专科BCG矩阵分析.dataPrepare()
+    院内二级专科BCG矩阵分析.dataPrepare()
+    院内二级权重专科BCG矩阵分析.dataPrepare()
     return this
 
   @localTopsis: ->
+    二级指标权重.dataPrepare()
     院内专科梯队Topsis评分.dataPrepare()
     return this
 
@@ -1032,7 +1577,7 @@ class 生成器 extends CaseSingleton
 
   # 院内专科指标按照评分简单排序
 
-  # 会改写
+
   @saveUtilExcel: ->
     指标维度库.saveExcel()
     指标导向库.saveExcel()
@@ -1051,12 +1596,20 @@ class 生成器 extends CaseSingleton
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
-生成器.run()
+
+生成器
+  #.buildDB()
+  .generateReports()
+
+#console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
+
+#生成器.run()
 生成器
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
   #._tryGetSomeData()
+  #.checkForAllIndicators()
   
   #.showMissingIndicatorsOrDataProblems()
   
@@ -1071,6 +1624,7 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
+#console.log {di: 二级指标权重.indicatorGroup()}
 
 ###
 # 对比雷达图设计
@@ -1081,8 +1635,11 @@ db.filter()
 
 
 
+
+#console.log db: 缺漏追踪库.db().get('院内资料库').value?()?
+
 #
-#院内单科多维度评分雷达图.dataPrepare()
+#院内单科多维度评分集中分析.dataPrepare()
 #console.log @focusUnits()[1..9]
 #院内分析报告.newReport()
 
@@ -1110,3 +1667,5 @@ for uname, idx in 院内分析报告.dbDictKeys()
 
 院内分析报告.dbSave()
 ###
+
+#维度导向库.combine2Excel()
