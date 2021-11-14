@@ -163,6 +163,48 @@ class SystemLog extends NormalCaseSingleton
 
 
 class 维度导向库 extends NormalCaseSingleton
+  @saveExcel: (funcOpts={}) ->
+    opts = @options()
+    json= @dbValue()
+    arr = ({
+      数据名: key 
+      指标导向: value.指标导向
+      二级指标: value.二级指标
+      一级指标: value.一级指标
+      指标来源: value.指标来源
+      三中: value.三中
+      三综: value.三综
+      二综: value.二综
+      计量单位: value.计量单位
+    } for key, value of json).sort(
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
+    )
+    opts.data = [{
+      sheet:'指标维度'
+      columns:[
+        {label:'数据名', value:'数据名'}
+        {label:'二级指标', value:'二级指标'}
+        {label:'计量单位', value:'计量单位'}
+        {label:'一级指标', value:'一级指标'}
+        {label:'指标导向', value:'指标导向'}
+        {label:'指标来源', value:'指标来源'}
+        {label:'三中', value:'三中'}
+        {label:'三综', value:'三综'}
+        {label:'二综', value:'二综'}        
+      ]
+      content: arr
+    }]
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
+
+
   # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量本位权重
   @combine2Excel: ->
     导向 = 指标导向库.dbValue()
@@ -1129,15 +1171,19 @@ class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear() #()
     arrayName = @arrayName()
-    @db().set('学科梯队',[])
+    @db().set(arrayName,[])
 
     topsis = 院内专科梯队Topsis评分.dbValue()
-    for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
+    for unitName, unitObj of topsis when @validDeparts({unitName})
       unitObj.科室名称 = unitName
-      @db().get('学科梯队').push(unitObj)
-    @db().get('学科梯队').sort((a,b)-> b.综合评分 - a.综合评分) 
+      @db().get(arrayName).push(unitObj)
+    @db().get(arrayName).sort((a,b)-> b.综合评分 - a.综合评分) 
     @dbSave()  
 
+
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /医院/i.test(unitName)
 
   @arrayName: ->
     '学科梯队'
@@ -1152,6 +1198,19 @@ class 院内专科梯队表 extends 表格报告
     arr
 
 
+class 院内大小专科梯队混合表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /(医院|合并)/i.test(unitName)
+
+
+
+class 院内二级专科梯队表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /(^大|医院|合并)/i.test(unitName)
+
+
 
 
 class 院内分析报告 extends 分析报告
@@ -1162,10 +1221,13 @@ class 院内分析报告 extends 分析报告
       #院内各科维度轮比雷达图
       院内单科多维度评分集中分析
 
-      #院内专科BCG矩阵分析
-      #院内二级专科BCG矩阵分析
-      #院内二级权重专科BCG矩阵分析
-      院内专科梯队表
+      院内专科BCG矩阵分析
+      院内二级专科BCG矩阵分析
+      院内二级权重专科BCG矩阵分析
+      
+      #院内专科梯队表
+      院内二级专科梯队表
+      院内大小专科梯队混合表
 
       院内各科维度轮比散点图
       
@@ -1564,7 +1626,9 @@ class 生成器 extends CaseSingleton
 
   @localTeamsTable: ->
     @localTopsis()
-    院内专科梯队表.dataPrepare()
+    #院内专科梯队表.dataPrepare()
+    院内二级专科梯队表.dataPrepare()
+    院内大小专科梯队混合表.dataPrepare()
     return this
 
 
@@ -1582,8 +1646,9 @@ class 生成器 extends CaseSingleton
 
 
   @saveUtilExcel: ->
-    指标维度库.saveExcel()
-    指标导向库.saveExcel()
+    维度导向库.saveExcel()
+    #指标维度库.saveExcel()
+    #指标导向库.saveExcel()
 
 
 
@@ -1601,13 +1666,14 @@ class 生成器 extends CaseSingleton
 
 
 生成器
-  .buildDB()
+  #.buildDB()
   .generateReports()
 
 #console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
 #生成器.run()
 生成器
+  #.saveUtilExcel()
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
