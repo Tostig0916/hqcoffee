@@ -1598,10 +1598,10 @@ class 生成器 extends CaseSingleton
 
 
 生成器
-  .buildDB()
+  #.buildDB()
   .generateReports()
 
-console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
+#console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
 #生成器.run()
 生成器
