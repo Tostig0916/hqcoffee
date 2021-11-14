@@ -36,8 +36,11 @@ path = require 'path'
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
 
-
-# 如果要用本地的项目别名库取代系统的别名库,在localOptions中return true
+###
+如果要用本地的项目别名库取代系统的别名库,可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库
+内容复制粘贴进去
+###
+###
 class 项目别名库 extends 别名库
   @localOptions: ->
     false
@@ -67,7 +70,7 @@ class 项目别名库 extends 别名库
 
     else
       super()
-
+###
 
 
 
@@ -80,11 +83,6 @@ class AnyCaseSingleton extends StormDBSingleton
 
   @customGrade: ->
     "三级综合" # could be "二级综合"/"三级中医" etc
-
-  @normalKeyName: ({mainKey}) =>
-    # keep 则保存json文件
-    项目别名库.ajustedName({name:mainKey,keep:true})
-
 
 
   @logdb: ->
@@ -207,7 +205,7 @@ class 指标维度库 extends NormalCaseSingleton
   # 矢量指标,即有明确方向的指标
   @vectors: ->
     obj = {}
-    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
+    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低','高优','低优']
       (obj[v] ?= []).push(k)
     obj
 
@@ -779,7 +777,9 @@ class 院内各科指标评分排序 extends 评分排序报告
     
     # 均为由高到低排序
     obj = @sortedIndicators()
-    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    directions = []
+      .concat(direction.逐步提高).concat(direction.高优)
+      .concat(direction.逐步降低).concat(direction.低优)
     #console.log {directions}
 
     for indicator, arr of obj when arr[0]? and (indicator in directions)
@@ -801,7 +801,7 @@ class 院内各科指标评分排序 extends 评分排序报告
         #return result
         if up then result else result.reverse()
       
-      up = indicator in direction.逐步提高 
+      up = indicator in [].concat(direction.逐步提高).concat(direction.高优)
       @dbSet(indicator, newArr(up))
 
     @dbSave()
@@ -950,10 +950,11 @@ class 院内二级专科BCG矩阵分析 extends BCG矩阵报告
     
     for key in keys
       @db().set(key, 
-      院内专科BCG矩阵分析.db()
-        .get(key)
-        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
-        .value())
+        院内专科BCG矩阵分析.db()
+          .get(key)
+          .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
+          .value()
+      )
     
     @dbSave()
     
@@ -1236,7 +1237,9 @@ class 对标单科指标评分排序 extends 评分排序报告
 
     # 从高到低排序
     obj = @sortedIndicators()
-    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    directions = []
+      .concat(direction.逐步提高).concat(direction.高优)
+      .concat(direction.逐步降低).concat(direction.低优)
     for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
@@ -1255,7 +1258,7 @@ class 对标单科指标评分排序 extends 评分排序报告
         #return result
         if up then result else result.reverse()
 
-      up = realIndicatorName in direction.逐步提高
+      up = realIndicatorName in [].concat(direction.逐步提高).concat(direction.高优)
       @dbSet(indicator, newArr(up))
 
     @dbSave()
@@ -1598,7 +1601,7 @@ class 生成器 extends CaseSingleton
 
 
 生成器
-  #.buildDB()
+  .buildDB()
   .generateReports()
 
 #console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}

@@ -139,9 +139,9 @@ class 别名库 extends AnyGlobalSingleton
       
       else switch
         # 正名须去掉黑三角等特殊中英文字符,否则不能作为function 名字
-        when /[*()（、）/▲\ ]/i.test(name)
+        when /[*↑↓()（、）/▲\ ]/i.test(name)
           console.log("#{name}: 命名不应含顿号") if /、/i.test(name)
-          correctName = (each for each in name when not /[*()（、）/▲\ ]/.test(each)).join('')
+          correctName = (each for each in name when not /[*↑↓()（、）/▲\ ]/.test(each)).join('')
           dict = {"#{name}":"#{correctName}"}
           @_addPairs({dict,keep}) #unless /、/i.test(name)
           #console.log {name, correctName}

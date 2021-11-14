@@ -36,8 +36,11 @@ path = require 'path'
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
 
-
-# 如果要用本地的项目别名库取代系统的别名库,在localOptions中return true
+###
+如果要用本地的项目别名库取代系统的别名库,可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库
+内容复制粘贴进去
+###
+###
 class 项目别名库 extends 别名库
   @localOptions: ->
     false
@@ -67,7 +70,7 @@ class 项目别名库 extends 别名库
 
     else
       super()
-
+###
 
 
 
@@ -80,11 +83,6 @@ class AnyCaseSingleton extends StormDBSingleton
 
   @customGrade: ->
     "三级综合" # could be "二级综合"/"三级中医" etc
-
-  @normalKeyName: ({mainKey}) =>
-    # keep 则保存json文件
-    项目别名库.ajustedName({name:mainKey,keep:true})
-
 
 
   @logdb: ->
