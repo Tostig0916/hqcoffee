@@ -35,10 +35,56 @@ path = require 'path'
 
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 
+
+
+# 如果要用本地的项目别名库取代系统的别名库,在localOptions中return true
+class 项目别名库 extends 别名库
+  @localOptions: ->
+    false
+
+  # 必须置于此处,以便随客户文件夹而建立数据库文件
+  @_dbPath: ->
+    if @localOptions()
+      path.join __dirname, "#{@name}.json"
+    else
+      super()
+
+
+  @options: ->
+    if @localOptions()
+      @_options = {
+        dirname: __dirname
+        basename: @name
+        mainKeyName: "数据名"
+        header: {rows: 1}
+        columnToKey: {'*':'{{columnHeader}}'}
+        sheetStubs: true
+        needToRewrite: false
+        rebuild: false
+        unwrap: true 
+        renaming: @normalKeyName
+      }
+
+    else
+      super()
+
+
+
+
+
+
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
   @customerName: ->
     "Good Hospital"
+
+  @customGrade: ->
+    "三级综合" # could be "二级综合"/"三级中医" etc
+
+  @normalKeyName: ({mainKey}) =>
+    # keep 则保存json文件
+    项目别名库.ajustedName({name:mainKey,keep:true})
+
 
 
   @logdb: ->
@@ -99,7 +145,7 @@ class CaseSingleton extends AnyCaseSingleton
 
 class NormalCaseSingleton extends CaseSingleton
   @options: ->
-    @_options ?= {
+    @_options = {
       dirname: __dirname
       basename: @name
       mainKeyName: "数据名"
@@ -796,7 +842,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # step one: collect all indicators in a dimension
     for indicator, arr of obj when (dmName = dimensions[indicator])?
       for each in arr
-        unless @db().get(dmName)?.value()? and @db().get(dmName).get(each.unitName)?.value()?
+        unless @db().get(dmName)?.value?()? and @db().get(dmName).get(each.unitName)?.value?()?
           @db().get(dmName).get(each.unitName).set('indicators', []) 
         unit = @db().get(dmName).get(each.unitName).get('indicators')
         unit.push({indicator, value: each[indicator]})
@@ -845,7 +891,7 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
     for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
       for unitName, unitObj of dmObj
         # step three: turning into an ordered array
-        unless @db().get(unitName)?.value()?
+        unless @db().get(unitName)?.value?()?
           @db().set(unitName, [])
         newUnitObj = {}
         newUnitObj.dimension = dmName
@@ -1350,7 +1396,8 @@ class 生成器 extends CaseSingleton
     this
       #.showDBs()
       .readExcel()
-      .showMissingIndicatorsOrDataProblems()
+      .checkForAllIndicators()
+      #.showMissingIndicatorsOrDataProblems()
 
       #.saveUtilExcel()
 
@@ -1392,8 +1439,8 @@ class 生成器 extends CaseSingleton
 
   # 查看各自 db, 以及log
   @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
-    console.log {log: v.logdb().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,缺漏追踪库,指标维度库,名字ID库}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
+    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库}
     return this
 
 
@@ -1447,7 +1494,7 @@ class 生成器 extends CaseSingleton
 
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->
-    @checkForAllIndicators()
+    #@checkForAllIndicators()
     
     console.log { 
       院内资料: 院内资料库.logdb().value()
@@ -1551,9 +1598,10 @@ class 生成器 extends CaseSingleton
 
 
 生成器
-  #.buildDB()
+  .buildDB()
   .generateReports()
 
+console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
 #生成器.run()
 生成器
@@ -1561,6 +1609,7 @@ class 生成器 extends CaseSingleton
   #.readExcel()
   #.showUnitNames()
   #._tryGetSomeData()
+  #.checkForAllIndicators()
   
   #.showMissingIndicatorsOrDataProblems()
   
@@ -1587,7 +1636,7 @@ db.filter()
 
 
 
-#console.log db: 缺漏追踪库.db().get('院内资料库').value()?
+#console.log db: 缺漏追踪库.db().get('院内资料库').value?()?
 
 #
 #院内单科多维度评分集中分析.dataPrepare()

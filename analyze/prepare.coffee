@@ -40,10 +40,10 @@ class DataManagerBase
         dictionary[dataName][key]
       
       # 客户应填数据未填,尝试通过计算获得.此为非常规操作,尽量避免,设置informal为no
-      when informal and dbItem? and dbItem.get(dataName)?.value() and dbItem.get(dataName).get(key)?.value()
+      when informal and dbItem? and dbItem.get(dataName)?.value?() and dbItem.get(dataName).get(key)?.value?()
         dbItem.get(dataName).get(key).value()
       
-      when dbItem? and dbItem.get(dataName)?.value()?
+      when dbItem? and dbItem.get(dataName)?.value?()?
         dbItem.get(dataName).get(key).value()
 
       else
@@ -65,7 +65,7 @@ class DataManagerBase
     catch error
       @regMissing(funcOpts)
 
-      unless log_db.get(funcName)?.value()?
+      unless log_db.get(funcName)?.value?()?
         log_db.set(funcName,"@#{funcName}: (funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
       nil
@@ -76,10 +76,10 @@ class DataManagerBase
     {entityName, dataName, hostname, key, regest_db} = funcOpts
     regarr = regest_db.get(hostname)?.get(dataName)
     
-    unless regest_db.get(hostname).value()?
+    unless regest_db.get(hostname).value?()?
       regest_db.set(hostname,{}).save()
     
-    unless regest_db.get(hostname).get(dataName).value()?
+    unless regest_db.get(hostname).get(dataName).value?()?
       regest_db.get(hostname).set(dataName,[]).save() 
     
     unless entityName in regest_db.get(hostname).get(dataName).value()
@@ -113,7 +113,7 @@ class DataManagerBase
     #console.log {部门: entityName+key, 现在使用: funcName}
     ###
     regarr = regest_db.get(dataName)
-    unless regarr.value()?.length? then regest_db.set(dataName,[]) 
+    unless regarr.value?()?.length? then regest_db.set(dataName,[]) 
     regarr.push(entityName+key).save()
     ###
     funcName

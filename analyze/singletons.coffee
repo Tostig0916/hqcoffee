@@ -83,11 +83,7 @@ class StormDBSingleton extends JSONUtils
 
   @normalKeyName: ({mainKey}) =>
     # keep 则保存json文件
-    newName = 别名库.ajustedName({name:mainKey,keep:true})
-    #console.log({mainKey,newName}) if /包括药剂师和临床药师/i.test(mainKey)
-    newName
-
-
+    别名库.ajustedName({name:mainKey,keep:true})
 
 
   @options: ->
@@ -136,9 +132,11 @@ class 别名库 extends AnyGlobalSingleton
   @ajustedName: (funcOpts={}) ->
     {name,keep=false} = funcOpts
     json = @fetchSingleJSON()
-    correctName = json[name]
     switch
-      when correctName? then correctName
+      when (correctName = json[name])?
+        console.log {name, correctName}
+        correctName
+      
       else switch
         # 正名须去掉黑三角等特殊中英文字符,否则不能作为function 名字
         when /[*()（、）/▲\ ]/i.test(name)
@@ -157,8 +155,12 @@ class 别名库 extends AnyGlobalSingleton
     return mainKey
 
 
+  @_dbPath: ->
+    path.join __dirname, "..", "data","JSON" ,"别名库.json"
+
   @options: ->
     super()
+    @_options.basename = '别名库'
     @_options.needToRewrite = false
     @_options.rebuild = false
     return @_options

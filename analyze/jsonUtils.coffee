@@ -50,20 +50,14 @@ class JSONSimple  # with no dependences to stormdb
 
 	@checkForHeaders: (funcOpts={}) ->
 		{mainKeyName,rows} = funcOpts
+		unless mainKeyName?
+			throw(new Error("读取电子表格: 缺少参数 mainKeyName"))
+
 		headers = (key for key, value of rows[0])
 		#console.log headers 
 		if (headers.length is 0) or not (mainKeyName in headers)
 			throw new Error("缺少指标名称项") 
 
-		###
-		#if mainKeyName in headers 
-		#	return
-
-		#for each in dataKeyNames when (each in headers)
-		#	return
-
-		#throw new Error("缺少指标名称项") 
-		###
 
 
 
@@ -111,7 +105,6 @@ class JSONSimple  # with no dependences to stormdb
 		# key、value 一对生成简单字典型的JSON，unwrap参数设置为true
 		{mainKeyName, unwrap=false,renaming,customData=false} = funcOpts
 
-		throw(new Error("读取电子表格: 缺少参数 mainKeyName")) unless mainKeyName?
 
 		# 每sheet
 		for shnm, rows of source
@@ -179,9 +172,8 @@ class JSONSimple  # with no dependences to stormdb
 	
 	@getExcelFilename: (funcOpts={}) ->
 		{dirname,outfolder,folder='data', basename, basenameOnly} = funcOpts
-		customDataDirTestor = /cases/
-		if dirname?
-			p = path.join(dirname, if basenameOnly then basename else "#{basename}.xlsx")
+		p = if dirname?
+			path.join(dirname, if basenameOnly then basename else "#{basename}.xlsx")
 		else
 			dirname = __dirname
 			fd = outfolder ? folder
@@ -189,11 +181,8 @@ class JSONSimple  # with no dependences to stormdb
 			fs.mkdirSync ff unless fs.existsSync ff
 			ff = path.join(dirname, '..', fd, 'Excel') 
 			fs.mkdirSync ff unless fs.existsSync ff
-			p = path.join(dirname, '..', fd,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
+			path.join(dirname, '..', fd,'Excel', if basenameOnly then basename else "#{basename}.xlsx")
 
-		# customData 才会替换表头
-		funcOpts.customData ?= customDataDirTestor.test(p)
-		console.log {p, c: funcOpts.customData}
 		return p
 
 
