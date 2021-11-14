@@ -740,16 +740,23 @@ class 院内各科指标评分排序 extends 评分排序报告
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
       distance = first - last
-      @dbSet(indicator, arr.map (unit, idx)-> 
-        value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
-        console.log({bug:"> 100", indicator, distance, value, last, first, unit}) if (value > 101) or (value is null)
-        switch
-          when indicator in direction.逐步提高
-            unit[indicator] = value
-          when indicator in direction.逐步降低
-            unit[indicator] = 100 - value
-        unit
-      )
+      
+      newArr = (up) -> 
+        result = arr.map (unit, idx)-> 
+          value = if first is 0 and last is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
+          console.log({bug:"> 100", indicator, distance, value, last, first, unit}) if (value > 101) or (value is null)
+          switch
+            when up
+              unit[indicator] = value
+            else #indicator in direction.逐步降低
+              unit[indicator] = 100 - value
+          unit
+        
+        #return result
+        if up then result else result.reverse()
+      
+      up = indicator in direction.逐步提高 
+      @dbSet(indicator, newArr(up))
 
     @dbSave()
 
@@ -1188,16 +1195,22 @@ class 对标单科指标评分排序 extends 评分排序报告
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
       distance = first - last
-      @dbSet(indicator, arr.map (unit, idx)-> 
-        value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
-        console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
-        switch 
-          when realIndicatorName in direction.逐步提高
-            unit[indicator] = value
-          when realIndicatorName in direction.逐步降低
-            unit[indicator] = 100 - value
-        unit
-      )
+      newArr = (up)->
+        result = arr.map (unit, idx)-> 
+          value = if last is 0 and first is 0 then 0 else 100 * (unit[indicator] - last) / (distance + 0.0000001) # 避免除以0
+          console.log {bug:"> 100",realIndicatorName,value, first} if value > 101
+          switch 
+            when up
+              unit[indicator] = value
+            else #realIndicatorName in direction.逐步降低
+              unit[indicator] = 100 - value
+          unit
+        
+        #return result
+        if up then result else result.reverse()
+
+      up = realIndicatorName in direction.逐步提高
+      @dbSet(indicator, newArr(up))
 
     @dbSave()
 
@@ -1537,8 +1550,10 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 
 
-#生成器.buildDB()
-生成器.generateReports()
+生成器
+  #.buildDB()
+  .generateReports()
+
 
 #生成器.run()
 生成器
