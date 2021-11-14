@@ -5,7 +5,6 @@ StormDB = require 'stormdb'
 xlsx = require 'json-as-xlsx'
 
 {existNumber} = require './fix'
-dataKeyNames = ["项目", "指标名","指标名称","指标正名","数据名称"]
 
 class JSONSimple  # with no dependences to stormdb
 	
@@ -78,21 +77,10 @@ class JSONSimple  # with no dependences to stormdb
 
 	# 不应该容忍表头错误,否则会造成程序混乱.此法不能用
 	# 针对有些报表填报时,将表头"指标名称"改成了其他表述,在此清理
-	@correctKeyName: (funcOpts={}) -> 
-		
+	@correctKeyName: (funcOpts={}) ->
 		throw new Error("不应该容忍表头错误,否则会造成程序混乱.此法不能用")
 		
-		###
-		{rowObj} = funcOpts
 
-		# 若已有数据名主键,则无须修改
-		if rowObj.数据名? then return
-
-		# 数据名 为资料库默认主键名,其他可能出现的名称则加以替换
-		for each in dataKeyNames when rowObj[each]?
-			rowObj.数据名 = rowObj[each]
-			delete rowObj[each]
-		###
 
 
 
