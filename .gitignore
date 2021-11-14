@@ -111,6 +111,8 @@ dist
 *~lock*.xlsx*
 ~$*.pptx
 ~$*.xlsx
+*/项目别名库.json
 cases/*/*.pg.pptx
 cases/*/*.json
 #cases/20*/*.xlsx
+#data/JSON/项目别名库.json
