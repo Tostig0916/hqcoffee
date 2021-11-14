@@ -184,9 +184,9 @@ class 维度导向库 extends NormalCaseSingleton
       columns:[
         {label:'数据名', value:'数据名'}
         {label:'二级指标', value:'二级指标'}
-        {label:'计量单位', value:'计量单位'}
         {label:'一级指标', value:'一级指标'}
         {label:'指标导向', value:'指标导向'}
+        {label:'计量单位', value:'计量单位'}
         {label:'指标来源', value:'指标来源'}
         {label:'三中', value:'三中'}
         {label:'三综', value:'三综'}
@@ -403,7 +403,7 @@ class 分析报告 extends NormalCaseSingleton
   # 每部分限定几张PPT,用于测试和demo
   @pageLimit: ->
     #null 
-    5
+    8
 
 
 
@@ -1443,9 +1443,9 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      #院内各科指标简单排序
+      院内各科指标简单排序
       #院内各科指标评分排序 
-      #院内各科维度轮比雷达图
+      院内各科维度轮比雷达图
       院内单科多维度评分集中分析
 
       院内专科BCG矩阵分析
@@ -1709,7 +1709,7 @@ class 生成器 extends CaseSingleton
 
 #生成器.run()
 生成器
-  #.saveUtilExcel()
+  .saveUtilExcel()
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
