@@ -37,8 +37,11 @@ path = require 'path'
 
 
 ###
-如果要用本地的项目别名库取代系统的别名库,可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库
-内容复制粘贴进去
+如果要用本地的项目别名库取代系统的别名库
+1. 可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库内容复制粘贴进去
+2. 可以用程序技巧,采用继承方法,去掉以下class 注释,并且去掉 normalKeyName 上下的注释
+区别是,第一种方法,技术含量低,且别名库内容会通过git保存版本,而第二种方法,技术上更优雅,但
+git不管理项目别名库,要小心随着电脑故障等原因而丢失
 ###
 ###
 class 项目别名库 extends 别名库
@@ -78,6 +81,13 @@ class 项目别名库 extends 别名库
 
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
+  ###
+  # 如果要用本地的项目别名库取代系统的别名库,须去掉注释,运用以下代码
+  @normalKeyName: ({mainKey}) =>
+    # keep 则保存json文件
+    项目别名库.ajustedName({name:mainKey,keep:true})
+  ###
+
   @customerName: ->
     "Good Hospital"
 

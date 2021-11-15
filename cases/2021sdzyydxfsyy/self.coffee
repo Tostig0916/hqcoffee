@@ -37,8 +37,11 @@ path = require 'path'
 
 
 ###
-如果要用本地的项目别名库取代系统的别名库,可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库
-内容复制粘贴进去
+如果要用本地的项目别名库取代系统的别名库
+1. 可以在data/JSON中,改写 别名库.json 的内容,将该文件夹下的项目别名库内容复制粘贴进去
+2. 可以用程序技巧,采用继承方法,去掉以下class 注释,并且去掉 normalKeyName 上下的注释
+区别是,第一种方法,技术含量低,且别名库内容会通过git保存版本,而第二种方法,技术上更优雅,但
+git不管理项目别名库,要小心随着电脑故障等原因而丢失
 ###
 ###
 class 项目别名库 extends 别名库
@@ -78,6 +81,13 @@ class 项目别名库 extends 别名库
 
 # 咨询案例
 class AnyCaseSingleton extends StormDBSingleton
+  ###
+  # 如果要用本地的项目别名库取代系统的别名库,须去掉注释,运用以下代码
+  @normalKeyName: ({mainKey}) =>
+    # keep 则保存json文件
+    项目别名库.ajustedName({name:mainKey,keep:true})
+  ###
+
   @customerName: ->
     "Good Hospital"
 
@@ -163,6 +173,48 @@ class SystemLog extends NormalCaseSingleton
 
 
 class 维度导向库 extends NormalCaseSingleton
+  @saveExcel: (funcOpts={}) ->
+    opts = @options()
+    json= @dbValue()
+    arr = ({
+      数据名: key 
+      指标导向: value.指标导向
+      二级指标: value.二级指标
+      一级指标: value.一级指标
+      指标来源: value.指标来源
+      三中: value.三中
+      三综: value.三综
+      二综: value.二综
+      计量单位: value.计量单位
+    } for key, value of json).sort(
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
+    )
+    opts.data = [{
+      sheet:'指标维度'
+      columns:[
+        {label:'数据名', value:'数据名'}
+        {label:'二级指标', value:'二级指标'}
+        {label:'一级指标', value:'一级指标'}
+        {label:'指标导向', value:'指标导向'}
+        {label:'计量单位', value:'计量单位'}
+        {label:'指标来源', value:'指标来源'}
+        {label:'三中', value:'三中'}
+        {label:'三综', value:'三综'}
+        {label:'二综', value:'二综'}        
+      ]
+      content: arr
+    }]
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
+
+
   # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量本位权重
   @combine2Excel: ->
     导向 = 指标导向库.dbValue()
@@ -205,7 +257,7 @@ class 指标维度库 extends NormalCaseSingleton
   # 矢量指标,即有明确方向的指标
   @vectors: ->
     obj = {}
-    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低']
+    for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低','高优','低优']
       (obj[v] ?= []).push(k)
     obj
 
@@ -322,7 +374,7 @@ class 院内指标资料库 extends 资料库
 
 
 
-
+# ---------------------------------  slides api  -----------------------------------
 class 分析报告 extends NormalCaseSingleton
 
   @newReport: ->
@@ -358,8 +410,10 @@ class 分析报告 extends NormalCaseSingleton
     console.log {slides: sectionTitle}
 
 
-
-
+  # 每部分限定几张PPT,用于测试和demo
+  @pageLimit: ->
+    #null 
+    8
 
 
 
@@ -442,10 +496,16 @@ class 散点图报告 extends 分析报告
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()    
     data = @sectionData()
-        
+    
+    pages = 0
+    pageLimit = @pageLimit()
+
     for indicator, arr of data
       delete(data[indicator])
       for _indicator, _arr of data
+   
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in _arr when indc.unitName is each.unitName   
@@ -500,6 +560,9 @@ class 散点图报告 extends 分析报告
           dataLabelPosition: "t", #// Options: 't'|'b'|'l'|'r'|'ctr' 
           dataLabelFormatScatter: "custom", #// Can be set to `custom` (default), `customXY`, or `XY`.
         })
+
+
+
 
   @showLabel: ->
     true
@@ -593,10 +656,15 @@ class 排序报告 extends 分析报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
-    
-    #@dataPrepare()
+
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     for indicator, arr of data when arr.length > 0
+
+      return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -642,13 +710,16 @@ class 多科雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
-    
-    #@dataPrepare()
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
 
     for indicator, arr of data
       delete(data[indicator])
       for _indicator, _arr of data
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+  
         nar = []
         arr.map (each, idx) -> 
           nar[idx] = indc for indc in  _arr when indc.unitName is each.unitName   
@@ -687,9 +758,14 @@ class 单科雷达图报告 extends 雷达图报告
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
     
-    #@dataPrepare()
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     for unitName, arr of data
+
+      return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
       slide = pres.addSlide({sectionTitle})
       #slide.background = { color: "F1F1F1" }  # hex fill color with transparency of 50%
       #slide.background = { data: "image/png;base64,ABC[...]123" }  # image: base64 data
@@ -720,10 +796,17 @@ class 单科对比雷达图报告 extends 雷达图报告
   @slides: (funcOpts) ->
     {pres, sectionTitle} = funcOpts
     chartType = @chartType()
+
+    pageLimit = @pageLimit()
+    pages = 0
+
     data = @sectionData()
     
     for departName, departObj of data
       for dimensionName, dimensionArray of departObj
+
+        return null if existNumber(pageLimit) and (pages++ > pageLimit)
+
         # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
@@ -747,6 +830,9 @@ class 单科对比雷达图报告 extends 雷达图报告
 
 
 
+
+
+# ---------------------------------  data api  -----------------------------------
 
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
@@ -777,7 +863,9 @@ class 院内各科指标评分排序 extends 评分排序报告
     
     # 均为由高到低排序
     obj = @sortedIndicators()
-    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    directions = []
+      .concat(direction.逐步提高).concat(direction.高优)
+      .concat(direction.逐步降低).concat(direction.低优)
     #console.log {directions}
 
     for indicator, arr of obj when arr[0]? and (indicator in directions)
@@ -799,7 +887,7 @@ class 院内各科指标评分排序 extends 评分排序报告
         #return result
         if up then result else result.reverse()
       
-      up = indicator in direction.逐步提高 
+      up = indicator in [].concat(direction.逐步提高).concat(direction.高优)
       @dbSet(indicator, newArr(up))
 
     @dbSave()
@@ -948,10 +1036,11 @@ class 院内二级专科BCG矩阵分析 extends BCG矩阵报告
     
     for key in keys
       @db().set(key, 
-      院内专科BCG矩阵分析.db()
-        .get(key)
-        .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
-        .value())
+        院内专科BCG矩阵分析.db()
+          .get(key)
+          .filter((obj) -> not /(^大|合并)/i.test(obj.unitName))
+          .value()
+      )
     
     @dbSave()
     
@@ -1126,15 +1215,19 @@ class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear() #()
     arrayName = @arrayName()
-    @db().set('学科梯队',[])
+    @db().set(arrayName,[])
 
     topsis = 院内专科梯队Topsis评分.dbValue()
-    for unitName, unitObj of topsis when not /(医院|合并)/i.test(unitName)
+    for unitName, unitObj of topsis when @validDeparts({unitName})
       unitObj.科室名称 = unitName
-      @db().get('学科梯队').push(unitObj)
-    @db().get('学科梯队').sort((a,b)-> b.综合评分 - a.综合评分) 
+      @db().get(arrayName).push(unitObj)
+    @db().get(arrayName).sort((a,b)-> b.综合评分 - a.综合评分) 
     @dbSave()  
 
+
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /医院/i.test(unitName)
 
   @arrayName: ->
     '学科梯队'
@@ -1149,27 +1242,17 @@ class 院内专科梯队表 extends 表格报告
     arr
 
 
+class 院内大小专科梯队混合表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /(医院|合并)/i.test(unitName)
 
 
-class 院内分析报告 extends 分析报告
-  @sections: ->
-    [
-      #院内各科指标简单排序
-      #院内各科指标评分排序 
-      #院内各科维度轮比雷达图
-      院内单科多维度评分集中分析
 
-      #院内专科BCG矩阵分析
-      #院内二级专科BCG矩阵分析
-      #院内二级权重专科BCG矩阵分析
-      院内专科梯队表
-
-      院内各科维度轮比散点图
-      
-      # 尚未制作
-      # 院内各科指标轮比雷达图
-      # 院内单科多指标评分雷达图
-   ]
+class 院内二级专科梯队表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /(^大|医院|合并)/i.test(unitName)
 
 
 
@@ -1234,7 +1317,9 @@ class 对标单科指标评分排序 extends 评分排序报告
 
     # 从高到低排序
     obj = @sortedIndicators()
-    directions = [].concat(direction.逐步提高).concat(direction.逐步降低)
+    directions = []
+      .concat(direction.逐步提高).concat(direction.高优)
+      .concat(direction.逐步降低).concat(direction.低优)
     for indicator, arr of obj when arr[0]? and (realIndicatorName = indicator.split(': ')[1]) in directions
       first = arr[0][indicator]
       last = arr[arr.length - 1][indicator]
@@ -1253,7 +1338,7 @@ class 对标单科指标评分排序 extends 评分排序报告
         #return result
         if up then result else result.reverse()
 
-      up = realIndicatorName in direction.逐步提高
+      up = realIndicatorName in [].concat(direction.逐步提高).concat(direction.高优)
       @dbSet(indicator, newArr(up))
 
     @dbSave()
@@ -1359,6 +1444,34 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     @dbSave()
 
 
+
+
+
+
+
+# ---------------------------------  report api  -----------------------------------
+class 院内分析报告 extends 分析报告
+  @sections: ->
+    [
+      院内各科指标简单排序
+      #院内各科指标评分排序 
+      院内各科维度轮比雷达图
+      院内单科多维度评分集中分析
+
+      院内专科BCG矩阵分析
+      院内二级专科BCG矩阵分析
+      院内二级权重专科BCG矩阵分析
+      
+      #院内专科梯队表
+      院内二级专科梯队表
+      院内大小专科梯队混合表
+
+      院内各科维度轮比散点图
+      
+      # 尚未制作
+      # 院内各科指标轮比雷达图
+      # 院内单科多指标评分雷达图
+   ]
 
 
 
@@ -1559,7 +1672,9 @@ class 生成器 extends CaseSingleton
 
   @localTeamsTable: ->
     @localTopsis()
-    院内专科梯队表.dataPrepare()
+    #院内专科梯队表.dataPrepare()
+    院内二级专科梯队表.dataPrepare()
+    院内大小专科梯队混合表.dataPrepare()
     return this
 
 
@@ -1577,8 +1692,9 @@ class 生成器 extends CaseSingleton
 
 
   @saveUtilExcel: ->
-    指标维度库.saveExcel()
-    指标导向库.saveExcel()
+    维度导向库.saveExcel()
+    #指标维度库.saveExcel()
+    #指标导向库.saveExcel()
 
 
 
@@ -1596,13 +1712,14 @@ class 生成器 extends CaseSingleton
 
 
 生成器
-  #.buildDB()
-  .generateReports()
+  .buildDB()
+  #.generateReports()
 
 #console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
 #生成器.run()
 生成器
+  #.saveUtilExcel()
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
