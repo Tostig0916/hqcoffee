@@ -968,6 +968,15 @@ class 院内各科相关维度轮比分析 extends 分析报告
       sorted = ({unitName, "#{dmName}":unitObj.score} for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
       @db().set(dmName, sorted)
 
+    keys = (k for k, v of @dbValue())    
+    for key in keys
+      @db().set(key, 
+        @db()
+          .get(key)
+          .filter((obj) -> not /(^大|合并|医院)/i.test(obj.unitName))
+          .value()
+      )
+
     @dbSave()
 
 
