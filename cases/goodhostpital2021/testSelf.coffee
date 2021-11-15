@@ -816,7 +816,7 @@ class 单科对比雷达图报告 extends 雷达图报告
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = []
-        for line in ['均2','Y2020','均1']
+        for line in ['Y2020','均2'] #['Y2020','均2','均1']
           chartData.push {
             name: line
             labels: dimensionArray.map (each, idx) -> each.key
@@ -1468,16 +1468,16 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内各科维度轮比散点图
 
       #院内各科指标简单排序
       #院内各科指标评分排序 
       院内各科维度轮比雷达图
+      院内各科维度轮比散点图
       院内单科多维度评分集中分析
 
-      院内专科BCG矩阵分析
-      院内二级专科BCG矩阵分析
-      院内二级权重专科BCG矩阵分析
+      #院内专科BCG矩阵分析
+      #院内二级专科BCG矩阵分析
+      #院内二级权重专科BCG矩阵分析
       
       #院内专科梯队表
       院内二级专科梯队表
