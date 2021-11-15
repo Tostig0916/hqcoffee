@@ -518,7 +518,7 @@ class 散点图报告 extends 分析报告
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
 
         chartData = [
           { # x
@@ -601,7 +601,7 @@ class BCG矩阵报告 extends 散点图报告
     #slide.background = { path: "https://some.url/image.jpg" }  # image: url
     #slide.color = "696969"  # Set slide default font color
     # EX: Styled Slide Numbers
-    slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+    slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
     chartData = [
       { # x
         name: indicator
@@ -673,7 +673,7 @@ class 排序报告 extends 分析报告
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
       #slide.color = "696969"  # Set slide default font color
       # EX: Styled Slide Numbers
-      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
       chartData = [
         {
           name: indicator
@@ -684,7 +684,7 @@ class 排序报告 extends 分析报告
 			
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
-        w: "95%", h: "90%"
+        w: "90%", h: "90%" #w: "95%", h: "90%"
         showLegend: true, 
         legendPos: 'b'
         showTitle: true, 
@@ -714,8 +714,10 @@ class 多科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     pageLimit = @pageLimit()
     pages = 0
+    n = 49
 
     data = @sectionData()
+    #console.log({depts:data.医保价值.length})
 
     for indicator, arr of data
       delete(data[indicator])
@@ -731,26 +733,27 @@ class 多科雷达图报告 extends 雷达图报告
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = [
           {
             name: indicator
-            labels: arr[0..19].map (each,idx)-> each.unitName
-            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
+            labels: arr[0..n].map (each,idx)-> each.unitName
+            values: arr[0..n].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
           }
           {
             name: _indicator
-            labels: nar[0..19].map (each,idx)-> each.unitName
-            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
+            labels: nar[0..n].map (each,idx)-> each.unitName
+            values: nar[0..n].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
           }
         ]
         
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1, y: 0.1, 
-          w: "95%", h: "90%"
+          w: "90%", h: "90%" #w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
-          title: "#{indicator} vs #{_indicator}" #indicator 
+          title: "#{indicator} vs #{_indicator}" #indicator
+          fontSize: 5 
         })
 
 
@@ -774,7 +777,7 @@ class 单科雷达图报告 extends 雷达图报告
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
       #slide.color = "696969"  # Set slide default font color
       # EX: Styled Slide Numbers
-      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
       chartData = [
         {
           name: unitName
@@ -785,7 +788,7 @@ class 单科雷达图报告 extends 雷达图报告
 			
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
-        w: "95%", h: "90%"
+        w: "90%", h: "90%" #w: "95%", h: "90%"
         showLegend: true, legendPos: 'b'
         showTitle: true, 
         title: unitName 
@@ -811,7 +814,7 @@ class 单科对比雷达图报告 extends 雷达图报告
 
         # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
         slide = pres.addSlide({sectionTitle})
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = []
         for line in ['均2','Y2020','均1']
           chartData.push {
@@ -822,7 +825,7 @@ class 单科对比雷达图报告 extends 雷达图报告
 
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1, y: 0.1, 
-          w: "95%", h: "90%"
+          w: "90%", h: "90%" #w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
           title: "#{departName}: #{if dimensionName is '满意度评价' then '地位影响' else dimensionName}" 
