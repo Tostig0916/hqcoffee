@@ -412,8 +412,8 @@ class 分析报告 extends NormalCaseSingleton
 
   # 每部分限定几张PPT,用于测试和demo
   @pageLimit: ->
-    #null 
-    8
+    null 
+    
 
 
 
@@ -915,8 +915,9 @@ class 院内单科多指标评分雷达图 extends 单科雷达图报告
 
 # 以指标维度为主体,看相关指标趋势离散度
 class 院内各科维度轮比雷达图 extends 多科雷达图报告
-  @sectionData: ->
-    院内各科相关维度轮比分析.dbValue()
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(院内各科相关维度轮比分析.dbValue()).save()
 
 
 class 院内单科多维度指标评分汇集 extends 分析报告
@@ -991,8 +992,8 @@ class 院内单科多维度评分集中分析 extends 单科雷达图报告
 
 
 class 院内各科维度轮比散点图 extends 散点图报告
-  @sectionData: ->
-    院内各科相关维度轮比分析.dbValue()
+  @dataPrepare: ->
+    @dbDefault(院内各科相关维度轮比分析.dbValue()).save()
 
 
   @showLabel: -> true
@@ -1453,7 +1454,9 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内各科指标简单排序
+      院内各科维度轮比散点图
+
+      #院内各科指标简单排序
       #院内各科指标评分排序 
       院内各科维度轮比雷达图
       院内单科多维度评分集中分析
@@ -1464,9 +1467,8 @@ class 院内分析报告 extends 分析报告
       
       #院内专科梯队表
       院内二级专科梯队表
-      院内大小专科梯队混合表
+      #院内大小专科梯队混合表
 
-      院内各科维度轮比散点图
       
       # 尚未制作
       # 院内各科指标轮比雷达图
@@ -1478,8 +1480,8 @@ class 院内分析报告 extends 分析报告
 class 对标分析报告 extends 分析报告
   @sections: ->
     [
-      对标单科指标简单排序
-      对标单科指标评分排序 
+      #对标单科指标简单排序
+      #对标单科指标评分排序 
       对标单科多指标评分雷达图
       
       #对标单科多维度评分雷达图
@@ -1656,6 +1658,8 @@ class 生成器 extends CaseSingleton
     院内单科多维度指标评分汇集.dataPrepare()
     院内单科多维度评分集中分析.dataPrepare()
     院内各科相关维度轮比分析.dataPrepare()
+    院内各科维度轮比雷达图.dataPrepare()
+    院内各科维度轮比散点图.dataPrepare()
     return this
 
 
@@ -1719,7 +1723,7 @@ class 生成器 extends CaseSingleton
 
 #生成器.run()
 生成器
-  .saveUtilExcel()
+  #.saveUtilExcel()
   #.showDBs()
   #.readExcel()
   #.showUnitNames()
