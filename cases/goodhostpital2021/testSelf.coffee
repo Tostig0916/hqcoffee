@@ -178,6 +178,7 @@ class 维度导向库 extends NormalCaseSingleton
     json= @dbValue()
     arr = ({
       数据名: key 
+      本位权重: value.本位权重
       指标导向: value.指标导向
       二级指标: value.二级指标
       一级指标: value.一级指标
@@ -193,6 +194,7 @@ class 维度导向库 extends NormalCaseSingleton
       sheet:'指标维度'
       columns:[
         {label:'数据名', value:'数据名'}
+        {label:'本位权重',value:'本位权重'}
         {label:'二级指标', value:'二级指标'}
         {label:'一级指标', value:'一级指标'}
         {label:'指标导向', value:'指标导向'}
