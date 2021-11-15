@@ -518,7 +518,7 @@ class 散点图报告 extends 分析报告
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
 
         chartData = [
           { # x
@@ -601,7 +601,7 @@ class BCG矩阵报告 extends 散点图报告
     #slide.background = { path: "https://some.url/image.jpg" }  # image: url
     #slide.color = "696969"  # Set slide default font color
     # EX: Styled Slide Numbers
-    slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+    slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
     chartData = [
       { # x
         name: indicator
@@ -673,7 +673,7 @@ class 排序报告 extends 分析报告
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
       #slide.color = "696969"  # Set slide default font color
       # EX: Styled Slide Numbers
-      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
       chartData = [
         {
           name: indicator
@@ -684,7 +684,7 @@ class 排序报告 extends 分析报告
 			
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
-        w: "95%", h: "90%"
+        w: "90%", h: "90%" #w: "95%", h: "90%"
         showLegend: true, 
         legendPos: 'b'
         showTitle: true, 
@@ -714,8 +714,10 @@ class 多科雷达图报告 extends 雷达图报告
     chartType = @chartType()
     pageLimit = @pageLimit()
     pages = 0
+    n = 49
 
     data = @sectionData()
+    #console.log({depts:data.医保价值.length})
 
     for indicator, arr of data
       delete(data[indicator])
@@ -731,26 +733,27 @@ class 多科雷达图报告 extends 雷达图报告
         #slide.background = { path: "https://some.url/image.jpg" }  # image: url
         #slide.color = "696969"  # Set slide default font color
         # EX: Styled Slide Numbers
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = [
           {
             name: indicator
-            labels: arr[0..19].map (each,idx)-> each.unitName
-            values: arr[0..19].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
+            labels: arr[0..n].map (each,idx)-> each.unitName
+            values: arr[0..n].map (each,idx)-> each[indicator] #* 100 / arr[0][indicator]
           }
           {
             name: _indicator
-            labels: nar[0..19].map (each,idx)-> each.unitName
-            values: nar[0..19].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
+            labels: nar[0..n].map (each,idx)-> each.unitName
+            values: nar[0..n].map (each,idx)-> each[_indicator] #* 100 / _arr[0][_indicator]
           }
         ]
         
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1, y: 0.1, 
-          w: "95%", h: "90%"
+          w: "90%", h: "90%" #w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
-          title: "#{indicator} vs #{_indicator}" #indicator 
+          title: "#{indicator} vs #{_indicator}" #indicator
+          fontSize: 5 
         })
 
 
@@ -774,7 +777,7 @@ class 单科雷达图报告 extends 雷达图报告
       #slide.background = { path: "https://some.url/image.jpg" }  # image: url
       #slide.color = "696969"  # Set slide default font color
       # EX: Styled Slide Numbers
-      slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+      slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
       chartData = [
         {
           name: unitName
@@ -785,7 +788,7 @@ class 单科雷达图报告 extends 雷达图报告
 			
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
-        w: "95%", h: "90%"
+        w: "90%", h: "90%" #w: "95%", h: "90%"
         showLegend: true, legendPos: 'b'
         showTitle: true, 
         title: unitName 
@@ -811,9 +814,9 @@ class 单科对比雷达图报告 extends 雷达图报告
 
         # 每单位一张图,也可以每单位每一个大的维度一张图,共4张图等等
         slide = pres.addSlide({sectionTitle})
-        slide.slideNumber = { x: "98%", y: "98%", fontFace: "Courier", fontSize: 15, color: "FF33FF" }
+        slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = []
-        for line in ['均2','Y2020','均1']
+        for line in ['Y2020','均2'] #['Y2020','均2','均1']
           chartData.push {
             name: line
             labels: dimensionArray.map (each, idx) -> each.key
@@ -822,7 +825,7 @@ class 单科对比雷达图报告 extends 雷达图报告
 
         slide.addChart(pres.ChartType[chartType], chartData, { 
           x: 0.1, y: 0.1, 
-          w: "95%", h: "90%"
+          w: "90%", h: "90%" #w: "95%", h: "90%"
           showLegend: true, legendPos: 'b'
           showTitle: true, 
           title: "#{departName}: #{if dimensionName is '满意度评价' then '地位影响' else dimensionName}" 
@@ -967,6 +970,15 @@ class 院内各科相关维度轮比分析 extends 分析报告
     for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
       sorted = ({unitName, "#{dmName}":unitObj.score} for unitName, unitObj of dmObj).sort (a, b)-> b[dmName] - a[dmName]
       @db().set(dmName, sorted)
+
+    keys = (k for k, v of @dbValue())    
+    for key in keys
+      @db().set(key, 
+        @db()
+          .get(key)
+          .filter((obj) -> not /(^大|合并|医院)/i.test(obj.unitName))
+          .value()
+      )
 
     @dbSave()
 
@@ -1456,16 +1468,16 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 class 院内分析报告 extends 分析报告
   @sections: ->
     [
-      院内各科维度轮比散点图
 
       #院内各科指标简单排序
       #院内各科指标评分排序 
       院内各科维度轮比雷达图
+      院内各科维度轮比散点图
       院内单科多维度评分集中分析
 
-      院内专科BCG矩阵分析
-      院内二级专科BCG矩阵分析
-      院内二级权重专科BCG矩阵分析
+      #院内专科BCG矩阵分析
+      #院内二级专科BCG矩阵分析
+      #院内二级权重专科BCG矩阵分析
       
       #院内专科梯队表
       院内二级专科梯队表
