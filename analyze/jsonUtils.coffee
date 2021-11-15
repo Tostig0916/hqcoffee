@@ -55,7 +55,7 @@ class JSONSimple  # with no dependences to stormdb
 		headers = (key for key, value of rows[0])
 		#console.log headers 
 		if (headers.length is 0) or not (mainKeyName in headers)
-			throw new Error("缺少指标名称项") 
+			throw new Error("缺少指标名称项, #{mainKeyName}") 
 
 
 
