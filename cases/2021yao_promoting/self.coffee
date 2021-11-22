@@ -18,7 +18,7 @@
 
   对标报告:
     对标报告其实逻辑上与院内报告是雷同的.之所以区分,是因为传统习惯,以及数据表设计缺陷.
-    如果将对标单位统一命名,例如医院,是本医院,医院对标均1,医院对标均2,医院对标某A,医院对标某B,依次类推,则可将所有
+    如果将对标单位统一命名,例如医院,是本医院,医院对标中位数18年,医院对标中位数19年,医院对标某A,医院对标某B,依次类推,则可将所有
     数据置于同一电子表格的不同sheet内,其结构完全一样,分析过程也没有不同,只需挑选其中的对象即可,不需要另外设计代码
 ###
 
@@ -89,7 +89,7 @@ class AnyCaseSingleton extends StormDBSingleton
   ###
 
   @customerName: ->
-    "Good Hospital"
+    "喀什地区第一人民医院"
 
   @customGrade: ->
     "三级综合" # could be "二级综合"/"三级中医" etc
@@ -384,7 +384,7 @@ class 分析报告 extends NormalCaseSingleton
     opts.generate = (funcOpts) => 
       {pres} = funcOpts
       # title slide
-      title = "数智分析报告"
+      title = "国考数据分析Demo"
       slide = pres.addSlide("TITLE_SLIDE")
       slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
       slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
@@ -816,7 +816,7 @@ class 单科对比雷达图报告 extends 雷达图报告
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = []
-        for line in ['Y2020','均2'] #['Y2020','均2','均1']
+        for line in ['Y2020','中位数19年'] #['Y2020','中位数19年','中位数18年']
           chartData.push {
             name: line
             labels: dimensionArray.map (each, idx) -> each.key
@@ -1285,7 +1285,7 @@ class 对标指标资料库 extends 资料库
     指标维度 = 指标维度库.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
 
-    对标项 = ['均1','均2','某A','某B']
+    对标项 = ['中位数18年','中位数19年','某A','某B']
     informal = @createMissingData()  
 
     for dataName, dimension of 指标维度 when dataName?     
@@ -1494,7 +1494,7 @@ class 院内分析报告 extends 分析报告
 class 对标分析报告 extends 分析报告
   @sections: ->
     [
-      #对标单科指标简单排序
+      对标单科指标简单排序
       #对标单科指标评分排序 
       对标单科多指标评分雷达图
       
@@ -1608,7 +1608,7 @@ class 生成器 extends CaseSingleton
     指标维度 = 指标维度库.dbValue()
     
     k1 = 'Y2020'
-    k2 = '均2'
+    k2 = '中位数19年'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
         院内资料库.getData({entityName, dataName, key:k1, informal:true})
