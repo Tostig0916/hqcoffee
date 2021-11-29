@@ -180,7 +180,7 @@ class 维度导向库 extends NormalCaseSingleton
       (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
-      sheet:'指标维度'
+      sheet:'三级指标设置'
       columns:[
         {label:'数据名', value:'数据名'}
         {label:'二级指标', value:'二级指标'}
@@ -259,7 +259,7 @@ class 指标维度库 extends NormalCaseSingleton
       (a,b)-> if b.数据名 > a.数据名 then -1 else 1
     )
     opts.data = [{
-      sheet:'指标维度'
+      sheet:'三级指标设置'
       columns:[
         {label:'数据名',value:'数据名'}
         {label:'二级指标',value:'维度'}
