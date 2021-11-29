@@ -178,7 +178,7 @@ class 维度导向库 extends NormalCaseSingleton
     json= @dbValue()
     arr = ({
       数据名: key 
-      本位权重: value.本位权重
+      三级权重: value.三级权重
       指标导向: value.指标导向
       二级指标: value.二级指标
       一级指标: value.一级指标
@@ -194,7 +194,7 @@ class 维度导向库 extends NormalCaseSingleton
       sheet:'指标维度'
       columns:[
         {label:'数据名', value:'数据名'}
-        {label:'本位权重',value:'本位权重'}
+        {label:'三级权重',value:'三级权重'}
         {label:'二级指标', value:'二级指标'}
         {label:'一级指标', value:'一级指标'}
         {label:'指标导向', value:'指标导向'}
@@ -955,7 +955,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
         {indicators} = unitObj
         v = 0
         for each in indicators
-          weight = 维度[each]?.本位权重 ? 1 / s
+          weight = 维度[each]?.三级权重 ? 1 / s
           v += each.value * weight
         @db().get(dmName).get(unitName).set('score', v)
 

@@ -205,7 +205,7 @@ class 维度导向库 extends NormalCaseSingleton
 
 
 
-  # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量本位权重
+  # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量三级权重
   @combine2Excel: ->
     导向 = 指标导向库.dbValue()
     维度 = 指标维度库.db()
@@ -939,7 +939,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
         {indicators} = unitObj
         v = 0
         for each in indicators
-          weight = 维度[each]?.本位权重 ? 1 / s
+          weight = 维度[each]?.三级权重 ? 1 / s
           v += each.value * weight
         @db().get(dmName).get(unitName).set('score', v)
 
