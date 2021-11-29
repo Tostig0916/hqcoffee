@@ -173,6 +173,13 @@ class SystemLog extends NormalCaseSingleton
 
 
 class 维度导向库 extends NormalCaseSingleton
+  @options: ->
+    super()
+    @_options.unwrap = false
+    @_options
+
+
+    
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
@@ -250,7 +257,7 @@ class 维度导向库 extends NormalCaseSingleton
 class 指标维度库 extends NormalCaseSingleton
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue()
+    for key, obj of 维度导向库.dbValue("三级指标设置")
       @dbSet(key, obj.二级指标)
     @dbSave()
 
@@ -291,7 +298,7 @@ class 指标维度库 extends NormalCaseSingleton
 class 指标导向库 extends NormalCaseSingleton
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue()
+    for key, obj of 维度导向库.dbValue("三级指标设置")
       @dbSet(key, obj.指标导向)
     @dbSave()
 
@@ -946,7 +953,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # 计算维度分数
     # step two: calculate dimension value
     # 注意: 这一步根据设置好的指标权重进行预处理
-    维度 = 维度导向库.dbValue()
+    维度 = 维度导向库.dbValue("三级指标设置")
     vectors = 指标维度库.vectors()
 
     for dmName, dmObj of @dbValue()
