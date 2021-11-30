@@ -175,44 +175,70 @@ class SystemLog extends NormalCaseSingleton
 class 维度导向库 extends NormalCaseSingleton
   @options: ->
     super()
+    # JSON不作简化
     @_options.unwrap = false
     @_options
 
 
-    
+
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
-    arr = ({
-      数据名: key 
-      三级权重: value.三级权重
-      指标导向: value.指标导向
-      二级指标: value.二级指标
-      一级指标: value.一级指标
-      指标来源: value.指标来源
-      三中: value.三中
-      三综: value.三综
-      二综: value.二综
-      计量单位: value.计量单位
-    } for key, value of json).sort(
-      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
-    )
-    opts.data = [{
-      sheet:'三级指标设置'
-      columns:[
-        {label:'数据名', value:'数据名'}
-        {label:'三级权重',value:'三级权重'}
-        {label:'二级指标', value:'二级指标'}
-        {label:'一级指标', value:'一级指标'}
-        {label:'指标导向', value:'指标导向'}
-        {label:'计量单位', value:'计量单位'}
-        {label:'指标来源', value:'指标来源'}
-        {label:'三中', value:'三中'}
-        {label:'三综', value:'三综'}
-        {label:'二综', value:'二综'}        
-      ]
-      content: arr
-    }]
+    opts.data = [
+      {
+        sheet:'三级指标设置'
+        columns:[
+          {label:'数据名', value:'数据名'}
+          {label:'三级权重',value:'三级权重'}
+          {label:'二级指标', value:'二级指标'}
+          {label:'一级指标', value:'一级指标'}
+          {label:'指标导向', value:'指标导向'}
+          {label:'计量单位', value:'计量单位'}
+          {label:'指标来源', value:'指标来源'}
+          {label:'三中', value:'三中'}
+          {label:'三综', value:'三综'}
+          {label:'二综', value:'二综'}        
+        ]
+        content: ({
+          数据名: key 
+          三级权重: value.三级权重
+          指标导向: value.指标导向
+          二级指标: value.二级指标
+          一级指标: value.一级指标
+          指标来源: value.指标来源
+          三中: value.三中
+          三综: value.三综
+          二综: value.二综
+          计量单位: value.计量单位
+        } for key, value of json.三级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+      },
+      
+      {
+        sheet: '一级指标设置'
+        columns:[
+          {label:'数据名', value:'数据名'}
+          {label:'一级权重',value:'一级权重'}
+        ]
+        content:({
+          数据名: key 
+          一级权重: value.一级权重
+        } for key, value of json.一级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+      },
+
+      {
+        sheet: '二级指标设置'
+        columns:[
+          {label:'数据名', value:'数据名'}
+          {label:'二级权重',value:'二级权重'}
+          {label:'一级指标', value:'一级指标'}
+        ]
+        content:({
+          数据名: key 
+          二级权重: value.二级权重
+          一级指标: value.一级指标
+        } for key, value of json.二级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+      }
+    ]
     opts.settings = {
       extraLength: 5
       writeOptions: {}
