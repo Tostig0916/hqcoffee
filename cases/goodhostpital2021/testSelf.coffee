@@ -180,6 +180,11 @@ class 维度导向库 extends NormalCaseSingleton
     @_options
 
 
+  @groups: ->
+    struct = @dbValue('一级指标设置')
+    (group for group, obj of struct)
+
+
 
   @saveExcel: (funcOpts={}) ->
     opts = @options()
@@ -1208,6 +1213,7 @@ class 二级指标权重 extends 分析报告
 
   @indicatorGroup: ->
     dm = 指标维度库.dbRevertedValue()
+    #struct = 维度导向库.dbValue('一级指标设置')
     struct = @struct()
     dict = {}
     for group, groupObj of struct
@@ -1218,8 +1224,9 @@ class 二级指标权重 extends 分析报告
 
 
 
-  @groups: ->
-    (group for group, obj of @struct())
+  # 已经迁移至 维度导向库
+  #@groups: ->
+  #  (group for group, obj of @struct())
 
 
 
@@ -1409,9 +1416,9 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     sortKey = 'Y2020'
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     
-    groups = 二级指标权重.groups()
+    groups = 维度导向库.groups()
     dict = 二级指标权重.indicatorGroup()
-
+    console.log {groups,dict}
     dbscores = 对标单科指标评分排序.dbValue()
     
     getUnits = (scores)->    
@@ -1457,7 +1464,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare_array: ->
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
-    groups = 二级指标权重.groups()
+    groups = 维度导向库.groups()
     dict = 二级指标权重.indicatorGroup()
     dbscores = 对标单科指标评分排序.dbValue()
     getUnits = (scores)->    
