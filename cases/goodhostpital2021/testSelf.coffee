@@ -143,7 +143,7 @@ class CaseSingleton extends AnyCaseSingleton
 
   @二级指标表: (funcOpts={})->
     {full=false} = funcOpts
-    二三级对应表 = 三级指标对应二级指标.二三级指标对应表()
+    二三级对应表 = 三级指标对应二级指标.二级指标对应三级指标()
     if full
       二三级对应表
     else
@@ -344,7 +344,7 @@ class 三级指标对应二级指标 extends 指标体系
     obj
 
 
-  @二三级指标对应表: ->
+  @二级指标对应三级指标: ->
     @dbRevertedValue()
     
 
