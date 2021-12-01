@@ -143,7 +143,7 @@ class CaseSingleton extends AnyCaseSingleton
 
   @维度列表: (funcOpts={})->
     {full=false} = funcOpts
-    指标维度表 = 指标维度库.dbRevertedValue()
+    指标维度表 = 指标三级对二级.dbRevertedValue()
     if full
       指标维度表
     else
@@ -172,13 +172,18 @@ class 缺漏追踪库 extends NormalCaseSingleton
 class SystemLog extends NormalCaseSingleton
 
 
-class 维度导向库 extends NormalCaseSingleton
+class 指标体系 extends NormalCaseSingleton
+
+class 维度导向库 extends 指标体系
   @options: ->
     super()
     # JSON不作简化
     @_options.unwrap = false
     @_options
 
+
+  @dimensionStruct: ->
+    @dbValue('二级指标设置') # sleepy
 
   @groups: ->
     struct = @dbValue('一级指标设置')
@@ -258,7 +263,7 @@ class 维度导向库 extends NormalCaseSingleton
   # 从之前旧设计的两个结果json合并出一个新的Excel表,以后采用此表为基础,增加少量三级权重
   @combine2Excel: ->
     导向 = 指标导向库.dbValue()
-    维度 = 指标维度库.db()
+    维度 = 指标三级对二级.db()
     
     # 数据名采用顺序排列,与其他采用倒序排序方式不同
     arr = ({数据名, 指标导向, 二级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
@@ -285,7 +290,44 @@ class 维度导向库 extends NormalCaseSingleton
 
 
 
-class 指标维度库 extends NormalCaseSingleton
+class 指标导向库 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    for key, obj of 维度导向库.dbValue("三级指标设置")
+      @dbSet(key, obj.指标导向)
+    @dbSave()
+
+    
+
+  @saveExcel: (funcOpts={}) ->
+    opts = @options()
+    json= @dbValue()
+    arr = ({数据名:key, 导向:value} for key, value of json).sort(
+      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
+    )
+    opts.data = [{
+      sheet:'指标导向'
+      columns:[
+        {label:'数据名',value:'数据名'}
+        {label:'指标导向',value:'导向'}
+      ]
+      content: arr
+    }]
+    opts.settings = {
+      extraLength: 5
+      writeOptions: {}
+    }
+    
+    @write2Excel(opts)
+
+
+
+  @导向指标集: ->
+    @dbRevertedValue()
+
+
+
+class 指标三级对二级 extends 指标体系
   @dataPrepare: ->
     @dbClear()
     for key, obj of 维度导向库.dbValue("三级指标设置")
@@ -326,43 +368,6 @@ class 指标维度库 extends NormalCaseSingleton
 
 
 
-class 指标导向库 extends NormalCaseSingleton
-  @dataPrepare: ->
-    @dbClear()
-    for key, obj of 维度导向库.dbValue("三级指标设置")
-      @dbSet(key, obj.指标导向)
-    @dbSave()
-
-    
-
-  @saveExcel: (funcOpts={}) ->
-    opts = @options()
-    json= @dbValue()
-    arr = ({数据名:key, 导向:value} for key, value of json).sort(
-      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
-    )
-    opts.data = [{
-      sheet:'指标导向'
-      columns:[
-        {label:'数据名',value:'数据名'}
-        {label:'指标导向',value:'导向'}
-      ]
-      content: arr
-    }]
-    opts.settings = {
-      extraLength: 5
-      writeOptions: {}
-    }
-    
-    @write2Excel(opts)
-
-
-
-  @导向指标集: ->
-    @dbRevertedValue()
-
-
-
 class 资料库 extends NormalCaseSingleton 
 
 class 院内资料库 extends 资料库
@@ -397,7 +402,7 @@ class 院内指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
-    指标维度 = 指标维度库.dbValue()
+    指标维度 = 指标三级对二级.dbValue()
     years = @years()
     units = @localUnits()
     informal = @createMissingData()
@@ -881,7 +886,7 @@ class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
     @dbClear()
     year = @years()[0] # 最大的那个
-    指标维度 = 指标维度库.dbValue()
+    指标维度 = 指标三级对二级.dbValue()
 
     for dataName, dimension of 指标维度 when dataName?
       except = /^医院$/  #/(^医院$|^大|合并)/
@@ -966,7 +971,7 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
 class 院内单科多维度指标评分汇集 extends 分析报告
   @dataPrepare: ->
     @dbClear()
-    dimensions = 指标维度库.dbValue()
+    dimensions = 指标三级对二级.dbValue()
     obj = 院内各科指标评分排序.dbValue()
 
     # step one: collect all indicators in a dimension
@@ -985,7 +990,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # step two: calculate dimension value
     # 注意: 这一步根据设置好的指标权重进行预处理
     维度 = 维度导向库.dbValue("三级指标设置")
-    vectors = 指标维度库.vectors()
+    vectors = 指标三级对二级.vectors()
 
     for dmName, dmObj of @dbValue()
       s = vectors[dmName].length
@@ -1212,7 +1217,7 @@ class 二级指标权重 extends 分析报告
     }
 
   @indicatorGroup: ->
-    dm = 指标维度库.dbRevertedValue()
+    dm = 指标三级对二级.dbRevertedValue()
     #struct = 维度导向库.dbValue('一级指标设置')
     struct = @struct()
     dict = {}
@@ -1322,7 +1327,7 @@ class 对标指标资料库 extends 资料库
   @rawDataToIndicators: ->
     @dbClear()
     units = @focusUnits() # 对标资料库.dbDictKeys()
-    指标维度 = 指标维度库.dbValue()
+    指标维度 = 指标三级对二级.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
 
     对标项 = ['均1','均2','某A','某B']
@@ -1596,9 +1601,9 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
-    #console.log {院内资料库,对标资料库,指标维度库,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #指标维度库,指标导向库,
-    指标维度库.dataPrepare()
+    #console.log {院内资料库,对标资料库,指标三级对二级,指标导向库,名字ID库}
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #指标三级对二级,指标导向库,
+    指标三级对二级.dataPrepare()
     指标导向库.dataPrepare()
     return this
 
@@ -1606,8 +1611,8 @@ class 生成器 extends CaseSingleton
 
   # 查看各自 db, 以及log
   @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库,SystemLog}
-    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标维度库,名字ID库}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标三级对二级,名字ID库,SystemLog}
+    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,指标三级对二级,名字ID库}
     return this
 
 
@@ -1645,7 +1650,7 @@ class 生成器 extends CaseSingleton
     对标资料库.logdbClear().save()
     缺漏追踪库.dbClear()
 
-    指标维度 = 指标维度库.dbValue()
+    指标维度 = 指标三级对二级.dbValue()
     
     k1 = 'Y2020'
     k2 = '均2'
@@ -1751,7 +1756,7 @@ class 生成器 extends CaseSingleton
 
   @saveUtilExcel: ->
     维度导向库.saveExcel()
-    #指标维度库.saveExcel()
+    #指标三级对二级.saveExcel()
     #指标导向库.saveExcel()
 
 
@@ -1821,7 +1826,7 @@ db.filter()
 
 ###
 dx = (key for key, value of 指标导向库.dbValue())
-wd = (key for key, value of 指标维度库.dbValue())
+wd = (key for key, value of 指标三级对二级.dbValue())
 console.log {
   dx_wd: dx.length - wd.length
   dx: (each for each in dx when not (each in wd))
