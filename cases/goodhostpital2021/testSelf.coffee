@@ -143,7 +143,7 @@ class CaseSingleton extends AnyCaseSingleton
 
   @二级指标表: (funcOpts={})->
     {full=false} = funcOpts
-    二三级对应表 = 三级指标对应二级指标.二级指标对应三级指标()
+    二三级对应表 = 二级指标对应三级指标.dbValue()
     if full
       二三级对应表
     else
@@ -182,8 +182,12 @@ class 维度导向库 extends 指标体系
     @_options
 
 
-  @dimensionStruct: ->
-    @dbValue('二级指标设置') # sleepy
+  @二级指标对应一级指标: ->
+    obj = {}
+    for key, value of @dbValue('二级指标设置') # sleepy
+      obj[key] =  value.一级指标
+    return obj
+
 
   @groups: ->
     struct = @dbValue('一级指标设置')
@@ -327,6 +331,37 @@ class 指标导向库 extends 指标体系
 
 
 
+
+class 三级指标对应一级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    三级设置 = 维度导向库.dbValue("三级指标设置")
+    二级设置 = 维度导向库.dbValue("二级指标设置")
+    for key, obj of 三级设置
+      console.log {缺少二级设置: obj.二级指标} unless 二级设置[obj.二级指标]?
+      @dbSet(key, 二级设置[obj.二级指标].一级指标)
+    @dbSave()
+
+
+
+class 一级指标对应二级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    二级设置 = 维度导向库.dbValue("二级指标设置")
+    for key, obj of 二级设置
+      @dbSet(key, obj.一级指标)
+    @dbSave()
+
+
+class 一级指标对应三级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(三级指标对应一级指标.dbRevertedValue()).save()
+    @dbSave()
+
+
+
+
 class 三级指标对应二级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
@@ -344,8 +379,6 @@ class 三级指标对应二级指标 extends 指标体系
     obj
 
 
-  @二级指标对应三级指标: ->
-    @dbRevertedValue()
     
 
   @saveExcel: (funcOpts={}) ->
@@ -368,6 +401,15 @@ class 三级指标对应二级指标 extends 指标体系
     }
     
     @write2Excel(opts)
+
+
+
+class 二级指标对应三级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(三级指标对应二级指标.dbRevertedValue()).save()
+    @dbSave()
+
 
 
 
@@ -1135,8 +1177,19 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
 
 
 class 二级指标权重 extends 分析报告
-
   @dataPrepare: ->
+    #return @dataPrepare_()
+
+    @dbClear()
+    一级设置 = 维度导向库.dbValue("一级指标设置")
+    二级设置 = 维度导向库.dbValue("二级指标设置")
+    for 二级名称, 二级指标 of 二级设置
+      @db().get(二级名称).set(一级设置[二级指标.一级指标].一级权重 * 二级指标.二级权重)
+      #console.log {一级设置:一级设置[二级指标.一级指标].一级权重,二级名称,二级权重:二级指标.二级权重}
+    @dbSave()
+
+
+  @dataPrepare_: ->
     @dbClear()
     #@dbSet('data',[])
     for cat, category of @struct()
@@ -1144,7 +1197,7 @@ class 二级指标权重 extends 分析报告
         @db().get(dim).set(category.weight * dimension.weight) 
     @dbSave()
     
-
+  # 暂时保留,以便保留权重设置
   @struct: ->
     {
       医疗质量:{
@@ -1220,22 +1273,9 @@ class 二级指标权重 extends 分析报告
       }
     }
 
-  @indicatorGroup: ->
-    dm = 三级指标对应二级指标.dbRevertedValue()
-    #struct = 维度导向库.dbValue('一级指标设置')
-    struct = @struct()
-    dict = {}
-    for group, groupObj of struct
-      dict[group] = []
-      for dimension, obj of groupObj.indicators
-        dict[group] = dict[group].concat(dm[dimension]) if dm[dimension]?
-    return dict
 
 
 
-  # 已经迁移至 维度导向库
-  #@groups: ->
-  #  (group for group, obj of @struct())
 
 
 
@@ -1302,7 +1342,6 @@ class 院内专科梯队表 extends 表格报告
     arr = (key for key, value of dict when value > 0)
     arr.unshift("科室名称")
     arr.push('综合评分')
-    #console.log {arr,dict}
     arr
 
 
@@ -1426,8 +1465,8 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     
     groups = 维度导向库.groups()
-    dict = 二级指标权重.indicatorGroup()
-    console.log {groups,dict}
+    dict = 一级指标对应三级指标.dbValue()
+    #console.log {groups,dict}
     dbscores = 对标单科指标评分排序.dbValue()
     
     getUnits = (scores)->    
@@ -1474,7 +1513,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
     groups = 维度导向库.groups()
-    dict = 二级指标权重.indicatorGroup()
+    dict = 一级指标对应三级指标.dbValue()
     dbscores = 对标单科指标评分排序.dbValue()
     getUnits = (scores)->    
       for deptIndicator, arr of scores when arr.length is largest
@@ -1607,8 +1646,17 @@ class 生成器 extends CaseSingleton
   @readExcel: ->
     #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
     v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #三级指标对应二级指标,指标导向库,
-    三级指标对应二级指标.dataPrepare()
+
     指标导向库.dataPrepare()
+    二级指标权重.dataPrepare()
+
+    三级指标对应一级指标.dataPrepare()
+    三级指标对应二级指标.dataPrepare()
+
+    一级指标对应二级指标.dataPrepare()
+    一级指标对应三级指标.dataPrepare()
+    二级指标对应三级指标.dataPrepare()
+
     return this
 
 
@@ -1733,7 +1781,6 @@ class 生成器 extends CaseSingleton
     return this
 
   @localTopsis: ->
-    二级指标权重.dataPrepare()
     院内专科梯队Topsis评分.dataPrepare()
     return this
 
@@ -1806,7 +1853,6 @@ class 生成器 extends CaseSingleton
   #.localReport()
   #.compareReport()
 
-#console.log {di: 二级指标权重.indicatorGroup()}
 
 ###
 # 对比雷达图设计
