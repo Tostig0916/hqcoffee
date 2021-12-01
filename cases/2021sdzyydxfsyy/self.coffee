@@ -1465,7 +1465,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 
 
 # ---------------------------------  report api  -----------------------------------
-class 院内分析报告 extends 分析报告
+class 院科内部分析报告 extends 分析报告
   @sections: ->
     [
 
@@ -1491,7 +1491,7 @@ class 院内分析报告 extends 分析报告
 
 
 
-class 对标分析报告 extends 分析报告
+class 院科外部对标报告 extends 分析报告
   @sections: ->
     [
       #对标单科指标简单排序
@@ -1566,8 +1566,8 @@ class 生成器 extends CaseSingleton
 
   # 查看各自 db, 以及log
   @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库,SystemLog}
-    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院内分析报告,对标资料库,对标分析报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库}
+    console.log {db: v.dbValue()} for k, v of {院内资料库,院科内部分析报告,对标资料库,院科外部对标报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库,SystemLog}
+    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院科内部分析报告,对标资料库,院科外部对标报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库}
     return this
 
 
@@ -1697,12 +1697,12 @@ class 生成器 extends CaseSingleton
 
 
   @localReport: ->
-    院内分析报告.newReport()
+    院科内部分析报告.newReport()
     return this
 
 
   @compareReport: ->
-    对标分析报告.newReport()
+    院科外部对标报告.newReport()
     return this
 
 
@@ -1774,7 +1774,7 @@ db.filter()
 #
 #院内单科多维度评分集中分析.dataPrepare()
 #console.log @focusUnits()[1..9]
-#院内分析报告.newReport()
+#院科内部分析报告.newReport()
 
 #console.log 院内各科指标简单排序.dataPrepare()
 #console.log 指标导向库.导向指标集()
@@ -1793,12 +1793,12 @@ console.log {
 # 先rename keys
 ###
 # 修改平均住院日 2018年数据
-for uname, idx in 院内分析报告.dbDictKeys()
+for uname, idx in 院科内部分析报告.dbDictKeys()
   key = "#{uname}.平均住院日.y2018"
-  院内分析报告.dbSet(key, 院内分析报告.dbValue(key)/(idx+1))
-  console.log {uname, 平均住院日:院内分析报告.dbValue(key)}
+  院科内部分析报告.dbSet(key, 院科内部分析报告.dbValue(key)/(idx+1))
+  console.log {uname, 平均住院日:院科内部分析报告.dbValue(key)}
 
-院内分析报告.dbSave()
+院科内部分析报告.dbSave()
 ###
 
 #维度导向库.combine2Excel()
