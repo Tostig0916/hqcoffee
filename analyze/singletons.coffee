@@ -185,7 +185,7 @@ class 别名库 extends AnyGlobalSingleton
 # 此表为 singleton,只有一个instance,故可使用类侧定义
 ###
 # 指标维度表
-class 指标三级对二级 extends AnyGlobalSingleton
+class 三级指标对应二级指标 extends AnyGlobalSingleton
     
 
 class 指标导向库 extends AnyGlobalSingleton

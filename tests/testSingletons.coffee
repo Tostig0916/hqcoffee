@@ -2,7 +2,7 @@ path = require 'path'
 {
   SystemLog
   别名库
-  指标三级对二级
+  三级指标对应二级指标
   名字ID库
 } = require path.join __dirname, '..', 'analyze', 'singletons'
 
@@ -20,7 +20,7 @@ testLog = ->
 
 testLog()
 
-指标三级对二级.fetchSingleJSON()
-console.log 指标三级对二级.reversedJSON()
+三级指标对应二级指标.fetchSingleJSON()
+console.log 三级指标对应二级指标.reversedJSON()
 #console.log 别名库.fetchSingleJSON()
 
