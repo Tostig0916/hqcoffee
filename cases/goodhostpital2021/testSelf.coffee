@@ -185,7 +185,7 @@ class 评价指标体系 extends 指标体系
   @二级指标对应一级指标: ->
     obj = {}
     for key, value of @dbValue('二级指标设置') # sleepy
-      obj[key] =  value.一级指标
+      obj[key] =  value.上级指标
     return obj
 
 
@@ -204,11 +204,11 @@ class 评价指标体系 extends 指标体系
         sheet: '一级指标设置'
         columns:[
           {label:'数据名', value:'数据名'}
-          {label:'一级权重',value:'一级权重'}
+          {label:'权重',value:'权重'}
         ]
         content:({
           数据名: key 
-          一级权重: value.一级权重
+          权重: value.权重
         } for key, value of json.一级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
       },
 
@@ -216,22 +216,21 @@ class 评价指标体系 extends 指标体系
         sheet: '二级指标设置'
         columns:[
           {label:'数据名', value:'数据名'}
-          {label:'二级权重',value:'二级权重'}
-          {label:'一级指标', value:'一级指标'}
+          {label:'权重',value:'权重'}
+          {label:'上级指标', value:'上级指标'}
         ]
         content:({
           数据名: key 
-          二级权重: value.二级权重
-          一级指标: value.一级指标
+          权重: value.权重
+          上级指标: value.上级指标
         } for key, value of json.二级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
       },
       {
         sheet:'三级指标设置'
         columns:[
           {label:'数据名', value:'数据名'}
-          {label:'三级权重',value:'三级权重'}
-          {label:'二级指标', value:'二级指标'}
-          #{label:'一级指标', value:'一级指标'}
+          {label:'权重',value:'权重'}
+          {label:'上级指标', value:'上级指标'}
           {label:'指标导向', value:'指标导向'}
           {label:'计量单位', value:'计量单位'}
           {label:'指标来源', value:'指标来源'}
@@ -241,10 +240,9 @@ class 评价指标体系 extends 指标体系
         ]
         content: ({
           数据名: key 
-          三级权重: value.三级权重
+          权重: value.权重
           指标导向: value.指标导向
-          二级指标: value.二级指标
-          #一级指标: value.一级指标
+          上级指标: value.上级指标
           指标来源: value.指标来源
           三中: value.三中
           三综: value.三综
@@ -270,14 +268,14 @@ class 评价指标体系 extends 指标体系
     维度 = 三级指标对应二级指标.db()
     
     # 数据名采用顺序排列,与其他采用倒序排序方式不同
-    arr = ({数据名, 指标导向, 二级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
+    arr = ({数据名, 指标导向, 上级指标: 维度.get(数据名).value()} for 数据名, 指标导向 of 导向).sort (a, b)->
       if b.数据名 > a.数据名 then -1 else 1
 
     opts = @options()
     opts.data = [{
       sheet:'维度导向'
       columns:[
-        {label:'二级指标',value:'二级指标'}
+        {label:'上级指标',value:'上级指标'}
         {label:'指标导向',value:'指标导向'}
         {label:'数据名',value:'数据名'}
       ]
@@ -338,8 +336,8 @@ class 三级指标对应一级指标 extends 指标体系
     三级设置 = 评价指标体系.dbValue("三级指标设置")
     二级设置 = 评价指标体系.dbValue("二级指标设置")
     for key, obj of 三级设置
-      console.log {缺少二级设置: obj.二级指标} unless 二级设置[obj.二级指标]?
-      @dbSet(key, 二级设置[obj.二级指标].一级指标)
+      console.log {缺少二级设置: obj.上级指标} unless 二级设置[obj.上级指标]?
+      @dbSet(key, 二级设置[obj.上级指标].上级指标)
     @dbSave()
 
 
@@ -350,7 +348,7 @@ class 二级指标对应一级指标 extends 指标体系
     @dbClear()
     二级设置 = 评价指标体系.dbValue("二级指标设置")
     for key, obj of 二级设置
-      @dbSet(key, obj.一级指标)
+      @dbSet(key, obj.上级指标)
     @dbSave()
 
 
@@ -377,7 +375,7 @@ class 三级指标对应二级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
     for key, obj of 评价指标体系.dbValue("三级指标设置")
-      @dbSet(key, obj.二级指标)
+      @dbSet(key, obj.上级指标)
     @dbSave()
 
 
@@ -402,7 +400,7 @@ class 三级指标对应二级指标 extends 指标体系
       sheet:'三级指标设置'
       columns:[
         {label:'数据名',value:'数据名'}
-        {label:'二级指标',value:'维度'}
+        {label:'上级指标',value:'维度'}
       ]
       content: arr
     }]
@@ -1046,7 +1044,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # 计算维度分数
     # step two: calculate dimension value
     # 注意: 这一步根据设置好的指标权重进行预处理
-    维度 = 评价指标体系.dbValue("三级指标设置")
+    指标体系 = 评价指标体系.dbValue("三级指标设置")
     vectors = 三级指标对应二级指标.vectors()
 
     for dmName, dmObj of @dbValue()
@@ -1055,7 +1053,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
         {indicators} = unitObj
         v = 0
         for each in indicators
-          weight = 维度[each]?.三级权重 ? 1 / s
+          weight = 指标体系[each]?.权重 ? 1 / s
           v += each.value * weight
         @db().get(dmName).get(unitName).set('score', v)
 
@@ -1195,8 +1193,7 @@ class 二级指标权重 extends 分析报告
     一级设置 = 评价指标体系.dbValue("一级指标设置")
     二级设置 = 评价指标体系.dbValue("二级指标设置")
     for 二级名称, 二级指标 of 二级设置
-      @db().get(二级名称).set(一级设置[二级指标.一级指标].一级权重 * 二级指标.二级权重)
-      #console.log {一级设置:一级设置[二级指标.一级指标].一级权重,二级名称,二级权重:二级指标.二级权重}
+      @db().get(二级名称).set(一级设置[二级指标.上级指标].权重 * 二级指标.权重)
     @dbSave()
 
 
