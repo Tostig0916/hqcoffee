@@ -22,6 +22,19 @@
     数据置于同一电子表格的不同sheet内,其结构完全一样,分析过程也没有不同,只需挑选其中的对象即可,不需要另外设计代码
 ###
 
+# settings
+customerName = 'Good Hostpital'
+customGrade = '三级综合' # '三级中医','二级综合'...
+lastYear = 2020
+
+
+# auto settings
+year_1 = "Y#{lastYear}"
+year_2 = "Y#{lastYear - 1}"
+year_3 = "Y#{lastYear - 2}"
+
+
+# require libs
 util = require 'util'
 path = require 'path'
 
@@ -30,11 +43,6 @@ path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
-customerName = 'Good Hostpital'
-customGrade = '三级综合' # '三级中医','二级综合'...
-year_1 = 'Y2020'
-year_2 = 'Y2019'
-year_3 = 'Y2018'
 
 # informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
@@ -376,9 +384,12 @@ class 指标填报表 extends 指标体系
           {label:'数据名',value:'数据名'}
           {label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
-
+          {label:year_1,value:year_1}
+          {label:year_2,value:year_2}
+          {label:year_3,value:year_3}
         ]
-        content: (value for key, value of json).sort(
+        content: (value for key, value of json \
+        when (value.适用范围 in [1,3]) and /自|有|监/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -395,8 +406,11 @@ class 指标填报表 extends 指标体系
           {label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
           {label:year_1,value:year_1}
+          {label:year_2,value:year_2}
+          {label:year_3,value:year_3}
         ]
-        content: (value for key, value of json).sort(
+        content: (value for key, value of json \
+        when (value.适用范围 in [2,3]) and /自|有|监/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
