@@ -139,17 +139,17 @@ class IndicatorDef
 					{label:'二级指标', value: '二级指标'}
 					{label:'一级指标', value: '一级指标'}
 					{label:'指标来源', value: '指标来源'}
-					{label:'三中', value: ({三级中医监测,三级中医}) -> if 三级中医监测 then '✓' else if 三级中医 then '✓✕' else '✕'}
-					{label:'三综', value: ({三级综合监测,三级综合}) -> if 三级综合监测 then '✓' else if 三级综合 then '✓✕' else '✕'}
-					{label:'二综', value: ({二级综合监测,二级综合}) -> if 二级综合监测 then '✓' else if 二级综合 then '✓✕' else '✕'}
+					{label:'三中', value: ({三级中医监测,三级中医}) -> if 三级中医监测 then '++' else if 三级中医 then '+' else '-'}
+					{label:'三综', value: ({三级综合监测,三级综合}) -> if 三级综合监测 then '++' else if 三级综合 then '+' else '-'}
+					{label:'二综', value: ({二级综合监测,二级综合}) -> if 二级综合监测 then '++' else if 二级综合 then '+' else '-'}
 					{label:'计量单位', value: '计量单位'}
 					#{label:'指标名称', value:'指标名称'}
 					#{label:'指标属性', value: '指标属性'}
 					#{label:'指标导向', value: '指标导向'}
-					#{label:'矢量', value: ({矢量}) -> if 矢量 then '✓' else '✕'}
-					#{label:'三综', value: ({三级综合}) -> if 三级综合 then '✓' else '✕'}
-					#{label:'三中', value: ({三级中医}) -> if 三级中医 then '✓' else '✕'}
-					#{label:'二综', value: ({二级综合}) -> if 二级综合 then '✓' else '✕'}
+					#{label:'矢量', value: ({矢量}) -> if 矢量 then '++' else '-'}
+					#{label:'三综', value: ({三级综合}) -> if 三级综合 then '++' else '-'}
+					#{label:'三中', value: ({三级中医}) -> if 三级中医 then '++' else '-'}
+					#{label:'二综', value: ({二级综合}) -> if 二级综合 then '++' else '-'}
 				]
 				content: arr 
 			}
