@@ -32,6 +32,9 @@ path = require 'path'
 
 customerName = 'Good Hostpital'
 customGrade = '三级综合' # '三级中医','二级综合'...
+year_1 = 'Y2020'
+year_2 = 'Y2019'
+year_3 = 'Y2018'
 
 # informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
@@ -391,7 +394,7 @@ class 指标填报表 extends 指标体系
           {label:'数据名',value:'数据名'}
           {label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
-          {label:'Y2020',value:'Y2020'}
+          {label:year_1,value:year_1}
         ]
         content: (value for key, value of json).sort(
           (a,b)-> switch 
@@ -915,7 +918,7 @@ class 单科对比雷达图报告 extends 雷达图报告
         slide = pres.addSlide({sectionTitle})
         slide.slideNumber = { x: "95%", y: "95%", fontFace: "Courier", fontSize: 10, color: "3333ff" }
         chartData = []
-        for line in ['Y2020','均2'] #['Y2020','均2','均1']
+        for line in [year_1,'均2'] #[year_1,'均2','均1']
           chartData.push {
             name: line
             labels: dimensionArray.map (each, idx) -> each.key
@@ -1470,7 +1473,7 @@ class 对标单科指标评分排序 extends 评分排序报告
 class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare: ->
     @dbClear()
-    sortKey = 'Y2020'
+    sortKey = year_1
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     
     groups = 评价指标体系.groups()
@@ -1732,7 +1735,7 @@ class 生成器 extends CaseSingleton
 
     指标维度 = 三级指标对应二级指标.dbValue()
     
-    k1 = 'Y2020'
+    k1 = year_1
     k2 = '均2'
     for dataName, dimension of 指标维度 when dataName?
       for entityName in 院内资料库.dbDictKeys()
