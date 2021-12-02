@@ -172,9 +172,9 @@ class 评价指标体系 extends NormalCaseSingleton
       二级指标: value.二级指标
       一级指标: value.一级指标
       指标来源: value.指标来源
-      三中: value.三中
-      三综: value.三综
-      二综: value.二综
+      三级中医: value.三级中医
+      三级综合: value.三级综合
+      二级综合: value.二级综合
       计量单位: value.计量单位
     } for key, value of json).sort(
       (a,b)-> if b.数据名 > a.数据名 then -1 else 1
@@ -188,9 +188,9 @@ class 评价指标体系 extends NormalCaseSingleton
         {label:'一级指标', value:'一级指标'}
         {label:'指标导向', value:'指标导向'}
         {label:'指标来源', value:'指标来源'}
-        {label:'三中', value:'三中'}
-        {label:'三综', value:'三综'}
-        {label:'二综', value:'二综'}        
+        {label:'三级中医', value:'三级中医'}
+        {label:'三级综合', value:'三级综合'}
+        {label:'二级综合', value:'二级综合'}        
       ]
       content: arr
     }]

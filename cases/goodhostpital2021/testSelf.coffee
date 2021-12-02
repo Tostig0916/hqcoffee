@@ -30,6 +30,8 @@ path = require 'path'
 {MakePPTReport} = require path.join __dirname, '..', '..', 'usepptxgen','pptxgenUtils'  
 {StormDBSingleton,别名库,名字ID库} = require path.join __dirname, '..', '..', 'analyze', 'singletons'
 
+customerName = 'Good Hostpital'
+customGrade = '三级综合' # '三级中医','二级综合'...
 
 # informal 设置为true则容忍指标直接填报不完整,而通过原始数据推算
 
@@ -87,13 +89,6 @@ class AnyCaseSingleton extends StormDBSingleton
     # keep 则保存json文件
     项目别名库.ajustedName({name:mainKey,keep:true})
   ###
-
-  @customerName: ->
-    "Good Hospital"
-
-  @customGrade: ->
-    "三级综合" # could be "二级综合"/"三级中医" etc
-
 
   @logdb: ->
     SystemLog.db().get(@name)
@@ -234,9 +229,9 @@ class 评价指标体系 extends 指标体系
           {label:'指标导向', value:'指标导向'}
           {label:'计量单位', value:'计量单位'}
           {label:'指标来源', value:'指标来源'}
-          {label:'三中', value:'三中'}
-          {label:'三综', value:'三综'}
-          {label:'二综', value:'二综'}        
+          {label:'三级中医', value:'三级中医'}
+          {label:'三级综合', value:'三级综合'}
+          {label:'二级综合', value:'二级综合'}        
         ]
         content: ({
           数据名: key 
@@ -244,9 +239,9 @@ class 评价指标体系 extends 指标体系
           指标导向: value.指标导向
           上级指标: value.上级指标
           指标来源: value.指标来源
-          三中: value.三中
-          三综: value.三综
-          二综: value.二综
+          三级中医: value.三级中医
+          三级综合: value.三级综合
+          二级综合: value.二级综合
           计量单位: value.计量单位
         } for key, value of json.三级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
       }
@@ -300,28 +295,6 @@ class 指标导向库 extends 指标体系
     @dbSave()
 
     
-
-  @saveExcel: (funcOpts={}) ->
-    opts = @options()
-    json= @dbValue()
-    arr = ({数据名:key, 导向:value} for key, value of json).sort(
-      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
-    )
-    opts.data = [{
-      sheet:'指标导向'
-      columns:[
-        {label:'数据名',value:'数据名'}
-        {label:'指标导向',value:'导向'}
-      ]
-      content: arr
-    }]
-    opts.settings = {
-      extraLength: 5
-      writeOptions: {}
-    }
-    
-    @write2Excel(opts)
-
 
 
   @导向指标集: ->
@@ -389,21 +362,49 @@ class 三级指标对应二级指标 extends 指标体系
 
 
     
-
+class 指标填报表 extends 指标体系
   @saveExcel: (funcOpts={}) ->
     opts = @options()
-    json= @dbValue()
-    arr = ({数据名:key, 维度:value} for key, value of json).sort(
-      (a,b)-> if b.数据名 > a.数据名 then -1 else 1
-    )
-    opts.data = [{
-      sheet:'三级指标设置'
-      columns:[
-        {label:'数据名',value:'数据名'}
-        {label:'上级指标',value:'维度'}
-      ]
-      content: arr
-    }]
+    json= 评价指标体系.dbValue('三级指标设置')
+    opts.data = [
+      {
+        sheet:'医院'
+        columns:[
+          {label:'数据名',value:'数据名'}
+          {label:'上级指标',value:'上级指标'}
+          {label:'计量单位',value:'计量单位'}
+
+        ]
+        content: (value for key, value of json).sort(
+          (a,b)-> switch 
+            when b.上级指标 > a.上级指标 then -1
+            when b.上级指标 is a.上级指标 then switch
+              when b.数据名 > a.数据名 then -1
+              else 1        
+            #when b.数据名 > a.数据名 then -1
+            else 1
+        )
+      },
+      {
+        sheet:'科室'
+        columns:[
+          {label:'数据名',value:'数据名'}
+          {label:'上级指标',value:'上级指标'}
+          {label:'计量单位',value:'计量单位'}
+          {label:'Y2020',value:'Y2020'}
+        ]
+        content: (value for key, value of json).sort(
+          (a,b)-> switch 
+            when b.上级指标 > a.上级指标 then -1
+            when b.上级指标 is a.上级指标 then switch
+              when b.数据名 > a.数据名 then -1
+              else 1        
+            #when b.数据名 > a.数据名 then -1
+            else 1
+        )
+      }
+
+    ]
     opts.settings = {
       extraLength: 5
       writeOptions: {}
@@ -443,7 +444,7 @@ class 院内资料库 extends 资料库
   # 仅用于建水县的一份国考数据资料,但是演示了一种定制程序的方法
   @normalKeyName: (funcOpts) =>
     {mainKey} = funcOpts
-    if mainKey? and /测试/i.test(@customerName())
+    if mainKey? and /测试/i.test(customerName)
       newName = mainKey.split('.')[-1..][0]
       funcOpts.mainKey = newName  
     super(funcOpts)
@@ -485,7 +486,7 @@ class 分析报告 extends NormalCaseSingleton
       title = "数智分析报告"
       slide = pres.addSlide("TITLE_SLIDE")
       slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
-      slide.addText(@customerName(), {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
+      slide.addText(customerName, {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
       # slides in sections
       for section in @sections()
         # slide section could be added from key
@@ -1655,8 +1656,15 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
+    @readIndicatorExcel()
+    @readDataExcel()
+    return this
+
+
+
+  @readIndicatorExcel: ->
     #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,评价指标体系,名字ID库} #三级指标对应二级指标,指标导向库,
+    v.fetchSingleJSON() for k, v of {评价指标体系,名字ID库} #三级指标对应二级指标,指标导向库,
 
     指标导向库.dataPrepare()
     二级指标权重.dataPrepare()
@@ -1668,6 +1676,14 @@ class 生成器 extends CaseSingleton
     一级指标对应二级指标.dataPrepare()
     一级指标对应三级指标.dataPrepare()
     二级指标对应三级指标.dataPrepare()
+
+    指标填报表.saveExcel()
+    return this
+
+
+
+  @readDataExcel: ->
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库} #三级指标对应二级指标,指标导向库,
 
     return this
 
@@ -1819,8 +1835,6 @@ class 生成器 extends CaseSingleton
 
   @saveUtilExcel: ->
     评价指标体系.saveExcel()
-    #三级指标对应二级指标.saveExcel()
-    #指标导向库.saveExcel()
     return this
 
 
