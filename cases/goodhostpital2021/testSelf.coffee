@@ -199,33 +199,6 @@ class 维度导向库 extends 指标体系
     opts = @options()
     json= @dbValue()
     opts.data = [
-      {
-        sheet:'三级指标设置'
-        columns:[
-          {label:'数据名', value:'数据名'}
-          {label:'三级权重',value:'三级权重'}
-          {label:'二级指标', value:'二级指标'}
-          {label:'一级指标', value:'一级指标'}
-          {label:'指标导向', value:'指标导向'}
-          {label:'计量单位', value:'计量单位'}
-          {label:'指标来源', value:'指标来源'}
-          {label:'三中', value:'三中'}
-          {label:'三综', value:'三综'}
-          {label:'二综', value:'二综'}        
-        ]
-        content: ({
-          数据名: key 
-          三级权重: value.三级权重
-          指标导向: value.指标导向
-          二级指标: value.二级指标
-          一级指标: value.一级指标
-          指标来源: value.指标来源
-          三中: value.三中
-          三综: value.三综
-          二综: value.二综
-          计量单位: value.计量单位
-        } for key, value of json.三级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
-      },
       
       {
         sheet: '一级指标设置'
@@ -251,6 +224,33 @@ class 维度导向库 extends 指标体系
           二级权重: value.二级权重
           一级指标: value.一级指标
         } for key, value of json.二级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+      },
+      {
+        sheet:'三级指标设置'
+        columns:[
+          {label:'数据名', value:'数据名'}
+          {label:'三级权重',value:'三级权重'}
+          {label:'二级指标', value:'二级指标'}
+          #{label:'一级指标', value:'一级指标'}
+          {label:'指标导向', value:'指标导向'}
+          {label:'计量单位', value:'计量单位'}
+          {label:'指标来源', value:'指标来源'}
+          {label:'三中', value:'三中'}
+          {label:'三综', value:'三综'}
+          {label:'二综', value:'二综'}        
+        ]
+        content: ({
+          数据名: key 
+          三级权重: value.三级权重
+          指标导向: value.指标导向
+          二级指标: value.二级指标
+          #一级指标: value.一级指标
+          指标来源: value.指标来源
+          三中: value.三中
+          三综: value.三综
+          二综: value.二综
+          计量单位: value.计量单位
+        } for key, value of json.三级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
       }
     ]
     opts.settings = {
@@ -344,7 +344,8 @@ class 三级指标对应一级指标 extends 指标体系
 
 
 
-class 一级指标对应二级指标 extends 指标体系
+
+class 二级指标对应一级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
     二级设置 = 维度导向库.dbValue("二级指标设置")
@@ -353,11 +354,21 @@ class 一级指标对应二级指标 extends 指标体系
     @dbSave()
 
 
+
+
+
+class 一级指标对应二级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(二级指标对应一级指标.dbRevertedValue()).save()
+
+
+
+
 class 一级指标对应三级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
     @dbDefault(三级指标对应一级指标.dbRevertedValue()).save()
-    @dbSave()
 
 
 
@@ -1655,6 +1666,7 @@ class 生成器 extends CaseSingleton
 
     三级指标对应一级指标.dataPrepare()
     三级指标对应二级指标.dataPrepare()
+    二级指标对应一级指标.dataPrepare()
 
     一级指标对应二级指标.dataPrepare()
     一级指标对应三级指标.dataPrepare()
@@ -1812,6 +1824,7 @@ class 生成器 extends CaseSingleton
     维度导向库.saveExcel()
     #三级指标对应二级指标.saveExcel()
     #指标导向库.saveExcel()
+    return this
 
 
 
