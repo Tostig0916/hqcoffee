@@ -174,7 +174,7 @@ class SystemLog extends NormalCaseSingleton
 
 class 指标体系 extends NormalCaseSingleton
 
-class 维度导向库 extends 指标体系
+class 评价指标体系 extends 指标体系
   @options: ->
     super()
     # JSON不作简化
@@ -297,7 +297,7 @@ class 维度导向库 extends 指标体系
 class 指标导向库 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue("三级指标设置")
+    for key, obj of 评价指标体系.dbValue("三级指标设置")
       @dbSet(key, obj.指标导向)
     @dbSave()
 
@@ -335,8 +335,8 @@ class 指标导向库 extends 指标体系
 class 三级指标对应一级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    三级设置 = 维度导向库.dbValue("三级指标设置")
-    二级设置 = 维度导向库.dbValue("二级指标设置")
+    三级设置 = 评价指标体系.dbValue("三级指标设置")
+    二级设置 = 评价指标体系.dbValue("二级指标设置")
     for key, obj of 三级设置
       console.log {缺少二级设置: obj.二级指标} unless 二级设置[obj.二级指标]?
       @dbSet(key, 二级设置[obj.二级指标].一级指标)
@@ -348,7 +348,7 @@ class 三级指标对应一级指标 extends 指标体系
 class 二级指标对应一级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    二级设置 = 维度导向库.dbValue("二级指标设置")
+    二级设置 = 评价指标体系.dbValue("二级指标设置")
     for key, obj of 二级设置
       @dbSet(key, obj.一级指标)
     @dbSave()
@@ -376,7 +376,7 @@ class 一级指标对应三级指标 extends 指标体系
 class 三级指标对应二级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue("三级指标设置")
+    for key, obj of 评价指标体系.dbValue("三级指标设置")
       @dbSet(key, obj.二级指标)
     @dbSave()
 
@@ -1046,7 +1046,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # 计算维度分数
     # step two: calculate dimension value
     # 注意: 这一步根据设置好的指标权重进行预处理
-    维度 = 维度导向库.dbValue("三级指标设置")
+    维度 = 评价指标体系.dbValue("三级指标设置")
     vectors = 三级指标对应二级指标.vectors()
 
     for dmName, dmObj of @dbValue()
@@ -1192,8 +1192,8 @@ class 二级指标权重 extends 分析报告
     #return @dataPrepare_()
 
     @dbClear()
-    一级设置 = 维度导向库.dbValue("一级指标设置")
-    二级设置 = 维度导向库.dbValue("二级指标设置")
+    一级设置 = 评价指标体系.dbValue("一级指标设置")
+    二级设置 = 评价指标体系.dbValue("二级指标设置")
     for 二级名称, 二级指标 of 二级设置
       @db().get(二级名称).set(一级设置[二级指标.一级指标].一级权重 * 二级指标.二级权重)
       #console.log {一级设置:一级设置[二级指标.一级指标].一级权重,二级名称,二级权重:二级指标.二级权重}
@@ -1475,7 +1475,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
     sortKey = 'Y2020'
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     
-    groups = 维度导向库.groups()
+    groups = 评价指标体系.groups()
     dict = 一级指标对应三级指标.dbValue()
     #console.log {groups,dict}
     dbscores = 对标单科指标评分排序.dbValue()
@@ -1523,7 +1523,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare_array: ->
     largest = 7 # 雷达图可呈现的最多线条数,最多7条,即 自身三年外加两均两家,空缺为0分
     @dbClear()
-    groups = 维度导向库.groups()
+    groups = 评价指标体系.groups()
     dict = 一级指标对应三级指标.dbValue()
     dbscores = 对标单科指标评分排序.dbValue()
     getUnits = (scores)->    
@@ -1659,7 +1659,7 @@ class 生成器 extends CaseSingleton
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
     #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #三级指标对应二级指标,指标导向库,
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,评价指标体系,名字ID库} #三级指标对应二级指标,指标导向库,
 
     指标导向库.dataPrepare()
     二级指标权重.dataPrepare()
@@ -1821,7 +1821,7 @@ class 生成器 extends CaseSingleton
 
 
   @saveUtilExcel: ->
-    维度导向库.saveExcel()
+    评价指标体系.saveExcel()
     #三级指标对应二级指标.saveExcel()
     #指标导向库.saveExcel()
     return this
@@ -1912,4 +1912,4 @@ for uname, idx in 院科内部分析报告.dbDictKeys()
 院科内部分析报告.dbSave()
 ###
 
-#维度导向库.combine2Excel()
+#评价指标体系.combine2Excel()

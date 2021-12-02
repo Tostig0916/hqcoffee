@@ -162,7 +162,7 @@ class 缺漏追踪库 extends NormalCaseSingleton
 class SystemLog extends NormalCaseSingleton
 
 
-class 维度导向库 extends NormalCaseSingleton
+class 评价指标体系 extends NormalCaseSingleton
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= @dbValue()
@@ -238,7 +238,7 @@ class 维度导向库 extends NormalCaseSingleton
 class 三级指标对应二级指标 extends NormalCaseSingleton
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue()
+    for key, obj of 评价指标体系.dbValue()
       @dbSet(key, obj.二级指标)
     @dbSave()
 
@@ -279,7 +279,7 @@ class 三级指标对应二级指标 extends NormalCaseSingleton
 class 指标导向库 extends NormalCaseSingleton
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 维度导向库.dbValue()
+    for key, obj of 评价指标体系.dbValue()
       @dbSet(key, obj.指标导向)
     @dbSave()
 
@@ -930,7 +930,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
     # 计算维度分数
     # step two: calculate dimension value
     # 注意: 这一步根据设置好的指标权重进行预处理
-    维度 = 维度导向库.dbValue()
+    维度 = 评价指标体系.dbValue()
     vectors = 三级指标对应二级指标.vectors()
 
     for dmName, dmObj of @dbValue()
@@ -1531,7 +1531,7 @@ class 生成器 extends CaseSingleton
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readExcel: ->
     #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,维度导向库,名字ID库} #三级指标对应二级指标,指标导向库,
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库,评价指标体系,名字ID库} #三级指标对应二级指标,指标导向库,
     三级指标对应二级指标.dataPrepare()
     指标导向库.dataPrepare()
     return this
@@ -1682,7 +1682,7 @@ class 生成器 extends CaseSingleton
 
 
   @saveUtilExcel: ->
-    维度导向库.saveExcel()
+    评价指标体系.saveExcel()
     #三级指标对应二级指标.saveExcel()
     #指标导向库.saveExcel()
 
@@ -1773,4 +1773,4 @@ for uname, idx in 院科内部分析报告.dbDictKeys()
 院科内部分析报告.dbSave()
 ###
 
-#维度导向库.combine2Excel()
+#评价指标体系.combine2Excel()
