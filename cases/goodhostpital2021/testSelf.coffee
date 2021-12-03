@@ -377,12 +377,13 @@ class 指标填报表 extends 指标体系
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= 评价指标体系.dbValue('三级指标设置')
+    科室设置 = 评价指标体系.dbValue('科室设置')
     opts.data = [
       {
         sheet:'医院'
         columns:[
           {label:'数据名',value:'数据名'}
-          {label:'上级指标',value:'上级指标'}
+          #{label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
           {label:year_1,value:year_1}
           {label:year_2,value:year_2}
@@ -398,12 +399,15 @@ class 指标填报表 extends 指标体系
             #when b.数据名 > a.数据名 then -1
             else 1
         )
-      },
-      {
-        sheet:'科室'
+      }
+    ]
+
+    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,2,3]
+      opts.data.push {
+        sheet: 科室名
         columns:[
           {label:'数据名',value:'数据名'}
-          {label:'上级指标',value:'上级指标'}
+          #{label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
           {label:year_1,value:year_1}
           {label:year_2,value:year_2}
@@ -421,13 +425,14 @@ class 指标填报表 extends 指标体系
         )
       }
 
-    ]
     opts.settings = {
       extraLength: 5
       writeOptions: {}
     }
     
     @write2Excel(opts)
+
+
 
 
 
