@@ -1877,21 +1877,24 @@ class 生成器 extends CaseSingleton
 
 
 
+# --------------------------------------- 以下为工作代码 ---------------------------------------- #
+
+生成器.setUpSystem()
+生成器.buildDB()
+生成器.generateReports()
+
+
+
+
+
 # --------------------------------------- 以下为测试代码 ---------------------------------------- #
 
 # 将测试代码写成 function 加入到class method
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
-
-
-生成器
-  .setUpSystem()
-  #.buildDB()
-  #.generateReports()
-
 #console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
 #生成器.run()
-生成器
+#生成器
   #.saveUtilExcel()
   #.showDBs()
   #.readExcel()
