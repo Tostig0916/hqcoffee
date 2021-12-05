@@ -1652,6 +1652,29 @@ class 生成器 extends CaseSingleton
     this
       .settingsFromExcel()
       #.saveSettingsExcel()
+    return this
+
+
+  @buildDB: ->
+    this
+      .readDataExcel()
+
+      .checkForAllIndicators()
+      #.showMissingIndicatorsOrDataProblems()
+
+      #.showUnitNames()
+      #._tryGetSomeData()
+      #.showDimensions()
+      
+      .localReportDataPreParing()
+      .compareReportDataPreparing()
+    return this
+  
+  
+  @generateReports: ->
+    院科内部分析报告.newReport()
+    院科外部对标报告.newReport()
+    return this
 
 
 
@@ -1672,29 +1695,9 @@ class 生成器 extends CaseSingleton
     项目指标填报表.saveExcel()
     return this
 
-
-  @buildDB: ->
-    this
-      .readDataExcel()
-
-      .checkForAllIndicators()
-      #.showMissingIndicatorsOrDataProblems()
-
-      #.showUnitNames()
-      #._tryGetSomeData()
-      #.showDimensions()
-      
-      .localReportDataPreParing()
-      .compareReportDataPreparing()
-  
-  
-  
-  @generateReports: ->
-    this
-      .localReport()
-      .compareReport()
-
-
+  @saveSettingsExcel: ->
+    项目设置.saveExcel()
+    return this
 
 
 
@@ -1765,7 +1768,6 @@ class 生成器 extends CaseSingleton
 
 
 
-  
   @localReportDataPreParing: ->
     院内指标资料库.rawDataToIndicators()
 
@@ -1800,23 +1802,6 @@ class 生成器 extends CaseSingleton
     对标单科多指标评分雷达图.dataPrepare()
     return this
 
-
-  @localReport: ->
-    院科内部分析报告.newReport()
-    return this
-
-
-  @compareReport: ->
-    院科外部对标报告.newReport()
-    return this
-
-
-  # 院内专科指标按照评分简单排序
-
-
-  @saveSettingsExcel: ->
-    项目设置.saveExcel()
-    return this
 
 
 
