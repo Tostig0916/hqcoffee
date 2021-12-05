@@ -172,11 +172,20 @@ class NormalCaseSingleton extends CaseSingleton
     }
 
 
+
+
+# ----------------------------------- logging api -----------------------------------------
+
 class 缺漏追踪库 extends NormalCaseSingleton
 
 
 class SystemLog extends NormalCaseSingleton
 
+
+
+
+
+# ------------------------------------ settings api ---------------------------------------
 
 class 指标体系 extends NormalCaseSingleton
 
@@ -313,6 +322,122 @@ class 指标导向库 extends 指标体系
 
 
 
+class 二级指标权重 extends 指标体系
+  @dataPrepare: ->
+    #return @dataPrepare_()
+
+    @dbClear()
+    一级设置 = 项目设置.dbValue("一级指标设置")
+    二级设置 = 项目设置.dbValue("二级指标设置")
+    for 二级名称, 二级指标 of 二级设置
+      @db().get(二级名称).set(一级设置[二级指标.上级指标].权重 * 二级指标.权重)
+    @dbSave()
+
+
+    
+  # 暂时保留,以便保留权重设置
+  @struct: ->
+    {
+      医疗质量:{
+        weight: 0.3
+        indicators: {
+          质量安全:{
+            weight:0.3
+          }
+          功能定位: {
+            weight:0.2
+          }
+          合理用药: {
+            weight: 0.15
+          }
+          服务流程: {
+            weight: 0.2
+          }
+          医保价值: {
+            weight: 0.1
+          }
+        }
+      }
+      运营效率:{
+        weight: 0.2
+        indicators: {
+          收支结构:{
+            weight: 0.3
+          }
+          费用控制:{
+            weight: 0.5
+          }
+          经济管理:{
+            weight: 0
+          }
+          资源效率:{
+            weight: 0.2
+          }
+        }
+      }
+      持续发展: {
+        weight: 0.2
+        indicators: {
+          人员结构:{
+            weight: 0.4 #0.3
+          }
+          人才培养:{
+            weight: 0 #0.3
+          }
+          学科建设:{
+            weight: 0.6 #0.4
+          }
+          信用建设:{
+            weight: 0 #0.15
+          }
+        }
+      }
+      满意度评价: {
+        weight: 0.3
+        indicators: {
+          医服收入:{
+            weight: 0.8
+          }
+          地位影响: {
+            weight: 0.2
+          }
+          医务人员满意度:{
+            weight: 0
+          }
+          患者满意度:{
+            weight: 0
+          }
+        }
+      }
+    }
+
+
+
+
+
+
+
+  @dictWithPerfectData: -> 
+    {
+      医服收入: 2.5
+      医保价值: 0.5
+      质量安全: 1.5
+      地位影响: 0.5
+      学科建设: 0.1
+      人员结构: 0.1
+      功能定位: 0.1
+      服务流程: 0.1
+      费用控制: 0.1
+      合理用药: 0.1
+      收支结构: 0.1
+      资源效率: 0.1
+      人才培养: 0.1
+    }
+
+      
+
+
+
 
 class 三级指标对应一级指标 extends 指标体系
   @dataPrepare: ->
@@ -370,6 +495,17 @@ class 三级指标对应二级指标 extends 指标体系
     for k, v of @dbValue() when 指标导向库.db().get(k).value() in ['逐步提高','逐步降低','高优','低优']
       (obj[v] ?= []).push(k)
     obj
+
+
+
+class 二级指标对应三级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(三级指标对应二级指标.dbRevertedValue()).save()
+    @dbSave()
+
+
+
 
 
     
@@ -434,68 +570,6 @@ class 项目指标填报表 extends 指标体系
     
     @write2Excel(opts)
 
-
-
-
-
-class 二级指标对应三级指标 extends 指标体系
-  @dataPrepare: ->
-    @dbClear()
-    @dbDefault(三级指标对应二级指标.dbRevertedValue()).save()
-    @dbSave()
-
-
-
-
-
-class 资料库 extends NormalCaseSingleton 
-
-class 院内资料库 extends 资料库
-  @localUnits: ->
-    @dbDictKeys()
-  
-  @dataNames: -> 
-    (k for k, v of @dbValue()[@localUnits()[0]]) 
-  
-  @years: -> 
-    years = (k for k, v of @dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
-    years = years.sort((x,y)-> if x > y then -1 else 1)
-
- 
- 
- 
- 
-  # 仅用于建水县的一份国考数据资料,但是演示了一种定制程序的方法
-  @normalKeyName: (funcOpts) =>
-    {mainKey} = funcOpts
-    if mainKey? and /测试/i.test(customerName)
-      newName = mainKey.split('.')[-1..][0]
-      funcOpts.mainKey = newName  
-    super(funcOpts)
-
-
-
-
-
-
-class 院内指标资料库 extends 资料库
-
-  @rawDataToIndicators: ->
-    @dbClear()
-    指标维度 = 三级指标对应二级指标.dbValue()
-    years = @years()
-    units = @localUnits()
-    informal = @createMissingData()
-
-    for dataName, dimension of 指标维度 when dataName?
-      for entityName in units 
-        for year in years
-          key = year
-          ownData = 院内资料库.getData({entityName, dataName, key, informal})
-          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
-    @dbSave()
-    console.log "院内指标资料库: 指标数据移动完毕"
-    return this
 
 
 
@@ -959,8 +1033,60 @@ class 单科对比雷达图报告 extends 雷达图报告
 
 
 
+# ---------------------------------------- overall data api -------------------------------------
 
-# ---------------------------------  data api  -----------------------------------
+class 资料库 extends NormalCaseSingleton 
+
+class 院内资料库 extends 资料库
+  @localUnits: ->
+    @dbDictKeys()
+  
+  @dataNames: -> 
+    (k for k, v of @dbValue()[@localUnits()[0]]) 
+  
+  @years: -> 
+    years = (k for k, v of @dbValue()[@localUnits()[0]][@dataNames()[0]] when /^y/i.test(k))
+    years = years.sort((x,y)-> if x > y then -1 else 1)
+
+ 
+ 
+ 
+ 
+  # 仅用于建水县的一份国考数据资料,但是演示了一种定制程序的方法
+  @normalKeyName: (funcOpts) =>
+    {mainKey} = funcOpts
+    if mainKey? and /测试/i.test(customerName)
+      newName = mainKey.split('.')[-1..][0]
+      funcOpts.mainKey = newName  
+    super(funcOpts)
+
+
+
+
+
+
+class 院内指标资料库 extends 资料库
+
+  @rawDataToIndicators: ->
+    @dbClear()
+    指标维度 = 三级指标对应二级指标.dbValue()
+    years = @years()
+    units = @localUnits()
+    informal = @createMissingData()
+
+    for dataName, dimension of 指标维度 when dataName?
+      for entityName in units 
+        for year in years
+          key = year
+          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
+    @dbSave()
+    console.log "院内指标资料库: 指标数据移动完毕"
+    return this
+
+
+
+# ---------------------------------  section data api  ------------------------------------
 
 class 院内各科指标简单排序 extends 排序报告
   @dataPrepare: ->
@@ -1210,129 +1336,6 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
 
 
 
-class 二级指标权重 extends 分析报告
-  @dataPrepare: ->
-    #return @dataPrepare_()
-
-    @dbClear()
-    一级设置 = 项目设置.dbValue("一级指标设置")
-    二级设置 = 项目设置.dbValue("二级指标设置")
-    for 二级名称, 二级指标 of 二级设置
-      @db().get(二级名称).set(一级设置[二级指标.上级指标].权重 * 二级指标.权重)
-    @dbSave()
-
-
-  @dataPrepare_: ->
-    @dbClear()
-    #@dbSet('data',[])
-    for cat, category of @struct()
-      for dim, dimension of category.indicators
-        @db().get(dim).set(category.weight * dimension.weight) 
-    @dbSave()
-    
-  # 暂时保留,以便保留权重设置
-  @struct: ->
-    {
-      医疗质量:{
-        weight: 0.3
-        indicators: {
-          质量安全:{
-            weight:0.3
-          }
-          功能定位: {
-            weight:0.2
-          }
-          合理用药: {
-            weight: 0.15
-          }
-          服务流程: {
-            weight: 0.2
-          }
-          医保价值: {
-            weight: 0.1
-          }
-        }
-      }
-      运营效率:{
-        weight: 0.2
-        indicators: {
-          收支结构:{
-            weight: 0.3
-          }
-          费用控制:{
-            weight: 0.5
-          }
-          经济管理:{
-            weight: 0
-          }
-          资源效率:{
-            weight: 0.2
-          }
-        }
-      }
-      持续发展: {
-        weight: 0.2
-        indicators: {
-          人员结构:{
-            weight: 0.4 #0.3
-          }
-          人才培养:{
-            weight: 0 #0.3
-          }
-          学科建设:{
-            weight: 0.6 #0.4
-          }
-          信用建设:{
-            weight: 0 #0.15
-          }
-        }
-      }
-      满意度评价: {
-        weight: 0.3
-        indicators: {
-          医服收入:{
-            weight: 0.8
-          }
-          地位影响: {
-            weight: 0.2
-          }
-          医务人员满意度:{
-            weight: 0
-          }
-          患者满意度:{
-            weight: 0
-          }
-        }
-      }
-    }
-
-
-
-
-
-
-
-  @dictWithPerfectData: -> 
-    {
-      医服收入: 2.5
-      医保价值: 0.5
-      质量安全: 1.5
-      地位影响: 0.5
-      学科建设: 0.1
-      人员结构: 0.1
-      功能定位: 0.1
-      服务流程: 0.1
-      费用控制: 0.1
-      合理用药: 0.1
-      收支结构: 0.1
-      资源效率: 0.1
-      人才培养: 0.1
-    }
-
-      
-
-
-
 
 class 院内专科梯队Topsis评分 extends 分析报告
   @dataPrepare: ->
@@ -1490,7 +1493,6 @@ class 对标单科指标评分排序 extends 评分排序报告
 
 
 
-
 class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
   @dataPrepare: ->
     @dbClear()
@@ -1582,6 +1584,7 @@ class 对标单科多指标评分雷达图 extends 单科对比雷达图报告
 
 
 
+class 对标单科多维度评分雷达图 extends 单科对比雷达图报告
 
 
 
@@ -1647,55 +1650,12 @@ class 生成器 extends CaseSingleton
 
   @setUpSystem: ->
     this
-      .readIndicatorExcel()
+      .settingsFromExcel()
+      #.saveSettingsExcel()
 
 
 
-  @buildDB: ->
-    this
-      #.showDBs()
-      .readDataExcel()
-      .checkForAllIndicators()
-      #.showMissingIndicatorsOrDataProblems()
-
-      #.saveUtilExcel()
-
-      #.showUnitNames()
-      #._tryGetSomeData()
-      #.showDimensions()
-      
-      .exportRawDataToReportDB()
-      
-      .simpleLocalIndicatorOrdering()
-      .localIndicatorBCGChart()
-      .localIndicatorScoreSort()
-      .localIndicatorRadarChart()
-      .localTeamsTable()
-
-      .simpleCompareIndicatorOrdering()
-      .compareIndicatorScoreSort()
-      .compareIndicatorScoreRadarChart()
-  
-  
-  
-  @generateReports: ->
-    this
-      .localReport()
-      .compareReport()
-
-
-
-
-  # 获取最新资料,若有Excel源文件,则同时会生成json文件
-  ###
-  @readExcel: ->
-    @readIndicatorExcel()
-    @readDataExcel()
-    return this
-  ###
-
-
-  @readIndicatorExcel: ->
+  @settingsFromExcel: ->
     #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
     v.fetchSingleJSON() for k, v of {项目设置,名字ID库} #三级指标对应二级指标,指标导向库,
 
@@ -1714,7 +1674,33 @@ class 生成器 extends CaseSingleton
     return this
 
 
+  @buildDB: ->
+    this
+      #.showDBs()
+      .readDataExcel()
 
+      .checkForAllIndicators()
+      #.showMissingIndicatorsOrDataProblems()
+
+      #.showUnitNames()
+      #._tryGetSomeData()
+      #.showDimensions()
+      
+      .localReportDataPreParing()
+      .compareReportDataPreparing()
+  
+  
+  
+  @generateReports: ->
+    this
+      .localReport()
+      .compareReport()
+
+
+
+
+
+  # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readDataExcel: ->
     v.fetchSingleJSON() for k, v of {院内资料库,对标资料库} #三级指标对应二级指标,指标导向库,
 
@@ -1790,66 +1776,39 @@ class 生成器 extends CaseSingleton
 
 
 
-  # 研究 院内资料库
-  # 先将指标计算结果存入报告db
-  @exportRawDataToReportDB: ->
+  
+  @localReportDataPreParing: ->
     院内指标资料库.rawDataToIndicators()
-    对标指标资料库.rawDataToIndicators()
-    return this
 
-  
-  
-
-  # 院内各科指标简单排序存储备用
-  @simpleLocalIndicatorOrdering: ->
     院内各科指标简单排序.dataPrepare()
-    return this
-
-  @simpleCompareIndicatorOrdering: ->
-    对标单科指标简单排序.dataPrepare()
-    return this
-
-
-  @localIndicatorScoreSort: ->
     院内各科指标评分排序.dataPrepare()
-    return this
 
-  @compareIndicatorScoreSort: ->
-    对标单科指标评分排序.dataPrepare()
-    return this 
-
-  @compareDimensionScoreRadarChart: ->
-    对标单科多维度评分雷达图.dataPrepare()
-    return this
-
-  @compareIndicatorScoreRadarChart: ->
-    对标单科多指标评分雷达图.dataPrepare()
-    return this
-
-  @localIndicatorRadarChart: ->
     院内单科多维度指标评分汇集.dataPrepare()
     院内单科多维度评分集中分析.dataPrepare()
     院内各科相关维度轮比分析.dataPrepare()
     院内各科维度轮比雷达图.dataPrepare()
     院内各科维度轮比散点图.dataPrepare()
-    return this
 
-
-  @localIndicatorBCGChart: ->
     院内专科BCG矩阵分析.dataPrepare()
     院内二级专科BCG矩阵分析.dataPrepare()
     院内二级权重专科BCG矩阵分析.dataPrepare()
-    return this
 
-  @localTopsis: ->
     院内专科梯队Topsis评分.dataPrepare()
-    return this
 
-  @localTeamsTable: ->
-    @localTopsis()
-    #院内专科梯队表.dataPrepare()
+    院内专科梯队表.dataPrepare()
     院内二级专科梯队表.dataPrepare()
     院内大小专科梯队混合表.dataPrepare()
+    return this
+
+
+
+  @compareReportDataPreparing: ->
+    对标指标资料库.rawDataToIndicators()
+
+    对标单科指标简单排序.dataPrepare()
+    对标单科指标评分排序.dataPrepare()
+    对标单科多维度评分雷达图.dataPrepare()
+    对标单科多指标评分雷达图.dataPrepare()
     return this
 
 
@@ -1866,7 +1825,7 @@ class 生成器 extends CaseSingleton
   # 院内专科指标按照评分简单排序
 
 
-  @saveUtilExcel: ->
+  @saveSettingsExcel: ->
     项目设置.saveExcel()
     return this
 
@@ -1882,8 +1841,8 @@ class 生成器 extends CaseSingleton
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
 生成器.setUpSystem()
-#生成器.buildDB()
-#生成器.generateReports()
+生成器.buildDB()
+生成器.generateReports()
 
 
 
@@ -1895,38 +1854,11 @@ class 生成器 extends CaseSingleton
 # 将以上db工具function转移到 jsonUtils 文件中,並重启coffee测试行命令,重新测试
 #console.log {L:项目别名库.localOptions(), O: 项目别名库.options(), P: 项目别名库._dbPath()}
 
-#生成器.run()
-#生成器
-  #.saveUtilExcel()
-  #.showDBs()
-  #.readExcel()
-  #.showUnitNames()
-  #._tryGetSomeData()
-  #.checkForAllIndicators()
-  
-  #.showMissingIndicatorsOrDataProblems()
-  
-  #.exportRawDataToReportDB()
-  
-  #.simpleLocalIndicatorOrdering()
-  #.localIndicatorScoreSort()
-  #.localIndicatorRadarChart()
-  
-  #.localIndicatorBCGChart()
-  #.localTeamsTable()
-  #.localReport()
-  #.compareReport()
-
-
 ###
 # 对比雷达图设计
 db = 对标单科指标评分排序.db()
 db.filter()
-
 ###
-
-
-
 
 #console.log db: 缺漏追踪库.db().get('院内资料库').value?()?
 
