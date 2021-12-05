@@ -385,6 +385,7 @@ class 项目指标填报表 extends 指标体系
           {label:'数据名',value:'数据名'}
           #{label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
+          {label:'指标说明',value:'指标说明'}
           {label:year_1,value:year_1}
           {label:year_2,value:year_2}
           {label:year_3,value:year_3}
@@ -402,13 +403,14 @@ class 项目指标填报表 extends 指标体系
       }
     ]
 
-    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,2,3]
+    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,3] #[1,2,3]
       opts.data.push {
         sheet: 科室名
         columns:[
           {label:'数据名',value:'数据名'}
           #{label:'上级指标',value:'上级指标'}
           {label:'计量单位',value:'计量单位'}
+          {label:'指标说明',value:'指标说明'}
           {label:year_1,value:year_1}
           {label:year_2,value:year_2}
           {label:year_3,value:year_3}
