@@ -1639,6 +1639,7 @@ class 生成器 extends CaseSingleton
   @run: ->
     @setUpSystem()
     @buildDB()
+    @showProperties()
     @generateReports()
 
 
@@ -1647,6 +1648,7 @@ class 生成器 extends CaseSingleton
     this
       .settingsFromExcel()
       #.saveSettingsExcel()
+      
     return this
 
 
@@ -1655,14 +1657,20 @@ class 生成器 extends CaseSingleton
       .readDataExcel()
 
       .checkForAllIndicators()
-      #.showMissingIndicatorsOrDataProblems()
-
-      #.showUnitNames()
-      #._tryGetSomeData()
-      #.showDimensions()
-      
       .localReportDataPreParing()
       .compareReportDataPreparing()
+      #.showProperties()
+    
+    return this
+
+
+
+  @showProperties: ->
+    this
+      .showMissingIndicatorsOrDataProblems()
+      .showUnitNames()
+      ._tryGetSomeData()
+      .showDimensions()
     return this
   
   
