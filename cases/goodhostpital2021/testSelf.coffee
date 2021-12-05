@@ -373,7 +373,7 @@ class 三级指标对应二级指标 extends 指标体系
 
 
     
-class 指标填报表 extends 指标体系
+class 项目指标填报表 extends 指标体系
   @saveExcel: (funcOpts={}) ->
     opts = @options()
     json= 项目设置.dbValue('三级指标设置')
@@ -390,7 +390,7 @@ class 指标填报表 extends 指标体系
           {label:year_3,value:year_3}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [1,3]) and /(自|考|监)/.test(value[customGrade])).sort(
+        when (value.适用范围 in [1,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -414,7 +414,7 @@ class 指标填报表 extends 指标体系
           {label:year_3,value:year_3}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [2,3]) and /(自|考|监)/.test(value[customGrade])).sort(
+        when (value.适用范围 in [2,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -1708,7 +1708,7 @@ class 生成器 extends CaseSingleton
     一级指标对应三级指标.dataPrepare()
     二级指标对应三级指标.dataPrepare()
 
-    指标填报表.saveExcel()
+    项目指标填报表.saveExcel()
     return this
 
 
