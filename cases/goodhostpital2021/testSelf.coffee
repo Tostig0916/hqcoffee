@@ -1656,8 +1656,7 @@ class 生成器 extends CaseSingleton
 
 
   @settingsFromExcel: ->
-    #console.log {院内资料库,对标资料库,三级指标对应二级指标,指标导向库,名字ID库}
-    v.fetchSingleJSON() for k, v of {项目设置,名字ID库} #三级指标对应二级指标,指标导向库,
+    v.fetchSingleJSON() for k, v of {项目设置,名字ID库}
 
     指标导向库.dataPrepare()
     二级指标权重.dataPrepare()
@@ -1676,7 +1675,6 @@ class 生成器 extends CaseSingleton
 
   @buildDB: ->
     this
-      #.showDBs()
       .readDataExcel()
 
       .checkForAllIndicators()
@@ -1702,16 +1700,7 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readDataExcel: ->
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库} #三级指标对应二级指标,指标导向库,
-
-    return this
-
-
-
-  # 查看各自 db, 以及log
-  @showDBs: ->
-    console.log {db: v.dbValue()} for k, v of {院内资料库,院科内部分析报告,对标资料库,院科外部对标报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库,SystemLog}
-    console.log {log: v.logdb?().value()} for k, v of {院内资料库,院科内部分析报告,对标资料库,院科外部对标报告,别名库,项目别名库,缺漏追踪库,三级指标对应二级指标,名字ID库}
+    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库}
     return this
 
 
@@ -1840,7 +1829,7 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-生成器.setUpSystem()
+#生成器.setUpSystem()
 生成器.buildDB()
 生成器.generateReports()
 
