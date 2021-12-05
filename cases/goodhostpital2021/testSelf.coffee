@@ -1648,7 +1648,7 @@ class 生成器 extends CaseSingleton
     this
       .settingsFromExcel()
       #.saveSettingsExcel()
-      
+
     return this
 
 
@@ -1657,23 +1657,14 @@ class 生成器 extends CaseSingleton
       .readDataExcel()
 
       .checkForAllIndicators()
+      #.showProperties()
       .localReportDataPreParing()
       .compareReportDataPreparing()
-      #.showProperties()
     
     return this
 
 
 
-  @showProperties: ->
-    this
-      .showMissingIndicatorsOrDataProblems()
-      .showUnitNames()
-      ._tryGetSomeData()
-      .showDimensions()
-    return this
-  
-  
   @generateReports: ->
     院科内部分析报告.newReport()
     院科外部对标报告.newReport()
@@ -1757,11 +1748,18 @@ class 生成器 extends CaseSingleton
     return this
 
 
+  @showProperties: ->
+    this
+      .showMissingIndicatorsOrDataProblems()
+      .showUnitNames()
+      ._tryGetSomeData()
+      .showDimensions()
+    return this
+  
+  
 
   # 看缺多少指标数据,需要用数据计算
-  @showMissingIndicatorsOrDataProblems: ->
-    #@checkForAllIndicators()
-    
+  @showMissingIndicatorsOrDataProblems: ->    
     console.log { 
       院内资料: 院内资料库.logdb().value()
       对标资料: 对标资料库.logdb().value()
