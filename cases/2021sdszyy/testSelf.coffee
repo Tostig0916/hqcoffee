@@ -1597,7 +1597,7 @@ class 院科内部分析报告 extends PPTSection
   @sections: ->
     [
 
-      #院内各科指标简单排序
+      院内各科指标简单排序
       #院内各科指标评分排序 
       院内各科维度轮比雷达图
       院内各科维度轮比散点图
@@ -1638,12 +1638,13 @@ class 生成器 extends CaseSingleton
   
   # 不知原因,不能连续运行这两步,内存中的各class数据会出现"串台"现象,
   # 需要分步做,第二步是从数据库读取,结果正确
+  ###
   @run: ->
     @setUpSystem()
     @buildDB()
     @showProperties()
     @generateReports()
-
+  ###
 
 
   @setUpSystem: ->
@@ -1699,7 +1700,7 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readDataExcel: ->
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库}
+    v.fetchSingleJSON() for k, v of {院内资料库, 对标资料库}
     return this
 
 
@@ -1817,9 +1818,9 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-生成器.setUpSystem()
-生成器.buildDB()
-#生成器.generateReports()
+#生成器.setUpSystem()
+#生成器.buildDB()
+生成器.generateReports()
 
 
 
