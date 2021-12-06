@@ -95,13 +95,20 @@ class AnyCaseSingleton extends StormDBSingleton
     # keep 则保存json文件
     项目别名库.ajustedName({name:mainKey,keep:true})
   ###
+  @errorChasingDB: ->
+    MistakeChasingLog.db().get(@name)
 
-  @logdb: ->
+  @errorChasingDBClear: ->
+    @errorChasingDB().set({})
+    return MistakeChasingLog.db()
+
+
+  @missingDataFuncDB: ->
     MissingDataFunctions.db().get(@name)
 
 
-  @logdbClear: ->
-    @logdb().set({})
+  @missingDataFuncDBClear: ->
+    @missingDataFuncDB().set({})
     return MissingDataFunctions.db()
 
   # @_dbPath 涉及到目录位置,似乎无法在此设置
@@ -113,8 +120,8 @@ class AnyCaseSingleton extends StormDBSingleton
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
 
-    funcOpts.regest_db = MissingDataLog.db()
-    funcOpts.log_db = @logdb()
+    funcOpts.regist_db = MissingDataLog.db()
+    funcOpts.log_db = @missingDataFuncDB()
     funcOpts.hostname = @name
 
     DataManager.getData(funcOpts)
@@ -171,13 +178,15 @@ class NormalCaseSingleton extends CaseSingleton
 
 # ----------------------------------- logging api -----------------------------------------
 
-class MissingDataLog extends NormalCaseSingleton
+class LogSystem extends NormalCaseSingleton
+
+class MissingDataLog extends LogSystem
 
 
-class MissingDataFunctions extends NormalCaseSingleton
+class MissingDataFunctions extends LogSystem
 
 
-
+class MistakeChasingLog extends LogSystem
 
 
 # ------------------------------------ settings api ---------------------------------------
@@ -1731,8 +1740,8 @@ class 生成器 extends CaseSingleton
 
   # 筛查数据
   @checkForAllIndicators: ->
-    院内资料库.logdbClear().save()
-    对标资料库.logdbClear().save()
+    院内资料库.missingDataFuncDBClear().save()
+    对标资料库.missingDataFuncDBClear().save()
     MissingDataLog.dbClear()
 
     指标维度 = 三级指标对应二级指标.dbValue()
@@ -1761,9 +1770,9 @@ class 生成器 extends CaseSingleton
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->    
     console.log { 
-      院内资料: 院内资料库.logdb().value()
-      对标资料: 对标资料库.logdb().value()
-      缺漏追踪: (key for key, value of MissingDataLog.db().get('院内资料库').value() when value.length > 1)
+      院内资料: 院内资料库.missingDataFuncDB().value()
+      对标资料: 对标资料库.missingDataFuncDB().value()
+      缺漏追踪: (key for key, value of MissingDataLog.dbValue('院内资料库') when value.length > 1)
     }
     return this
 

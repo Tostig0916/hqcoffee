@@ -102,7 +102,7 @@ class AnyCaseSingleton extends StormDBSingleton
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
 
-    funcOpts.regest_db = MissingDataLog.db()
+    funcOpts.regist_db = MissingDataLog.db()
     funcOpts.log_db = @logdb()
     funcOpts.hostname = @name
 

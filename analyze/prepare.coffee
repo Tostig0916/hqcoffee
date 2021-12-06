@@ -54,7 +54,7 @@ class DataManagerBase
 
   # todo: when not informal what should we do? 
   @tryCalculating: (funcOpts) ->
-    {entityName, dataName, key, log_db, regest_db, informal=false} = funcOpts
+    {entityName, dataName, key, log_db, regist_db, informal=false} = funcOpts
     
     return nil unless informal
 
@@ -73,17 +73,17 @@ class DataManagerBase
 
 
   @regMissing: (funcOpts) ->
-    {entityName, dataName, hostname, key, regest_db} = funcOpts
-    regarr = regest_db.get(hostname)?.get(dataName)
+    {entityName, dataName, hostname, key, regist_db} = funcOpts
+    regarr = regist_db.get(hostname)?.get(dataName)
     
-    unless regest_db.get(hostname).value?()?
-      regest_db.set(hostname,{}).save()
+    unless regist_db.get(hostname).value?()?
+      regist_db.set(hostname,{}).save()
     
-    unless regest_db.get(hostname).get(dataName).value?()?
-      regest_db.get(hostname).set(dataName,[]).save() 
+    unless regist_db.get(hostname).get(dataName).value?()?
+      regist_db.get(hostname).set(dataName,[]).save() 
     
-    unless entityName in regest_db.get(hostname).get(dataName).value()
-      regest_db.get(hostname).get(dataName).push(entityName).save() 
+    unless entityName in regist_db.get(hostname).get(dataName).value()
+      regist_db.get(hostname).get(dataName).push(entityName).save() 
     
 
 
@@ -91,7 +91,7 @@ class DataManagerBase
   ###
   don't change, almost correct!
   @getData_origin: (funcOpts={}) ->
-    {entityName, dataName, key, dictionary, dbItem, log_db, regest_db} = funcOpts
+    {entityName, dataName, key, dictionary, dbItem, log_db, regist_db} = funcOpts
     data = dictionary?[dataName] ? dbItem?.get(dataName)?.value() ? \
       try
         funcName = @_funcName(funcOpts)
@@ -108,12 +108,12 @@ class DataManagerBase
 
 
   @_funcName: (funcOpts={}) ->
-    {entityName, dataName, key, regest_db} = funcOpts
+    {entityName, dataName, key, regist_db} = funcOpts
     funcName = "求#{dataName}"
     #console.log {部门: entityName+key, 现在使用: funcName}
     ###
-    regarr = regest_db.get(dataName)
-    unless regarr.value?()?.length? then regest_db.set(dataName,[]) 
+    regarr = regist_db.get(dataName)
+    unless regarr.value?()?.length? then regist_db.set(dataName,[]) 
     regarr.push(entityName+key).save()
     ###
     funcName
