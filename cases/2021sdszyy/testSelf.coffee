@@ -1351,7 +1351,7 @@ class 院内专科梯队Topsis评分 extends PPTSection
       @db().get(unitName).set('综合评分',value).save()
 
 
-
+# ! coffee 的bug, 以下的母class 不能供实际使用
 class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear() #()
@@ -1366,10 +1366,6 @@ class 院内专科梯队表 extends 表格报告
     @dbSave()  
 
 
-  @validDeparts: (funcOpts={}) ->
-    {unitName} = funcOpts
-    not /医院/i.test(unitName)
-
   @arrayName: ->
     '学科梯队'
 
@@ -1382,7 +1378,16 @@ class 院内专科梯队表 extends 表格报告
     arr
 
 
-class 院内大小专科梯队混合表 extends 院内专科梯队表
+
+
+class 院内专科梯队总分合集表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /医院/i.test(unitName)
+
+
+
+class 院内专科梯队大小混合表 extends 院内专科梯队表
   @validDeparts: (funcOpts={}) ->
     {unitName} = funcOpts
     not /(医院|合并)/i.test(unitName)
@@ -1607,9 +1612,9 @@ class 院科内部分析报告 extends PPTSection
       #院内二级专科BCG矩阵分析
       #院内二级权重专科BCG矩阵分析
       
-      #院内专科梯队表
+      #院内专科梯队总分合集表
       院内二级专科梯队表
-      #院内大小专科梯队混合表
+      #院内专科梯队大小混合表
 
       
       # 尚未制作
@@ -1790,9 +1795,9 @@ class 生成器 extends CaseSingleton
 
     院内专科梯队Topsis评分.dataPrepare()
 
-    院内专科梯队表.dataPrepare()
     院内二级专科梯队表.dataPrepare()
-    院内大小专科梯队混合表.dataPrepare()
+    院内专科梯队大小混合表.dataPrepare()
+    院内专科梯队总分合集表.dataPrepare()
     return this
 
 
@@ -1818,9 +1823,9 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-#生成器.setUpSystem()
-#生成器.buildDB()
-生成器.generateReports()
+生成器.setUpSystem()
+生成器.buildDB()
+#生成器.generateReports()
 
 
 
