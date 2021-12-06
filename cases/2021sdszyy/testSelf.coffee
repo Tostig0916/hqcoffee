@@ -95,14 +95,21 @@ class AnyCaseSingleton extends StormDBSingleton
     # keep 则保存json文件
     项目别名库.ajustedName({name:mainKey,keep:true})
   ###
+  @errorChasingDB: ->
+    MistakeChasingLog.db().get(@name)
 
-  @logdb: ->
-    MissingDataFunctions.db().get(@name)
+  @errorChasingDBClear: ->
+    @errorChasingDB().set({})
+    return MistakeChasingLog.db()
 
 
-  @logdbClear: ->
-    @logdb().set({})
-    return MissingDataFunctions.db()
+  @missingDataFuncDB: ->
+    MissingDataFuncLog.db().get(@name)
+
+
+  @missingDataFuncDBClear: ->
+    @missingDataFuncDB().set({})
+    return MissingDataFuncLog.db()
 
   # @_dbPath 涉及到目录位置,似乎无法在此设置
 
@@ -113,8 +120,8 @@ class AnyCaseSingleton extends StormDBSingleton
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
 
-    funcOpts.regist_db = MissingDataLog.db()
-    funcOpts.log_db = @logdb()
+    funcOpts.regist_db = MissingDataRegister.db()
+    funcOpts.log_db = @missingDataFuncDB()
     funcOpts.hostname = @name
 
     DataManager.getData(funcOpts)
@@ -171,14 +178,13 @@ class NormalCaseSingleton extends CaseSingleton
 
 # ----------------------------------- logging api -----------------------------------------
 
-class MissingDataLog extends NormalCaseSingleton
+class LogSystem extends NormalCaseSingleton
 
+class MistakeChasingLog extends LogSystem
 
-class MissingDataFunctions extends NormalCaseSingleton
+class MissingDataFuncLog extends LogSystem
 
-
-
-
+class MissingDataRegister extends LogSystem
 
 # ------------------------------------ settings api ---------------------------------------
 
@@ -1731,9 +1737,9 @@ class 生成器 extends CaseSingleton
 
   # 筛查数据
   @checkForAllIndicators: ->
-    院内资料库.logdbClear().save()
-    对标资料库.logdbClear().save()
-    MissingDataLog.dbClear()
+    院内资料库.missingDataFuncDBClear().save()
+    对标资料库.missingDataFuncDBClear().save()
+    MissingDataRegister.dbClear()
 
     指标维度 = 三级指标对应二级指标.dbValue()
     
@@ -1761,9 +1767,9 @@ class 生成器 extends CaseSingleton
   # 看缺多少指标数据,需要用数据计算
   @showMissingIndicatorsOrDataProblems: ->    
     console.log { 
-      院内资料: 院内资料库.logdb().value()
-      对标资料: 对标资料库.logdb().value()
-      缺漏追踪: (key for key, value of MissingDataLog.db().get('院内资料库').value() when value.length > 1)
+      院内资料: 院内资料库.missingDataFuncDB().value()
+      对标资料: 对标资料库.missingDataFuncDB().value()
+      缺漏追踪: (key for key, value of MissingDataRegister.dbValue('院内资料库') when value.length > 1)
     }
     return this
 
@@ -1815,9 +1821,9 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-生成器.setUpSystem()
+#生成器.setUpSystem()
 生成器.buildDB()
-#生成器.generateReports()
+生成器.generateReports()
 
 
 
@@ -1835,7 +1841,7 @@ db = 对标单科指标评分排序.db()
 db.filter()
 ###
 
-#console.log db: MissingDataLog.db().get('院内资料库').value?()?
+#console.log db: MissingDataRegister.db().get('院内资料库').value?()?
 
 #
 #院内单科多维度评分集中分析.dataPrepare()
