@@ -575,7 +575,7 @@ class 项目指标填报表 extends 指标体系
 
 
 # ---------------------------------  slides api  -----------------------------------
-class 分析报告 extends NormalCaseSingleton
+class PPTSection extends NormalCaseSingleton
 
   @newReport: ->
     opts = @options()
@@ -618,7 +618,7 @@ class 分析报告 extends NormalCaseSingleton
 
 
 # https://github.com/gitbrent/PptxGenJS/blob/master/demos/modules/demo_table.mjs
-class 表格报告 extends 分析报告
+class 表格报告 extends PPTSection
   @arrayName: ->
   
   @titles: ->
@@ -688,7 +688,7 @@ class 表格报告 extends 分析报告
 
 
 
-class 散点图报告 extends 分析报告
+class 散点图报告 extends PPTSection
   @chartType: -> 'scatter'
 
 
@@ -847,7 +847,7 @@ class BCG矩阵报告 extends 散点图报告
 
 
 
-class 排序报告 extends 分析报告
+class 排序报告 extends PPTSection
   @chartType: ->
     'bar'
 
@@ -900,7 +900,7 @@ class 评分排序报告 extends 排序报告
     'bar3d'
 
 
-class 雷达图报告 extends 分析报告
+class 雷达图报告 extends PPTSection
   @chartType: ->
     'radar'
 
@@ -1175,7 +1175,7 @@ class 院内各科维度轮比雷达图 extends 多科雷达图报告
     @dbDefault(院内各科相关维度轮比分析.dbValue()).save()
 
 
-class 院内单科多维度指标评分汇集 extends 分析报告
+class 院内单科多维度指标评分汇集 extends PPTSection
   @dataPrepare: ->
     @dbClear()
     dimensions = 三级指标对应二级指标.dbValue()
@@ -1214,7 +1214,7 @@ class 院内单科多维度指标评分汇集 extends 分析报告
 
 
 
-class 院内各科相关维度轮比分析 extends 分析报告
+class 院内各科相关维度轮比分析 extends PPTSection
   @dataPrepare: ->
     @dbClear()
     for dmName, dmObj of 院内单科多维度指标评分汇集.dbValue()
@@ -1338,7 +1338,7 @@ class 院内二级权重专科BCG矩阵分析 extends BCG矩阵报告
 
 
 
-class 院内专科梯队Topsis评分 extends 分析报告
+class 院内专科梯队Topsis评分 extends PPTSection
   @dataPrepare: ->
     @dbClear()
     weight = 二级指标权重.dbValue()
@@ -1591,9 +1591,9 @@ class 对标单科多维度评分雷达图 extends 单科对比雷达图报告
 
 # ---------------------------------  report api  -----------------------------------
 # 不分内外,混合评估
-class 院科混合分析报告 extends 分析报告
+class 院科混合分析报告 extends PPTSection
 
-class 院科内部分析报告 extends 分析报告
+class 院科内部分析报告 extends PPTSection
   @sections: ->
     [
 
@@ -1619,18 +1619,14 @@ class 院科内部分析报告 extends 分析报告
 
 
 
-class 院科外部对标报告 extends 分析报告
+class 院科外部对标报告 extends PPTSection
   @sections: ->
     [
-      #对标单科指标简单排序
-      #对标单科指标评分排序 
+      对标单科指标简单排序
+      对标单科指标评分排序 
       对标单科多指标评分雷达图
       
       #对标单科多维度评分雷达图
-
-      #对标各科指标评分轮比雷达图
-      #对标各科维度轮比雷达图
-      #对标各科维度轮比散点图
     ]
 
 
