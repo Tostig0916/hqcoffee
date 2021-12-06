@@ -64,9 +64,9 @@ class DataManagerBase
 
     catch error
       @regMissing(funcOpts)
-
-      unless log_db.get(funcName)?.value?()?
-        log_db.set(funcName,"@#{funcName}: (funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
+      funcNameKey = "@#{funcName}"
+      unless log_db.get(funcNameKey)?.value?()?
+        log_db.set(funcNameKey,"(funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
       nil
 
