@@ -1,6 +1,6 @@
 path = require 'path'
 {
-  SystemLog
+  MissingDataFunctions
   别名库
   三级指标对应二级指标
   名字ID库
@@ -8,7 +8,7 @@ path = require 'path'
 
 
 testLog = ->
-  sl = SystemLog
+  sl = MissingDataFunctions
   db = sl.db()
   
   sl.logdb(new Date(), "message")

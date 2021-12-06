@@ -4,7 +4,7 @@ alasql = require 'alasql'
 # this lib has too many issues
 
 alasql.promise([
-    "select * from json('./SystemLog')"
+    "select * from json('./MissingDataFunctions')"
 ]).then((results)->
     console.log {results}
 ).catch(console.log)

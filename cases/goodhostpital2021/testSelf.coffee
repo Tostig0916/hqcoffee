@@ -97,12 +97,12 @@ class AnyCaseSingleton extends StormDBSingleton
   ###
 
   @logdb: ->
-    SystemLog.db().get(@name)
+    MissingDataFunctions.db().get(@name)
 
 
   @logdbClear: ->
     @logdb().set({})
-    return SystemLog.db()
+    return MissingDataFunctions.db()
 
   # @_dbPath 涉及到目录位置,似乎无法在此设置
 
@@ -113,7 +113,7 @@ class AnyCaseSingleton extends StormDBSingleton
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
 
-    funcOpts.regest_db = 缺漏追踪库.db()
+    funcOpts.regest_db = MissingDataLog.db()
     funcOpts.log_db = @logdb()
     funcOpts.hostname = @name
 
@@ -171,10 +171,10 @@ class NormalCaseSingleton extends CaseSingleton
 
 # ----------------------------------- logging api -----------------------------------------
 
-class 缺漏追踪库 extends NormalCaseSingleton
+class MissingDataLog extends NormalCaseSingleton
 
 
-class SystemLog extends NormalCaseSingleton
+class MissingDataFunctions extends NormalCaseSingleton
 
 
 
@@ -1733,7 +1733,7 @@ class 生成器 extends CaseSingleton
   @checkForAllIndicators: ->
     院内资料库.logdbClear().save()
     对标资料库.logdbClear().save()
-    缺漏追踪库.dbClear()
+    MissingDataLog.dbClear()
 
     指标维度 = 三级指标对应二级指标.dbValue()
     
@@ -1763,7 +1763,7 @@ class 生成器 extends CaseSingleton
     console.log { 
       院内资料: 院内资料库.logdb().value()
       对标资料: 对标资料库.logdb().value()
-      缺漏追踪: (key for key, value of 缺漏追踪库.db().get('院内资料库').value() when value.length > 1)
+      缺漏追踪: (key for key, value of MissingDataLog.db().get('院内资料库').value() when value.length > 1)
     }
     return this
 
@@ -1835,7 +1835,7 @@ db = 对标单科指标评分排序.db()
 db.filter()
 ###
 
-#console.log db: 缺漏追踪库.db().get('院内资料库').value?()?
+#console.log db: MissingDataLog.db().get('院内资料库').value?()?
 
 #
 #院内单科多维度评分集中分析.dataPrepare()
