@@ -149,8 +149,9 @@ class DataManagerBase
     console.log {function: "#{@_funcName(funcOpts)}", needs: "implementing!"} unless informal
     @regMissing(funcOpts)
 
-    if informal 
-       Math.random() * 2
+    if informal
+      console.log {informal: 'generating random number'}
+      Math.random() * 2
     else
       return nil
 
@@ -181,18 +182,16 @@ class DataManagerBase
 
 class DataManager extends DataManagerBase
   @求CMI当量DRGs组数: (funcOpts={}) -> #@toBeImplemented(funcOpts)
-    {entityName} = funcOpts
-
     funcOpts.dataName = "CMI值"
     CMI = @getData(funcOpts)
     funcOpts.dataName = "DRGs组数"
     DRGs = @getData(funcOpts)
-    console.log {entityName, 求: 'CMI当量DRGs组数', CMI, DRGs}
+    #{entityName} = funcOpts
+    #console.log {entityName, 求: 'CMI当量DRGs组数', CMI, DRGs}
     return CMI * DRGs 
 
     
   @求重点学科等级评分: (funcOpts={}) -> #@toBeImplemented(funcOpts)
-    {entityName} = funcOpts
 
     funcOpts.dataName = "是否为教育部或科技部重点学科或重点实验室"
     k10 = @getData(funcOpts)
@@ -234,26 +233,28 @@ class DataManager extends DataManagerBase
       when w3 or z3 then 3
       else 0
     
-    console.log {entityName, 求:'重点学科等级评分', score}
+    #{entityName} = funcOpts
+    #console.log {entityName, 求:'重点学科等级评分', score}
     return score
 
+
   @求出院四级手术人数占比: (funcOpts={})-> #@toBeImplemented(funcOpts) # 医院Y2020
-    {entityName} = funcOpts
     funcOpts.dataName = '出院患者手术占比'
     出院患者手术占比 = @getData(funcOpts)
     funcOpts.dataName = '出院患者四级手术比例'
     出院患者四级手术比例 = @getData(funcOpts)
-    console.log {entityName, 求:'出院四级手术人数占比', 出院患者手术占比, 出院患者四级手术比例}
+    #{entityName} = funcOpts
+    #console.log {entityName, 求:'出院四级手术人数占比', 出院患者手术占比, 出院患者四级手术比例}
     return 出院患者手术占比 * 出院患者四级手术比例 / 10000
 
 
   @求出院微创手术人数占比: (funcOpts={})-> #@toBeImplemented(funcOpts) # 医院Y2020
-    {entityName} = funcOpts
     funcOpts.dataName = '出院患者手术占比'
     出院患者手术占比 = @getData(funcOpts)
     funcOpts.dataName = '出院患者微创手术占比'
     出院患者微创手术占比 = @getData(funcOpts)
-    console.log {entityName, 求:'出院患者微创手术人数占比', 出院患者手术占比, 出院患者微创手术占比}
+    #{entityName} = funcOpts
+    #console.log {entityName, 求:'出院患者微创手术人数占比', 出院患者手术占比, 出院患者微创手术占比}
     return 出院患者手术占比 * 出院患者微创手术占比 / 10000
 
 
