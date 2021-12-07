@@ -1875,8 +1875,8 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-#生成器.setUpSystem()
-#生成器.buildDB()
+生成器.setUpSystem()
+生成器.buildDB()
 生成器.generateReports()
 
 
