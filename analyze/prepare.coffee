@@ -54,7 +54,7 @@ class DataManagerBase
 
   # todo: when not informal what should we do? 
   @tryCalculating: (funcOpts) ->
-    {entityName, dataName, key, log_db, regist_db, informal=false} = funcOpts
+    {entityName, key, log_db, regist_db, informal=false} = funcOpts
     
     return nil unless informal
 
@@ -73,17 +73,21 @@ class DataManagerBase
 
 
   @regMissing: (funcOpts) ->
-    {entityName, dataName, hostname, key, regist_db} = funcOpts
-    regarr = regist_db.get(hostname)?.get(dataName)
+    {entityName, dataName, dimension, hostname, regist_db} = funcOpts
+    #regarr = regist_db.get(hostname)?.get(dataName)
     
     unless regist_db.get(hostname).value?()?
       regist_db.set(hostname,{}).save()
+
+    unless regist_db.get(hostname).get(dimension).value?()?
+      regist_db.get(hostname).set(dimension,{}).save() 
+  
+
+    unless regist_db.get(hostname).get(dimension).get(dataName).value?()?
+      regist_db.get(hostname).get(dimension).set(dataName,[]).save() 
     
-    unless regist_db.get(hostname).get(dataName).value?()?
-      regist_db.get(hostname).set(dataName,[]).save() 
-    
-    unless entityName in regist_db.get(hostname).get(dataName).value()
-      regist_db.get(hostname).get(dataName).push(entityName).save() 
+    unless entityName in regist_db.get(hostname).get(dimension).get(dataName).value()
+      regist_db.get(hostname).get(dimension).get(dataName).push(entityName).save() 
     
 
 

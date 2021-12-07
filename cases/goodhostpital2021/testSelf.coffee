@@ -114,20 +114,6 @@ class AnyCaseSingleton extends StormDBSingleton
 
   # @_dbPath 涉及到目录位置,似乎无法在此设置
 
-  # 用于获取或计算指标数据
-  @getData: (funcOpts) ->
-    # 分别为单位(医院,某科),数据名,以及年度
-    {entityName} = funcOpts
-    funcOpts.storm_db = @db()
-    funcOpts.dbItem = @db().get(entityName)
-
-    funcOpts.regist_db = MissingDataRegister.db()
-    funcOpts.log_db = @missingDataFuncDB()
-    funcOpts.hostname = @name
-
-    DataManager.getData(funcOpts)
-
-
 
 
 
@@ -355,7 +341,7 @@ class 二级指标权重 extends 指标体系
 
     
   # 暂时保留,以便保留权重设置
-  @struct: ->
+  @forReference: ->
     {
       医疗质量:{
         weight: 0.3
@@ -1034,8 +1020,32 @@ class 单科对比雷达图报告 extends 雷达图报告
 # ---------------------------------------- overall data api -------------------------------------
 
 class 资料库 extends NormalCaseSingleton 
+  @getData: ->
+    throw new Error("getData 仅用于从原始资料库获取或计算指标数据")
 
-class 院内资料库 extends 资料库
+
+
+class 原始资料库 extends 资料库
+  # 仅用于从原始资料库获取或计算指标数据
+  @getData: (funcOpts) ->
+    # 分别为单位(医院,某科),数据名,以及年度
+    {entityName,dataName} = funcOpts
+    funcOpts.storm_db = @db()
+    funcOpts.dbItem = @db().get(entityName)
+
+    funcOpts.regist_db = MissingDataRegister.db()
+    funcOpts.log_db = @missingDataFuncDB()
+    funcOpts.hostname = @name
+
+    DataManager.getData(funcOpts)
+
+
+
+
+
+class 对标资料库 extends 原始资料库
+
+class 院内资料库 extends 原始资料库
   @localUnits: ->
     @dbDictKeys()
   
@@ -1067,16 +1077,16 @@ class 院内指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
-    指标维度 = 三级指标对应二级指标.dbValue()
+    三级所属二级 = 三级指标对应二级指标.dbValue()
     years = @years()
     units = @localUnits()
     informal = @createMissingData()
 
-    for dataName, dimension of 指标维度 when dataName?
+    for dataName, dimension of 三级所属二级 when dataName?
       for entityName in units 
         for year in years
           key = year
-          ownData = 院内资料库.getData({entityName, dataName, key, informal})
+          ownData = 院内资料库.getData({entityName, dataName, dimension, key, informal})
           @dbSet("#{entityName}.#{dataName}.#{year}", ownData) if existNumber(ownData)
     @dbSave()
     console.log "院内指标资料库: 指标数据移动完毕"
@@ -1089,9 +1099,9 @@ class 院内各科指标简单排序 extends 简单排序报告
   @dataPrepare: ->
     @dbClear()
     year = @years()[0] # 最大的那个
-    指标维度 = 三级指标对应二级指标.dbValue()
+    三级所属二级 = 三级指标对应二级指标.dbValue()
 
-    for dataName, dimension of 指标维度 when dataName?
+    for dataName, dimension of 三级所属二级 when dataName?
       except = /^医院$/  #/(^医院$|^大|合并)/
       arr = 院内指标资料库.dbAsArray({dataName,key:year,except})
       @dbSet(dataName, arr)
@@ -1164,7 +1174,7 @@ class 院内单科多指标评分雷达图 extends 单科雷达图报告
 
 
 
-# 以指标维度为主体,看相关指标趋势离散度
+# 以二级指标为主体,看相关指标趋势离散度
 class 院内各科维度轮比雷达图 extends 多科雷达图报告
   @dataPrepare: ->
     @dbClear()
@@ -1399,7 +1409,6 @@ class 院内二级专科梯队表 extends 院内专科梯队表
 
 
 # ------------------------------------- 对标本非逻辑有异,合表同理遴选即可 ------------------------------------
-class 对标资料库 extends 资料库
 
 
 
@@ -1407,19 +1416,19 @@ class 对标指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
-    units = @focusUnits() # 对标资料库.dbDictKeys()
-    指标维度 = 三级指标对应二级指标.dbValue()
+    units = @focusUnits()
+    三级所属二级 = 三级指标对应二级指标.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
 
     对标项 = ['均1','均2','某A','某B']
     informal = @createMissingData()  
 
     for entityName in units when 院内指标资料[entityName]?
-      for dataName, dimension of 指标维度 when dataName?     
+      for dataName, dimension of 三级所属二级 when dataName?     
         for year, value of 院内指标资料[entityName][dataName]
           @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
         for key in 对标项
-          otherData = 对标资料库.getData({entityName, dataName, key, informal})
+          otherData = 对标资料库.getData({entityName, dataName, dimension, key, informal})
           @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
 
         # 注意,仅在有对标项时,才会保存数据库
@@ -1750,17 +1759,6 @@ class 生成器 extends CaseSingleton
   
   
 
-  # 测试一下 getData, 例如平均住院日等等应该有的数据,看看程序逻辑是否走通
-  @_tryGetSomeData: ->
-    [entityName,dataName,key] = ['医院','平均住院日','Y2018']
-    console.log {entityName,dataName,key,院内: 院内资料库.getData({entityName,dataName,key})}
-    console.log {entityName,dataName,key,院内: 院内资料库.getData({entityName,dataName})}
-    [entityName,dataName,key] = ['医院','平均住院日','某A']
-    console.log {entityName,dataName,key,对标: 对标资料库.getData({entityName,dataName,key})}
-    console.log {entityName,dataName,key,对标: 对标资料库.getData({entityName,dataName})}
-    return this
-
-
 
   @showDimensions: ->
     console.log @二级指标表({full: true})
@@ -1773,15 +1771,15 @@ class 生成器 extends CaseSingleton
     对标资料库.missingDataFuncDBClear().save()
     MissingDataRegister.dbClear()
 
-    指标维度 = 三级指标对应二级指标.dbValue()
+    三级所属二级 = 三级指标对应二级指标.dbValue()
     
     k1 = year_1
     k2 = '均2'
-    for dataName, dimension of 指标维度 when dataName?
+    for dataName, dimension of 三级所属二级 when dataName?
       for entityName in 院内资料库.dbDictKeys()
-        院内资料库.getData({entityName, dataName, key:k1, informal:true})
+        院内资料库.getData({entityName, dataName, dimension, key:k1, informal:true})
       for entityName in 对标资料库.dbDictKeys()
-        对标资料库.getData({entityName, dataName, key:k2, informal:true})
+        对标资料库.getData({entityName, dataName, dimension, key:k2, informal:true})
     console.log "指标数据筛查完毕"
     return this
 
@@ -1790,7 +1788,6 @@ class 生成器 extends CaseSingleton
     this
       .showMissingIndicatorsOrDataProblems()
       .showUnitNames()
-      ._tryGetSomeData()
       .showDimensions()
     return this
   
