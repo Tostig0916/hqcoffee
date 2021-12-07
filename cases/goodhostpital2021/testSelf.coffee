@@ -104,19 +104,6 @@ class AnyCaseSingleton extends StormDBSingleton
     return MistakeChasingLog.db()
 
 
-  @missingDataFuncDB: ->
-    MissingDataFuncLog.db().get(@name)
-
-
-  @missingDataFuncDBClear: ->
-    @missingDataFuncDB().set({})
-    return MissingDataFuncLog.db()
-
-  # @_dbPath 涉及到目录位置,似乎无法在此设置
-
-
-
-
 
 class CaseSingleton extends AnyCaseSingleton
   @createMissingData: -> 
@@ -185,12 +172,6 @@ class 项目设置 extends 指标体系
     @_options.unwrap = false
     @_options
 
-
-  @二级指标对应一级指标: ->
-    obj = {}
-    for key, value of @dbValue('二级指标设置') # sleepy
-      obj[key] =  value.上级指标
-    return obj
 
 
   @groups: ->
@@ -343,7 +324,7 @@ class 二级指标权重 extends 指标体系
     @dbSave()
 
 
-    
+  ###  
   # 暂时保留,以便保留权重设置
   @forReference: ->
     {
@@ -422,10 +403,6 @@ class 二级指标权重 extends 指标体系
 
 
 
-
-
-
-
   @dictWithPerfectData: -> 
     {
       医服收入: 2.5
@@ -442,21 +419,9 @@ class 二级指标权重 extends 指标体系
       资源效率: 0.1
       人才培养: 0.1
     }
-
+  ###
       
 
-
-
-
-class 三级指标对应一级指标 extends 指标体系
-  @dataPrepare: ->
-    @dbClear()
-    三级设置 = 项目设置.dbValue("三级指标设置")
-    二级设置 = 项目设置.dbValue("二级指标设置")
-    for key, obj of 三级设置
-      console.log {缺少二级设置: obj.上级指标} unless 二级设置[obj.上级指标]?
-      @dbSet(key, 二级设置[obj.上级指标].上级指标)
-    @dbSave()
 
 
 
@@ -481,18 +446,11 @@ class 一级指标对应二级指标 extends 指标体系
 
 
 
-class 一级指标对应三级指标 extends 指标体系
-  @dataPrepare: ->
-    @dbClear()
-    @dbDefault(三级指标对应一级指标.dbRevertedValue()).save()
-
-
-
-
+# 此法过滤掉非指标的原始数据
 class 三级指标对应二级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 项目设置.dbValue("三级指标设置") when obj.指或数 is '指'
+    for key, obj of 项目设置.dbValue("三级指标设置") when (obj.指或数 is '指') and (obj[customGrade] isnt '无')
       @dbSet(key, obj.上级指标)
     @dbSave()
 
@@ -514,6 +472,25 @@ class 二级指标对应三级指标 extends 指标体系
     @dbSave()
 
 
+
+
+class 三级指标对应一级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    所属二级指标 = 三级指标对应二级指标.dbValue()
+    二级设置 = 项目设置.dbValue("二级指标设置")
+    for key, value of 所属二级指标
+      console.log {缺少二级设置: value} unless 二级设置[value]?
+      @dbSet(key, 二级设置[value].上级指标)
+    @dbSave()
+
+
+
+
+class 一级指标对应三级指标 extends 指标体系
+  @dataPrepare: ->
+    @dbClear()
+    @dbDefault(三级指标对应一级指标.dbRevertedValue()).save()
 
 
 
@@ -1034,10 +1011,11 @@ class 原始资料库 extends 资料库
   @getData: (funcOpts) ->
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName,dataName} = funcOpts
-    三级指标设置 = 项目设置.dbValue('三级指标设置')#(customGrade)
+    三级指标设置 = 项目设置.dbValue('三级指标设置')
     院科通 = 三级指标设置[dataName].院科通
-    类型 = 三级指标设置[customGrade]
-    #return unless /(自|考|监|审)/i.test(类型)
+    indiType = 三级指标设置[dataName][customGrade]
+    
+    return if /无/i.test(indiType)
     
     if entityName is '医院'
       return if 院科通 is '科'
@@ -1046,12 +1024,26 @@ class 原始资料库 extends 资料库
 
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
-
+    funcOpts.hostname = @name
+    funcOpts.informal = indiType is '算'
+    funcOpts.indiType = indiType
     funcOpts.regist_db = MissingDataRegister.db()
     funcOpts.log_db = @missingDataFuncDB()
-    funcOpts.hostname = @name
-
+    console.log({dataName,entityName,indiType}) if (indiType is '算') and /实验室/i.test(dataName)
+    
     DataManager.getData(funcOpts)
+
+
+
+  @missingDataFuncDB: ->
+    #unless MissingDataFuncLog.db().get(@name)?.value?()?
+    #  MissingDataFuncLog.db().get(@name).set({}).save()
+    return MissingDataFuncLog.db().get(@name)
+
+
+  @missingDataFuncDBClear: ->
+    @missingDataFuncDB().set({}).save()
+
 
 
 
@@ -1091,6 +1083,9 @@ class 院内指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
+    # 清空缺漏数据库
+    院内资料库.missingDataFuncDBClear()
+
     三级所属二级 = 三级指标对应二级指标.dbValue()
     years = @years()
     units = @localUnits()
@@ -1430,6 +1425,9 @@ class 对标指标资料库 extends 资料库
 
   @rawDataToIndicators: ->
     @dbClear()
+    # 清理缺漏数据库
+    对标资料库.missingDataFuncDBClear()
+
     units = @focusUnits()
     三级所属二级 = 三级指标对应二级指标.dbValue()
     院内指标资料 = 院内指标资料库.dbValue()
@@ -1717,7 +1715,7 @@ class 生成器 extends CaseSingleton
     this
       .readDataExcel()
 
-      .checkForAllIndicators()
+      #.checkForAllIndicators()
       #.showProperties()
       .localReportDataPreparing()
       .compareReportDataPreparing()
@@ -1739,9 +1737,9 @@ class 生成器 extends CaseSingleton
     指标导向库.dataPrepare()
     二级指标权重.dataPrepare()
 
-    三级指标对应一级指标.dataPrepare()
-    三级指标对应二级指标.dataPrepare()
     二级指标对应一级指标.dataPrepare()
+    三级指标对应二级指标.dataPrepare()
+    三级指标对应一级指标.dataPrepare()
 
     一级指标对应二级指标.dataPrepare()
     一级指标对应三级指标.dataPrepare()
@@ -1781,8 +1779,8 @@ class 生成器 extends CaseSingleton
 
   # 筛查数据
   @checkForAllIndicators: ->
-    院内资料库.missingDataFuncDBClear().save()
-    对标资料库.missingDataFuncDBClear().save()
+    院内资料库.missingDataFuncDBClear()
+    对标资料库.missingDataFuncDBClear()
     MissingDataRegister.dbClear()
 
     三级所属二级 = 三级指标对应二级指标.dbValue()

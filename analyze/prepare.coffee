@@ -54,7 +54,7 @@ class DataManagerBase
 
   # todo: when not informal what should we do? 
   @tryCalculating: (funcOpts) ->
-    {entityName, key, log_db, regist_db, informal=false} = funcOpts
+    {entityName, key, log_db, regist_db, indiType=null, informal=false} = funcOpts
     
     return nil unless informal
 
@@ -66,6 +66,7 @@ class DataManagerBase
       @regMissing(funcOpts)
       funcNameKey = "@#{funcName}"
       unless log_db.get(funcNameKey)?.value?()?
+        if /实验室/i.test(funcName) then console.log {indiType, funcName}
         log_db.set(funcNameKey,"(funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
       nil
