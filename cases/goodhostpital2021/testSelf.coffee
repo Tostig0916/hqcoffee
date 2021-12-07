@@ -576,28 +576,6 @@ class 项目指标填报表 extends 指标体系
 
 # ---------------------------------  slides api  -----------------------------------
 class PPTSection extends NormalCaseSingleton
-
-  @newReport: ->
-    opts = @options()
-    opts.generate = (funcOpts) => 
-      {pres} = funcOpts
-      # title slide
-      title = "数智分析报告"
-      slide = pres.addSlide("TITLE_SLIDE")
-      slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
-      slide.addText(customerName, {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
-      # slides in sections
-      for section in @sections()
-        # slide section could be added from key
-        sectionTitle = section.name
-
-        pres.addSection({title: sectionTitle})
-        section.slides({pres, sectionTitle})
-
-    MakePPTReport.newReport(opts)
-
-
-
   @dataPrepare: ->
  
 
@@ -893,6 +871,7 @@ class 排序报告 extends PPTSection
       })
 
 
+class 简单排序报告 extends 排序报告
 
 
 class 评分排序报告 extends 排序报告
@@ -1088,8 +1067,7 @@ class 院内指标资料库 extends 资料库
 
 
 # ---------------------------------  section data api  ------------------------------------
-
-class 院内各科指标简单排序 extends 排序报告
+class 院内各科指标简单排序 extends 简单排序报告
   @dataPrepare: ->
     @dbClear()
     year = @years()[0] # 最大的那个
@@ -1351,7 +1329,7 @@ class 院内专科梯队Topsis评分 extends PPTSection
       @db().get(unitName).set('综合评分',value).save()
 
 
-
+# ! CoffeeScript的bug, 以下的母class 不能供实际使用,否则会导致子class的db失灵
 class 院内专科梯队表 extends 表格报告
   @dataPrepare: ->
     @dbClear() #()
@@ -1366,10 +1344,6 @@ class 院内专科梯队表 extends 表格报告
     @dbSave()  
 
 
-  @validDeparts: (funcOpts={}) ->
-    {unitName} = funcOpts
-    not /医院/i.test(unitName)
-
   @arrayName: ->
     '学科梯队'
 
@@ -1382,7 +1356,16 @@ class 院内专科梯队表 extends 表格报告
     arr
 
 
-class 院内大小专科梯队混合表 extends 院内专科梯队表
+
+
+class 院内专科梯队总分合集表 extends 院内专科梯队表
+  @validDeparts: (funcOpts={}) ->
+    {unitName} = funcOpts
+    not /医院/i.test(unitName)
+
+
+
+class 院内专科梯队大小混合表 extends 院内专科梯队表
   @validDeparts: (funcOpts={}) ->
     {unitName} = funcOpts
     not /(医院|合并)/i.test(unitName)
@@ -1413,16 +1396,25 @@ class 对标指标资料库 extends 资料库
     对标项 = ['均1','均2','某A','某B']
     informal = @createMissingData()  
 
-    for dataName, dimension of 指标维度 when dataName?     
-      for entityName in units when 院内指标资料[entityName]?
+    for entityName in units when 院内指标资料[entityName]?
+      for dataName, dimension of 指标维度 when dataName?     
         for year, value of 院内指标资料[entityName][dataName]
           @dbSet("#{entityName}.#{dataName}.#{year}", value) if existNumber(value)
-
-        for item in 对标项
-          key = item
+        for key in 对标项
           otherData = 对标资料库.getData({entityName, dataName, key, informal})
           @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
-    
+
+        # 注意,仅在有对标项时,才会保存数据库
+        if (newData = @db().get(entityName).get(dataName).value())?
+          invalid = (data) -> 
+            unless data[year_1]?
+              return true
+            for eachKey in 对标项 when data[eachKey]?
+              return false
+            return true      
+          if invalid(newData)
+            @db().get(entityName).get(dataName).delete(true)
+      
     @dbSave()
     console.log "对标指标资料库: 指标数据移动完毕"
     return this    
@@ -1432,7 +1424,7 @@ class 对标指标资料库 extends 资料库
 
 
 
-class 对标单科指标简单排序 extends 排序报告
+class 对标单科指标简单排序 extends 简单排序报告
   @dataPrepare: ->
     @dbClear()
     focusUnits = @focusUnits()
@@ -1590,14 +1582,39 @@ class 对标单科多维度评分雷达图 extends 单科对比雷达图报告
 
 
 # ---------------------------------  report api  -----------------------------------
-# 不分内外,混合评估
-class 院科混合分析报告 extends PPTSection
+class PPTReport extends PPTSection
 
-class 院科内部分析报告 extends PPTSection
+  @newReport: ->
+    opts = @options()
+    opts.generate = (funcOpts) => 
+      {pres} = funcOpts
+      # title slide
+      title = "数智分析报告"
+      slide = pres.addSlide("TITLE_SLIDE")
+      slide.addText(title, {x: '30%', y: '50%',color: "0000FF", fontSize: 64} )
+      slide.addText(customerName, {x: '10%', y: '90%',color: "DDDD00", fontSize: 32} )
+      # slides in sections
+      for section in @sections()
+        # slide section could be added from key
+        sectionTitle = section.name
+
+        pres.addSection({title: sectionTitle})
+        section.slides({pres, sectionTitle})
+
+    MakePPTReport.newReport(opts)
+
+
+
+
+
+# 不分内外,混合评估
+class 院科混合分析报告 extends PPTReport
+
+class 院科内部分析报告 extends PPTReport
   @sections: ->
     [
 
-      #院内各科指标简单排序
+      院内各科指标简单排序
       #院内各科指标评分排序 
       院内各科维度轮比雷达图
       院内各科维度轮比散点图
@@ -1607,9 +1624,9 @@ class 院科内部分析报告 extends PPTSection
       #院内二级专科BCG矩阵分析
       #院内二级权重专科BCG矩阵分析
       
-      #院内专科梯队表
+      #院内专科梯队总分合集表
       院内二级专科梯队表
-      #院内大小专科梯队混合表
+      #院内专科梯队大小混合表
 
       
       # 尚未制作
@@ -1619,7 +1636,7 @@ class 院科内部分析报告 extends PPTSection
 
 
 
-class 院科外部对标报告 extends PPTSection
+class 院科外部对标报告 extends PPTReport
   @sections: ->
     [
       对标单科指标简单排序
@@ -1638,12 +1655,13 @@ class 生成器 extends CaseSingleton
   
   # 不知原因,不能连续运行这两步,内存中的各class数据会出现"串台"现象,
   # 需要分步做,第二步是从数据库读取,结果正确
+  ###
   @run: ->
     @setUpSystem()
     @buildDB()
     @showProperties()
     @generateReports()
-
+  ###
 
 
   @setUpSystem: ->
@@ -1699,7 +1717,7 @@ class 生成器 extends CaseSingleton
 
   # 获取最新资料,若有Excel源文件,则同时会生成json文件
   @readDataExcel: ->
-    v.fetchSingleJSON() for k, v of {院内资料库,对标资料库}
+    v.fetchSingleJSON() for k, v of {院内资料库, 对标资料库}
     return this
 
 
@@ -1789,9 +1807,9 @@ class 生成器 extends CaseSingleton
 
     院内专科梯队Topsis评分.dataPrepare()
 
-    院内专科梯队表.dataPrepare()
+    院内专科梯队总分合集表.dataPrepare()
     院内二级专科梯队表.dataPrepare()
-    院内大小专科梯队混合表.dataPrepare()
+    院内专科梯队大小混合表.dataPrepare()
     return this
 
 
@@ -1817,9 +1835,9 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-生成器.setUpSystem()
+#生成器.setUpSystem()
 生成器.buildDB()
-#生成器.generateReports()
+生成器.generateReports()
 
 
 
