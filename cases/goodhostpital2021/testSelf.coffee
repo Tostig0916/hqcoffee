@@ -846,6 +846,8 @@ class 排序报告 extends PPTSection
       slide.addChart(pres.ChartType[chartType], chartData, { 
         x: 0.1, y: 0.1, 
         w: "90%", h: "90%" #w: "95%", h: "90%"
+        #valAxisMajorUnit: 0.2
+        dataLabelFormatCode: '0.00' # 小数点位数
         showLegend: true, 
         legendPos: 'b'
         showTitle: true, 
@@ -1872,6 +1874,8 @@ class 生成器 extends CaseSingleton
 module.exports = {
   院内资料库
   院内指标资料库
+  院内各科指标简单排序
+  院内各科指标评分排序
   对标资料库
   对标指标资料库
   生成器
