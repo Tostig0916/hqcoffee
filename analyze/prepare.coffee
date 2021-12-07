@@ -56,12 +56,13 @@ class DataManagerBase
   @tryCalculating: (funcOpts) ->
     {entityName, key, log_db, regist_db, indiType=null, informal=false} = funcOpts
     
-    return nil unless informal
+    return nil unless informal or (indiType is '算')
 
     try
+      # 避免向下一级数据错误传递本级数据的类型参数
       if indiType is '算'
         funcOpts.indiType = null
-        funcOpts.informal = false
+
       funcName = @_funcName(funcOpts)
       this[funcName](funcOpts)
 
@@ -69,7 +70,6 @@ class DataManagerBase
       @regMissing(funcOpts)
       funcNameKey = "@#{funcName}"
       unless log_db.get(funcNameKey)?.value?()?
-        if /实验室/i.test(funcName) then console.log {indiType, funcName}
         log_db.set(funcNameKey,"(funcOpts={})-> @toBeImplemented(funcOpts) # #{entityName}#{key}").save()
 
       nil
@@ -77,6 +77,20 @@ class DataManagerBase
 
 
   @regMissing: (funcOpts) ->
+    {entityName, dataName, dimension, regist_db} = funcOpts
+    
+    unless regist_db.get(dimension).value?()?
+      regist_db.set(dimension,{}).save() 
+  
+    unless regist_db.get(dimension).get(dataName).value?()?
+      regist_db.get(dimension).set(dataName,[]).save() 
+    
+    unless entityName in regist_db.get(dimension).get(dataName).value()
+      regist_db.get(dimension).get(dataName).push(entityName).save() 
+
+
+  # hostname 已经在regist_db这一层次
+  @regMissing_old: (funcOpts) ->
     {entityName, dataName, dimension, hostname, regist_db} = funcOpts
     #regarr = regist_db.get(hostname)?.get(dataName)
     
@@ -167,15 +181,19 @@ class DataManagerBase
 
 class DataManager extends DataManagerBase
   @求CMI当量DRGs组数: (funcOpts={}) -> #@toBeImplemented(funcOpts)
+    {entityName} = funcOpts
+
     funcOpts.dataName = "CMI值"
     CMI = @getData(funcOpts)
     funcOpts.dataName = "DRGs组数"
     DRGs = @getData(funcOpts)
-
+    console.log {entityName, 求: 'CMI当量DRGs组数', CMI, DRGs}
     return CMI * DRGs 
 
     
   @求重点学科等级评分: (funcOpts={}) -> #@toBeImplemented(funcOpts)
+    {entityName} = funcOpts
+
     funcOpts.dataName = "是否为教育部或科技部重点学科或重点实验室"
     k10 = @getData(funcOpts)
     funcOpts.dataName = "是否为国家卫健委临床重点专科"
@@ -215,6 +233,8 @@ class DataManager extends DataManagerBase
       when k4 then 4
       when w3 or z3 then 3
       else 0
+    
+    console.log {entityName, 求:'重点学科等级评分', score}
     return score
 
 
