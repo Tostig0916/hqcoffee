@@ -1396,8 +1396,6 @@ class 对标指标资料库 extends 资料库
     对标项 = ['均1','均2','某A','某B']
     informal = @createMissingData()  
 
-#    for dataName, dimension of 指标维度 when dataName?     
-#      for entityName in units when 院内指标资料[entityName]?
     for entityName in units when 院内指标资料[entityName]?
       for dataName, dimension of 指标维度 when dataName?     
         for year, value of 院内指标资料[entityName][dataName]
