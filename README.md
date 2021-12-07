@@ -77,6 +77,10 @@
 
 <https://youtu.be/2LhoCfjm8R4>
 
+### cson
+
+instead of JSON: <https://github.com/bevry/cson>
+
 ### sql 99
 
 目前没有用SQL.有一个库,但经过测试bug太多,放弃.
