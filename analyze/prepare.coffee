@@ -237,6 +237,25 @@ class DataManager extends DataManagerBase
     console.log {entityName, 求:'重点学科等级评分', score}
     return score
 
+  @求出院四级手术人数占比: (funcOpts={})-> #@toBeImplemented(funcOpts) # 医院Y2020
+    {entityName} = funcOpts
+    funcOpts.dataName = '出院患者手术占比'
+    出院患者手术占比 = @getData(funcOpts)
+    funcOpts.dataName = '出院患者四级手术比例'
+    出院患者四级手术比例 = @getData(funcOpts)
+    console.log {entityName, 求:'出院四级手术人数占比', 出院患者手术占比, 出院患者四级手术比例}
+    return 出院患者手术占比 * 出院患者四级手术比例 / 10000
+
+
+  @求出院微创手术人数占比: (funcOpts={})-> #@toBeImplemented(funcOpts) # 医院Y2020
+    {entityName} = funcOpts
+    funcOpts.dataName = '出院患者手术占比'
+    出院患者手术占比 = @getData(funcOpts)
+    funcOpts.dataName = '出院患者微创手术占比'
+    出院患者微创手术占比 = @getData(funcOpts)
+    console.log {entityName, 求:'出院患者微创手术人数占比', 出院患者手术占比, 出院患者微创手术占比}
+    return 出院患者手术占比 * 出院患者微创手术占比 / 10000
+
 
   @求非医嘱离院率: (funcOpts={}) -> @toBeImplemented(funcOpts)
 
