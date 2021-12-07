@@ -1025,13 +1025,21 @@ class 原始资料库 extends 资料库
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
     funcOpts.hostname = @name
-    funcOpts.informal = indiType is '算'
     funcOpts.indiType = indiType
-    funcOpts.regist_db = MissingDataRegister.db()
+    funcOpts.regist_db = @missingDataRegistDB()
     funcOpts.log_db = @missingDataFuncDB()
-    console.log({dataName,entityName,indiType}) if (indiType is '算') and /实验室/i.test(dataName)
     
     DataManager.getData(funcOpts)
+
+
+  @missingDataRegistDB: ->
+    return MissingDataRegister.db().get(@name)
+
+
+
+  @missingDataRegistDBClear: ->
+    @missingDataRegistDB().set({}).save()
+    return this
 
 
 
@@ -1043,6 +1051,7 @@ class 原始资料库 extends 资料库
 
   @missingDataFuncDBClear: ->
     @missingDataFuncDB().set({}).save()
+    return this
 
 
 
@@ -1084,7 +1093,9 @@ class 院内指标资料库 extends 资料库
   @rawDataToIndicators: ->
     @dbClear()
     # 清空缺漏数据库
-    院内资料库.missingDataFuncDBClear()
+    院内资料库
+      .missingDataFuncDBClear()
+      .missingDataRegistDBClear()
 
     三级所属二级 = 三级指标对应二级指标.dbValue()
     years = @years()
@@ -1426,7 +1437,9 @@ class 对标指标资料库 extends 资料库
   @rawDataToIndicators: ->
     @dbClear()
     # 清理缺漏数据库
-    对标资料库.missingDataFuncDBClear()
+    对标资料库
+      .missingDataFuncDBClear()
+      .missingDataRegistDBClear()
 
     units = @focusUnits()
     三级所属二级 = 三级指标对应二级指标.dbValue()
@@ -1714,9 +1727,6 @@ class 生成器 extends CaseSingleton
   @buildDB: ->
     this
       .readDataExcel()
-
-      #.checkForAllIndicators()
-      #.showProperties()
       .localReportDataPreparing()
       .compareReportDataPreparing()
     
@@ -1779,9 +1789,12 @@ class 生成器 extends CaseSingleton
 
   # 筛查数据
   @checkForAllIndicators: ->
-    院内资料库.missingDataFuncDBClear()
-    对标资料库.missingDataFuncDBClear()
-    MissingDataRegister.dbClear()
+    院内资料库
+      .missingDataFuncDBClear()
+      .missingDataRegistDBClear()
+    对标资料库
+      .missingDataFuncDBClear()
+      .missingDataRegistDBClear()
 
     三级所属二级 = 三级指标对应二级指标.dbValue()
     
@@ -1862,9 +1875,9 @@ class 生成器 extends CaseSingleton
 
 # --------------------------------------- 以下为工作代码 ---------------------------------------- #
 
-生成器.setUpSystem()
-生成器.buildDB()
-#生成器.generateReports()
+#生成器.setUpSystem()
+#生成器.buildDB()
+生成器.generateReports()
 
 
 
