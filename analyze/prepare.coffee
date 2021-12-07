@@ -59,6 +59,9 @@ class DataManagerBase
     return nil unless informal
 
     try
+      if indiType is '算'
+        funcOpts.indiType = null
+        funcOpts.informal = false
       funcName = @_funcName(funcOpts)
       this[funcName](funcOpts)
 
@@ -173,32 +176,38 @@ class DataManager extends DataManagerBase
 
     
   @求重点学科等级评分: (funcOpts={}) -> #@toBeImplemented(funcOpts)
+    funcOpts.dataName = "是否为教育部或科技部重点学科或重点实验室"
+    k10 = @getData(funcOpts)
     funcOpts.dataName = "是否为国家卫健委临床重点专科"
     w9 = @getData(funcOpts)
     funcOpts.dataName = "是否为国家中医药局重点专科"
     z9 = @getData(funcOpts)
-    funcOpts.dataName = "是否为教育部或科技部重点学科或重点实验室"
-    k10 = @getData(funcOpts)
+
+    funcOpts.dataName = "是否为省教育厅或科技厅重点学科或重点实验室"
+    k8 = @getData(funcOpts)
     funcOpts.dataName = "是否为省卫健委重点专科"
     w7 = @getData(funcOpts)
     funcOpts.dataName = "是否为省中医药局重点专科"
     z7 = @getData(funcOpts)
-    funcOpts.dataName = "是否为省教育厅或科技厅重点学科或重点实验室"
-    k8 = @getData(funcOpts)
+
+    funcOpts.dataName = "是否为地级市教育局或科技局重点学科或实验室"
+    k6 = @getData(funcOpts)
     funcOpts.dataName = "是否为地级卫健委重点专科"
     w5 = @getData(funcOpts)
     funcOpts.dataName = "是否为地级中医药局重点专科"
     z5 = @getData(funcOpts)
-    funcOpts.dataName = "是否为地级市教育局或科技局重点学科或实验室"
-    k6 = @getData(funcOpts)
+
+    funcOpts.dataName = "是否为县级市教育局或科技局重点学科或实验室"
+    k4 = @getData(funcOpts)
     funcOpts.dataName = "是否为县级卫健委重点专科"
     w3 = @getData(funcOpts)
     funcOpts.dataName = "是否为县级中医药局重点专科"
     z3 = @getData(funcOpts)
-    funcOpts.dataName = "是否为县级市教育局或科技局重点学科或实验室"
-    k4 = @getData(funcOpts)
+
     score = 0
     score += switch
+      when k10 then 10
+      when w9 or z9 then 9
       when k8 then 8
       when w7 or z7 then 7
       when k6 then 6
