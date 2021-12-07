@@ -75,6 +75,7 @@ class 项目别名库 extends 别名库
         sheetStubs: true
         needToRewrite: false
         rebuild: false
+        saveAs: false
         unwrap: true 
         renaming: @normalKeyName
       }
@@ -170,6 +171,7 @@ class NormalCaseSingleton extends CaseSingleton
       sheetStubs: true
       needToRewrite: true
       unwrap: true 
+      saveAs: false # 是否更名以免覆盖源文件
       renaming: @normalKeyName
     }
 
@@ -213,6 +215,7 @@ class 项目设置 extends 指标体系
 
   @saveExcel: (funcOpts={}) ->
     opts = @options()
+    opts.saveAs = true
     json= @dbValue()
     opts.data = [
       
@@ -225,7 +228,7 @@ class 项目设置 extends 指标体系
         content:({
           数据名: key 
           权重: value.权重
-        } for key, value of json.一级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+        } for key, value of json.一级指标设置).sort((a,b)-> if b.权重 < a.权重 then -1 else 1)
       },
 
       {
@@ -239,7 +242,7 @@ class 项目设置 extends 指标体系
           数据名: key 
           权重: value.权重
           上级指标: value.上级指标
-        } for key, value of json.二级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+        } for key, value of json.二级指标设置).sort((a,b)-> if b.上级指标 > a.上级指标 then -1 else 1)
       },
       
       {
@@ -267,7 +270,7 @@ class 项目设置 extends 指标体系
           三级综合: value.三级综合
           二级综合: value.二级综合
           计量单位: value.计量单位
-        } for key, value of json.三级指标设置).sort((a,b)-> if b.数据名 > a.数据名 then -1 else 1)
+        } for key, value of json.三级指标设置).sort((a,b)-> if b.上级指标 > a.上级指标 then -1 else 1)
       },
       
       {
@@ -1682,7 +1685,7 @@ class 生成器 extends CaseSingleton
   @setUpSystem: ->
     this
       .settingsFromExcel()
-      #.saveSettingsExcel()
+      .saveSettingsExcel()
 
     return this
 

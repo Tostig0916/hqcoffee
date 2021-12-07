@@ -159,7 +159,10 @@ class JSONSimple  # with no dependences to stormdb
 
 	
 	@getExcelFilename: (funcOpts={}) ->
-		{dirname,outfolder,folder='data', basename, basenameOnly} = funcOpts
+		{dirname,outfolder,folder='data', basename, basenameOnly,saveAs} = funcOpts
+		if saveAs
+			basename = "#{basename}_bu"
+
 		p = if dirname?
 			path.join(dirname, if basenameOnly then basename else "#{basename}.xlsx")
 		else
