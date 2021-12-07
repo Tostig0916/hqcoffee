@@ -248,7 +248,7 @@ class 项目设置 extends 指标体系
           {label:'数据名', value:'数据名'}
           {label:'权重',value:'权重'}
           {label:'上级指标', value:'上级指标'}
-          {label:'适用范围', value:'适用范围'}
+          {label:'院科通', value:'院科通'}
           {label:'指标导向', value:'指标导向'}
           {label:'计量单位', value:'计量单位'}
           {label:'指标来源', value:'指标来源'}
@@ -274,12 +274,12 @@ class 项目设置 extends 指标体系
         sheet:'科室设置'
         columns: [
           {label:'数据名', value:'数据名'}
-          {label:'选项', value:'选项'}
+          {label:'内外全', value:'内外全'}
         ]
         content: ({
           数据名: key
-          选项: value.选项
-        } for key, value of json.科室设置).sort((a,b)-> if b.选项 > a.选项 then -1 else 1)
+          内外全: value.内外全
+        } for key, value of json.科室设置).sort((a,b)-> if b.内外全 > a.内外全 then -1 else 1)
       }
     ]
     opts.settings = {
@@ -543,7 +543,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [1,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.院科通 in [1,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -555,7 +555,7 @@ class 项目指标填报表 extends 指标体系
       }
     ]
 
-    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,3] #[1,2,3]
+    for 科室名, 科室 of 科室设置 when 科室.内外全 in [1,3] #[1,2,3]
       opts.data.push {
         sheet: 科室名
         columns:[
@@ -568,7 +568,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [2,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.院科通 in [2,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch

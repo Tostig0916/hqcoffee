@@ -237,7 +237,8 @@ class 项目设置 extends 指标体系
           {label:'数据名', value:'数据名'}
           {label:'权重',value:'权重'}
           {label:'上级指标', value:'上级指标'}
-          {label:'适用范围', value:'适用范围'}
+          {label:'院科通', value:'院科通'}
+          {label:'指或数', value:'指或数'}
           {label:'指标导向', value:'指标导向'}
           {label:'计量单位', value:'计量单位'}
           {label:'指标来源', value:'指标来源'}
@@ -250,7 +251,8 @@ class 项目设置 extends 指标体系
           数据名: key 
           权重: value.权重
           上级指标: value.上级指标
-          适用范围: value.适用范围
+          院科通: value.院科通
+          指或数: value.指或数
           指标导向: value.指标导向
           计量单位: value.计量单位
           指标来源: value.指标来源
@@ -265,12 +267,12 @@ class 项目设置 extends 指标体系
         sheet:'科室设置'
         columns: [
           {label:'数据名', value:'数据名'}
-          {label:'选项', value:'选项'}
+          {label:'内外全', value:'内外全'}
         ]
         content: ({
           数据名: key
-          选项: value.选项
-        } for key, value of json.科室设置).sort((a,b)-> if b.选项 > a.选项 then -1 else 1)
+          内外全: value.内外全
+        } for key, value of json.科室设置).sort((a,b)-> if b.内外全 > a.内外全 then -1 else 1)
       }
     ]
     opts.settings = {
@@ -490,7 +492,7 @@ class 一级指标对应三级指标 extends 指标体系
 class 三级指标对应二级指标 extends 指标体系
   @dataPrepare: ->
     @dbClear()
-    for key, obj of 项目设置.dbValue("三级指标设置")
+    for key, obj of 项目设置.dbValue("三级指标设置") when obj.指或数 is '指'
       @dbSet(key, obj.上级指标)
     @dbSave()
 
@@ -534,7 +536,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 isnt '科') and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.院科通 isnt '科') and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -546,7 +548,7 @@ class 项目指标填报表 extends 指标体系
       }
     ]
 
-    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,2,3]
+    for 科室名, 科室 of 科室设置
       opts.data.push {
         sheet: 科室名
         columns:[
@@ -559,7 +561,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 isnt '院') and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.院科通 isnt '院') and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -1032,13 +1034,15 @@ class 原始资料库 extends 资料库
   @getData: (funcOpts) ->
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName,dataName} = funcOpts
-    适用范围 = 项目设置.dbValue('三级指标设置')[dataName].适用范围
-    科室设置 = 项目设置.dbValue('科室设置')
+    三级指标设置 = 项目设置.dbValue('三级指标设置')#(customGrade)
+    院科通 = 三级指标设置[dataName].院科通
+    类型 = 三级指标设置[customGrade]
+    #return unless /(自|考|监|审)/i.test(类型)
     
     if entityName is '医院'
-      return if '科' is 适用范围
+      return if 院科通 is '科'
     else
-      return if '院' is 适用范围
+      return if 院科通 is '院'
 
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
@@ -1442,7 +1446,7 @@ class 对标指标资料库 extends 资料库
           @dbSet("#{entityName}.#{dataName}.#{key}", otherData) if existNumber(otherData)
 
         # 注意,仅在有对标项时,才会保存数据库
-        if (newData = @db().get(entityName).get(dataName).value())?
+        if (newData = @db().get(entityName).value()?[dataName])?
           invalid = (data) -> 
             unless data[year_1]?
               return true
