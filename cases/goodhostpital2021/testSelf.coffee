@@ -249,13 +249,15 @@ class 项目设置 extends 指标体系
         content: ({
           数据名: key 
           权重: value.权重
-          指标导向: value.指标导向
           上级指标: value.上级指标
+          适用范围: value.适用范围
+          指标导向: value.指标导向
+          计量单位: value.计量单位
           指标来源: value.指标来源
           三级中医: value.三级中医
           三级综合: value.三级综合
           二级综合: value.二级综合
-          计量单位: value.计量单位
+          指标说明: value.指标说明
         } for key, value of json.三级指标设置).sort((a,b)-> if b.上级指标 > a.上级指标 then -1 else 1)
       },
       
@@ -532,7 +534,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [1,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.适用范围 isnt '科') and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -544,7 +546,7 @@ class 项目指标填报表 extends 指标体系
       }
     ]
 
-    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,3] #[1,2,3]
+    for 科室名, 科室 of 科室设置 when 科室.选项 in [1,2,3]
       opts.data.push {
         sheet: 科室名
         columns:[
@@ -557,7 +559,7 @@ class 项目指标填报表 extends 指标体系
           {label:'指标说明',value:'指标说明'}
         ]
         content: (value for key, value of json \
-        when (value.适用范围 in [2,3]) and /(自|考|审|监)/.test(value[customGrade])).sort(
+        when (value.适用范围 isnt '院') and /(自|考|审|监)/.test(value[customGrade])).sort(
           (a,b)-> switch 
             when b.上级指标 > a.上级指标 then -1
             when b.上级指标 is a.上级指标 then switch
@@ -1030,6 +1032,14 @@ class 原始资料库 extends 资料库
   @getData: (funcOpts) ->
     # 分别为单位(医院,某科),数据名,以及年度
     {entityName,dataName} = funcOpts
+    适用范围 = 项目设置.dbValue('三级指标设置')[dataName].适用范围
+    科室设置 = 项目设置.dbValue('科室设置')
+    
+    if entityName is '医院'
+      return if '科' is 适用范围
+    else
+      return if '院' is 适用范围
+
     funcOpts.storm_db = @db()
     funcOpts.dbItem = @db().get(entityName)
 
