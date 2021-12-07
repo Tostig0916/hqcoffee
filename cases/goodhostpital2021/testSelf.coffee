@@ -1693,7 +1693,7 @@ class 生成器 extends CaseSingleton
 
       .checkForAllIndicators()
       #.showProperties()
-      .localReportDataPreParing()
+      .localReportDataPreparing()
       .compareReportDataPreparing()
     
     return this
@@ -1804,7 +1804,7 @@ class 生成器 extends CaseSingleton
 
 
 
-  @localReportDataPreParing: ->
+  @localReportDataPreparing: ->
     院内指标资料库.rawDataToIndicators()
 
     院内各科指标简单排序.dataPrepare()
